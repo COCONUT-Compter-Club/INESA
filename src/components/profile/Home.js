@@ -273,7 +273,7 @@ const Home = () => {
     }
     setSedangMencariNIK(true);
     try {
-      const response = await fetch(`http://192.168.1.85:8080/api/request/warga/${nik}`);
+      const response = await fetch(`https://www.inesa.web.id:8089/api/request/warga/${nik}`);
       const responseText = await response.text();
       if (!response.ok) {
         if (response.status === 404) {
