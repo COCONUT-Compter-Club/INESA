@@ -1,0 +1,70 @@
+.navbar {
+  box-shadow: none !important;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0 !important;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-right: 2rem;
+}
+
+.logo-image {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.logo-text {
+  font-weight: 700 !important;
+  color: white !important;
+}
+
+.navbar-button {
+  margin: 0 1rem !important;
+  font-weight: 500 !important;
+  text-transform: capitalize !important;
+  color: white !important;
+  transition: all 0.3s ease;
+  font-size: 0.8rem !important;
+}
+
+.navbar-button:hover {
+  opacity: 0.8;
+  transform: translateY(-2px);
+  transition-duration: 500ms;
+}
+
+.login-button {
+  margin-left: 2rem !important;
+  font-weight: 600 !important;
+  padding: 8px 24px !important;
+  border-radius: 4px !important;
+  text-transform: capitalize !important;
+  box-shadow: none !important;
+}
+
+/* Mobile styles */
+@media (max-width: 900px) {
+  .logo-text {
+    display: none;
+  }
+  
+  .logo-image {
+    height: 30px;
+  }
+  
+  .toolbar {
+    padding: 0.5rem 1rem !important;
+  }
+}
+
+/* Make sure links don't have underline */
+a {
+  text-decoration: none !important;
+}

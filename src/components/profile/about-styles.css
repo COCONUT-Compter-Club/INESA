@@ -1,0 +1,39 @@
+.about-content-background {
+  /* background-color: #333333; */
+  padding-top: var(--spacing-12);
+  padding-bottom: var(--spacing-12);
+  color: black;
+
+  /* background: radial-gradient(circle at top,transparent 60%, #1c6aa2 61%,#1c6aa2 66%, transparent 67%),radial-gradient(circle at bottom,transparent 60%, #1c6aa2 61%,#1c6aa2 66%, transparent 67%),radial-gradient(circle at left,transparent 60%, #1c6aa2 61%,#1c6aa2 66%, transparent 67%),radial-gradient(circle at right,transparent 60%, #1c6aa2 61%,#1c6aa2 66%, transparent 67%);
+  background-size: 1em 1em;
+  background-color: #ffffff; */
+  /* opacity: 0.7 */
+}
+
+.about-image-container {
+  background-image: url("https://awsimages.detik.net.id/community/media/visual/2023/03/13/tari-pakarena_169.jpeg?w=1200");
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 25px;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 400px;
+}
+
+@media screen and (min-width: 768px) {
+  .about-content-background {
+    padding-top: var(--spacing-8);
+    padding-bottom: var(--spacing-8);
+  }
+
+  .about-content .text-container {
+    max-width: 720px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .about-content .text-container {
+    padding-left: var(--spacing-12);
+    max-width: 400px;
+  }
+}

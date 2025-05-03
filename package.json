@@ -1,0 +1,41 @@
+{
+    "name": "ui-sekretaris-next",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev -p 3000",
+        "build": "next build",
+        "start": "next start -p 3000",
+        "lint": "next lint"
+    },
+    "devDependencies": {
+        "eslint": "^8",
+        "eslint-config-next": "14.1.0",
+        "postcss": "^8"
+    },
+    "dependencies": {
+        "@emotion/react": "^11.10.5",
+        "@emotion/styled": "^11.10.5",
+        "@mui/icons-material": "^5.11.0",
+        "@mui/material": "^5.11.0",
+        "@mui/x-date-pickers": "^5.0.12",
+        "axios": "^1.9.0",
+        "date-fns": "^2.30.0",
+        "dayjs": "^1.11.13",
+        "framer-motion": "^12.9.2",
+        "html2pdf": "^0.0.11",
+        "html2pdf.js": "^0.10.3",
+        "js-cookie": "^3.0.5",
+        "jspdf": "^3.0.1",
+        "jspdf-autotable": "^5.0.2",
+        "material": "^0.9.23",
+        "mui": "^0.0.1",
+        "next": "^15.3.1",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "react-hook-form": "^7.56.1",
+        "react-material-ui-carousel": "^3.4.2",
+        "react-type-animation": "^3.2.0",
+        "xlsx": "^0.18.5"
+    }
+}

@@ -1,0 +1,79 @@
+.App {
+  background-image: url('/desa.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  position: relative;
+}
+
+.App::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: -1;
+}
+
+.page-background {
+  position: relative;
+  z-index: 1;
+}
+
+.home-content {
+  display: flex;
+  align-items: center;
+  justifyContent: center;
+}
+
+.left-content {
+  max-width: 500px;
+}
+
+.image-credit {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.image-credit a {
+  color: #0284c7;
+  text-decoration: none;
+}
+
+.image-credit a:hover {
+  text-decoration: underline;
+}
+
+.faq-container {
+  max-width: 700px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+}
+
+.faq-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.faq-question {
+  font-weight: 500;
+}
+
+.faq-answer {
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .home-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .left-content {
+    max-width: 100%;
+  }
+}
