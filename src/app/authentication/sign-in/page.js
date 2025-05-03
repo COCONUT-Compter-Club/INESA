@@ -90,7 +90,7 @@ export default function SignIn() {
         const logoPath = localStorage.getItem('logo');
         if (logoPath) {
           const decodedLogoPath = decodeURIComponent(logoPath);
-          setLogoUrl(`http://www.inesa.web.id/${decodedLogoPath}`);
+          setLogoUrl(`https://www.inesa.web.id/${decodedLogoPath}`);
         }
       } finally {
         setContentLoading(false);
@@ -126,7 +126,7 @@ export default function SignIn() {
     }
 
     try {
-      const response = await fetch('http://www.inesa.web.id/api/user/login', {
+      const response = await fetch('https://www.inesa.web.id/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nikadmin, password }),
@@ -190,7 +190,7 @@ export default function SignIn() {
     }
 
     try {
-      const response = await fetch('http://www.inesa.web.id/api/user/forgot-password', {
+      const response = await fetch('https://www.inesa.web.id/api/user/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail }),
