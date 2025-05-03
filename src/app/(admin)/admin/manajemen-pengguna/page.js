@@ -1,14 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Box, Typography, Card, CardContent, IconButton, Tooltip, Alert, Fade,
-  CircularProgress
-} from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import PeopleIcon from '@mui/icons-material/People'
+import {
+  Alert,
+  Box,
+  Card, CardContent,
+  CircularProgress,
+  Fade,
+  IconButton,
+  Paper,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Tooltip,
+  Typography
+} from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { useEffect, useState } from 'react'
 
 const StyledCard = styled(Card)(({ theme }) => ({
   backgroundColor: '#ffffff',
@@ -72,7 +79,7 @@ export default function ManajemenPengguna() {
 
       setLoading(true)
       console.log('[FETCH] Mengambil data pengguna dengan token:', token)
-      const res = await fetch('http://192.168.1.85:8080/api/users', {
+      const res = await fetch('https://www.inesa.web.id:8089/api/users', {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -127,7 +134,7 @@ export default function ManajemenPengguna() {
 
       setLoading(true)
       console.log('[DELETE] Menghapus pengguna dengan ID:', id)
-      const res = await fetch(`http://192.168.1.85:8080/api/deleteusers/${id}`, {
+      const res = await fetch(`https://www.inesa.web.id:8089/api/deleteusers/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

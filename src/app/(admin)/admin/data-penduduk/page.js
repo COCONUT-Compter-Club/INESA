@@ -1,17 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box,
-  Typography, Card, CardContent, IconButton, Tooltip, Alert, Fade,
-  CircularProgress, MenuItem
-} from '@mui/material'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
 import PeopleIcon from '@mui/icons-material/People'
+import {
+  Alert,
+  Box,
+  Button,
+  Card, CardContent,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fade,
+  IconButton,
+  MenuItem,
+  Paper,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { useEffect, useState } from 'react'
 
 const StyledCard = styled(Card)(({ theme }) => ({
   backgroundColor: '#ffffff',
@@ -113,7 +126,7 @@ export default function DataPenduduk() {
         return
       }
       console.log('[FETCH] Mengambil data warga dengan token:', token)
-      const res = await fetchWithTimeout('http://192.168.1.85:8080/api/warga', {
+      const res = await fetchWithTimeout('https://www.inesa.web.id:8089/api/warga', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -240,7 +253,7 @@ export default function DataPenduduk() {
         return
       }
       console.log('[DELETE] Menghapus data dengan ID:', id)
-      const res = await fetchWithTimeout(`http://192.168.1.85:8080/api/warga/${id}`, {
+      const res = await fetchWithTimeout(`https://www.inesa.web.id:8089/api/warga/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -342,7 +355,7 @@ export default function DataPenduduk() {
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
-      const endpoint = editingId ? `http://192.168.1.85:8080/api/warga/${editingId}` : 'http://192.168.1.85:8080/api/warga'
+      const endpoint = editingId ? `https://www.inesa.web.id:8089/api/warga/${editingId}` : 'https://www.inesa.web.id:8089/api/warga'
       const method = editingId ? 'PUT' : 'POST'
       const dataToSend = {
         ...formData,

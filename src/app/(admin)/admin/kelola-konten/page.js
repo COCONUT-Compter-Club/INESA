@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import {
-  TextField,
-  Button,
-  Typography,
+  Alert,
   Box,
+  Button,
   Container,
   Snackbar,
-  Alert
+  TextField,
+  Typography
 } from '@mui/material';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const WebsiteContentPage = () => {
   const [formData, setFormData] = useState({
@@ -43,7 +43,7 @@ const WebsiteContentPage = () => {
           throw new Error('Token tidak ditemukan, silakan login kembali');
         }
         console.log('[FETCH] Mengambil konten dengan token:', token);
-        const res = await axios.get('http://192.168.1.85:8080/api/content', {
+        const res = await axios.get('https://www.inesa.web.id:8089/api/content', {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -140,7 +140,7 @@ const WebsiteContentPage = () => {
         throw new Error('Token tidak ditemukan, silakan login kembali');
       }
       console.log('[SUBMIT] Mengirim data ke /api/content');
-      await axios.put('http://192.168.1.85:8080/api/content', formToSend, {
+      await axios.put('https://www.inesa.web.id:8089/api/content', formToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -152,7 +152,7 @@ const WebsiteContentPage = () => {
       setLogoFile(null);
 
       // Refresh data after save
-      const res = await axios.get('http://192.168.1.85:8080/api/content', {
+      const res = await axios.get('https://www.inesa.web.id:8089/api/content', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -192,7 +192,7 @@ const WebsiteContentPage = () => {
         <Box sx={{ textAlign: 'center', mb: 2 }}>
           {formData.logo && !imgError ? (
             <img
-              src={`http://192.168.1.85:8080/${formData.logo}`}
+              src={`https://www.inesa.web.id:8089/${formData.logo}`}
               alt="Logo Website"
               style={{ maxHeight: 100, objectFit: 'contain' }}
               onError={() => setImgError(true)}

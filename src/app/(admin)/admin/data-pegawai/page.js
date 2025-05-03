@@ -1,18 +1,34 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-  Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box,
-  Typography, Card, CardContent, IconButton, Tooltip, Alert, Fade,
-  CircularProgress, Select, MenuItem, FormControl, InputLabel
-} from '@mui/material'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
-import PeopleIcon from '@mui/icons-material/People'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
+import PeopleIcon from '@mui/icons-material/People'
+import {
+  Alert,
+  Box,
+  Button,
+  Card, CardContent,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fade,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { useEffect, useState } from 'react'
 
 const StyledCard = styled(Card)(({ theme }) => ({
   backgroundColor: '#ffffff',
@@ -117,7 +133,7 @@ export default function DataPegawai() {
             'Content-Type': 'application/json'
           }
 
-      const res = await fetchWithTimeout('http://192.168.1.85:8080/api/pegawai/getall', {
+      const res = await fetchWithTimeout('https://www.inesa.web.id:8089/api/pegawai/getall', {
         method: 'GET',
         headers,
         credentials: 'include'
@@ -211,7 +227,7 @@ export default function DataPegawai() {
     try {
       setLoading(true)
       const token = getCookie('token')
-      const res = await fetchWithTimeout(`http://192.168.1.85:8080/api/pegawai/getpegawaibyid/${row.id}`, {
+      const res = await fetchWithTimeout(`https://www.inesa.web.id:8089/api/pegawai/getpegawaibyid/${row.id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -262,7 +278,7 @@ export default function DataPegawai() {
         return
       }
       console.log('[DELETE] Menghapus data dengan ID:', id)
-      const res = await fetchWithTimeout(`http://192.168.1.85:8080/api/pegawai/delete/${id}`, {
+      const res = await fetchWithTimeout(`https://www.inesa.web.id:8089/api/pegawai/delete/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -333,7 +349,7 @@ export default function DataPegawai() {
         return
       }
 
-      const endpoint = editingId ? `http://192.168.1.85:8080/api/pegawai/update/${editingId}` : 'http://192.168.1.85:8080/api/pegawai/create'
+      const endpoint = editingId ? `https://www.inesa.web.id:8089/api/pegawai/update/${editingId}` : 'https://www.inesa.web.id:8089/api/pegawai/create'
       const method = editingId ? 'PUT' : 'POST'
 
       const formDataToSend = new FormData()
@@ -449,7 +465,7 @@ export default function DataPegawai() {
       }
       console.log('[ADMIN] Mengirim data:', payload)
 
-      const res = await fetchWithTimeout('http://192.168.1.85:8080/api/admin/create', {
+      const res = await fetchWithTimeout('https://www.inesa.web.id:8089/api/admin/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -570,7 +586,7 @@ export default function DataPegawai() {
                       <TableCell>
                         {row.foto && row.foto !== '-' ? (
                           <img
-                            src={`http://192.168.1.85:8080/${row.foto}`}
+                            src={`https://www.inesa.web.id:8089/${row.foto}`}
                             alt={`Foto ${row.namalengkap}`}
                             style={{
                               width: '50px',

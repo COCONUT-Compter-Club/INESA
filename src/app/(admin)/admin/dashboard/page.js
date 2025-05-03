@@ -1,24 +1,36 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import {
-  Box, Typography, Grid, Card, CardContent, CircularProgress, Fade, Chip, Button, Alert, Dialog, DialogTitle, DialogContent, DialogActions
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
-import { useRouter } from 'next/navigation'
-import Cookies from 'js-cookie'
-import PeopleIcon from '@mui/icons-material/People'
-import MaleIcon from '@mui/icons-material/Male'
-import FemaleIcon from '@mui/icons-material/Female'
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
-import MailIcon from '@mui/icons-material/Mail'
-import SendIcon from '@mui/icons-material/Send'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Link from '@mui/material/Link'
 import { API_ENDPOINTS, getHeaders } from '@/config/api'
 import { laporanService } from '@/services/laporanService'
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import AssignmentIcon from '@mui/icons-material/Assignment'
+import FemaleIcon from '@mui/icons-material/Female'
+import MailIcon from '@mui/icons-material/Mail'
+import MaleIcon from '@mui/icons-material/Male'
+import PeopleIcon from '@mui/icons-material/People'
+import SendIcon from '@mui/icons-material/Send'
+import {
+  Alert,
+  Box,
+  Button,
+  Card, CardContent,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fade,
+  Grid,
+  Typography
+} from '@mui/material'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
+import Link from '@mui/material/Link'
+import { styled } from '@mui/material/styles'
+import Cookies from 'js-cookie'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 // Styled Components
 const DashboardCard = styled(Card)(({ theme }) => ({
@@ -128,7 +140,7 @@ export default function Dashboard() {
       // Fetch data penduduk (langsung ke endpoint yang benar)
       let pendudukData = { total: 0, laki: 0, perempuan: 0 }
       try {
-        pendudukData = await fetchWithTimeout('http://192.168.1.85:8080/api/dashboard/stats', {
+        pendudukData = await fetchWithTimeout('https://www.inesa.web.id:8089/api/dashboard/stats', {
           headers,
           credentials: 'include',
         })
