@@ -126,7 +126,7 @@ export default function DataPenduduk() {
         return
       }
       console.log('[FETCH] Mengambil data warga dengan token:', token)
-      const res = await fetchWithTimeout('https://www.inesa.web.id:8089/api/warga', {
+      const res = await fetchWithTimeout('https://www.inesa.web.id/api/warga', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -253,7 +253,7 @@ export default function DataPenduduk() {
         return
       }
       console.log('[DELETE] Menghapus data dengan ID:', id)
-      const res = await fetchWithTimeout(`https://www.inesa.web.id:8089/api/warga/${id}`, {
+      const res = await fetchWithTimeout(`https://www.inesa.web.id/api/warga/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -355,7 +355,7 @@ export default function DataPenduduk() {
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
-      const endpoint = editingId ? `https://www.inesa.web.id:8089/api/warga/${editingId}` : 'https://www.inesa.web.id:8089/api/warga'
+      const endpoint = editingId ? `https://www.inesa.web.id/api/warga/${editingId}` : 'https://www.inesa.web.id/api/warga'
       const method = editingId ? 'PUT' : 'POST'
       const dataToSend = {
         ...formData,

@@ -133,7 +133,7 @@ export default function DataPegawai() {
             'Content-Type': 'application/json'
           }
 
-      const res = await fetchWithTimeout('https://www.inesa.web.id:8089/api/pegawai/getall', {
+      const res = await fetchWithTimeout('https://www.inesa.web.id/api/pegawai/getall', {
         method: 'GET',
         headers,
         credentials: 'include'
@@ -227,7 +227,7 @@ export default function DataPegawai() {
     try {
       setLoading(true)
       const token = getCookie('token')
-      const res = await fetchWithTimeout(`https://www.inesa.web.id:8089/api/pegawai/getpegawaibyid/${row.id}`, {
+      const res = await fetchWithTimeout(`https://www.inesa.web.id/api/pegawai/getpegawaibyid/${row.id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -278,7 +278,7 @@ export default function DataPegawai() {
         return
       }
       console.log('[DELETE] Menghapus data dengan ID:', id)
-      const res = await fetchWithTimeout(`https://www.inesa.web.id:8089/api/pegawai/delete/${id}`, {
+      const res = await fetchWithTimeout(`https://www.inesa.web.id/api/pegawai/delete/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -349,7 +349,7 @@ export default function DataPegawai() {
         return
       }
 
-      const endpoint = editingId ? `https://www.inesa.web.id:8089/api/pegawai/update/${editingId}` : 'https://www.inesa.web.id:8089/api/pegawai/create'
+      const endpoint = editingId ? `https://www.inesa.web.id/api/pegawai/update/${editingId}` : 'https://www.inesa.web.id/api/pegawai/create'
       const method = editingId ? 'PUT' : 'POST'
 
       const formDataToSend = new FormData()
@@ -465,7 +465,7 @@ export default function DataPegawai() {
       }
       console.log('[ADMIN] Mengirim data:', payload)
 
-      const res = await fetchWithTimeout('https://www.inesa.web.id:8089/api/admin/create', {
+      const res = await fetchWithTimeout('https://www.inesa.web.id/api/admin/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -586,7 +586,7 @@ export default function DataPegawai() {
                       <TableCell>
                         {row.foto && row.foto !== '-' ? (
                           <img
-                            src={`https://www.inesa.web.id:8089/${row.foto}`}
+                            src={`https://www.inesa.web.id/${row.foto}`}
                             alt={`Foto ${row.namalengkap}`}
                             style={{
                               width: '50px',

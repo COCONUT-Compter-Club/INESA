@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const NGROK_URL = 'https://www.inesa.web.id:8087';
+const NGROK_URL = 'https://www.inesa.web.id';
 
 const nextConfig = {
   images: {
