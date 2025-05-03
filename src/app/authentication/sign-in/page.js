@@ -57,7 +57,7 @@ export default function SignIn() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const res = await fetch('http://www.inesa.web.id:8089/api/content', {
+        const res = await fetch('https://www.inesa.web.id:8089/api/content', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
