@@ -1,24 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
+  Alert,
   Box,
   Button,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  InputAdornment,
+  Paper,
   TextField,
   Typography,
-  Container,
-  Paper,
-  Alert,
-  InputAdornment,
-  IconButton,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({ nikadmin: '', password: '' });
@@ -57,7 +57,7 @@ export default function SignIn() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const res = await fetch('http://192.168.1.85:8080/api/content', {
+        const res = await fetch('http://www.inesa.web.id:8089/api/content', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export default function SignIn() {
         const data = result.data ? result.data : result;
 
         if (data.logo) {
-          setLogoUrl(`http://192.168.1.85:8080/${data.logo}`);
+          setLogoUrl(`http://www.inesa.web.id:8089/${data.logo}`);
           localStorage.setItem('logo', data.logo);
         } else {
           setLogoUrl('/image.png');
@@ -90,7 +90,7 @@ export default function SignIn() {
         const logoPath = localStorage.getItem('logo');
         if (logoPath) {
           const decodedLogoPath = decodeURIComponent(logoPath);
-          setLogoUrl(`http://192.168.1.85:8080/${decodedLogoPath}`);
+          setLogoUrl(`http://www.inesa.web.id:8089/${decodedLogoPath}`);
         }
       } finally {
         setContentLoading(false);
@@ -126,7 +126,7 @@ export default function SignIn() {
     }
 
     try {
-      const response = await fetch('http://192.168.1.85:8080/api/user/login', {
+      const response = await fetch('http://www.inesa.web.id:8089/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nikadmin, password }),
@@ -190,7 +190,7 @@ export default function SignIn() {
     }
 
     try {
-      const response = await fetch('http://192.168.1.85:8080/api/user/forgot-password', {
+      const response = await fetch('http://www.inesa.web.id:8089/api/user/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail }),

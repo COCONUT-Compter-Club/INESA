@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, Suspense } from 'react' // Tambahkan Suspense
-import { useSearchParams, useRouter } from 'next/navigation'
 import {
-  Box,
-  Typography,
-  TextField,
-  Button,
   Alert,
+  Box,
+  Button,
   CircularProgress,
+  TextField,
+  Typography,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useState } from 'react'; // Tambahkan Suspense
 
 // Komponen utama untuk halaman reset password
 function ResetPasswordContent() {
@@ -39,7 +39,7 @@ function ResetPasswordContent() {
 
     try {
       setLoading(true)
-      const response = await fetch(`http://192.168.1.85:8080/api/user/reset-password?token=${token}`, {
+      const response = await fetch(`http://www.inesa.web.id:8089/api/user/reset-password?token=${token}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
