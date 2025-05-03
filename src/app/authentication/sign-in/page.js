@@ -57,7 +57,7 @@ export default function SignIn() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const res = await fetch('https://www.inesa.web.id:8089/api/content', {
+        const res = await fetch('https://www.inesa.web.id/api/content', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export default function SignIn() {
         const data = result.data ? result.data : result;
 
         if (data.logo) {
-          setLogoUrl(`http://www.inesa.web.id:8089/${data.logo}`);
+          setLogoUrl(`http://www.inesa.web.id/${data.logo}`);
           localStorage.setItem('logo', data.logo);
         } else {
           setLogoUrl('/image.png');
@@ -90,7 +90,7 @@ export default function SignIn() {
         const logoPath = localStorage.getItem('logo');
         if (logoPath) {
           const decodedLogoPath = decodeURIComponent(logoPath);
-          setLogoUrl(`http://www.inesa.web.id:8089/${decodedLogoPath}`);
+          setLogoUrl(`http://www.inesa.web.id/${decodedLogoPath}`);
         }
       } finally {
         setContentLoading(false);
@@ -126,7 +126,7 @@ export default function SignIn() {
     }
 
     try {
-      const response = await fetch('http://www.inesa.web.id:8089/api/user/login', {
+      const response = await fetch('http://www.inesa.web.id/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nikadmin, password }),
@@ -190,7 +190,7 @@ export default function SignIn() {
     }
 
     try {
-      const response = await fetch('http://www.inesa.web.id:8089/api/user/forgot-password', {
+      const response = await fetch('http://www.inesa.web.id/api/user/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail }),
