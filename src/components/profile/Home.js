@@ -1,31 +1,30 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '@/config/api';
+import { Close as CloseIcon, Description as DescriptionIcon, Send as SendIcon } from '@mui/icons-material';
 import {
   Box,
-  Container,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Typography,
   Card,
-  Grid,
-  Divider,
-  IconButton,
   CircularProgress,
+  Container,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
 } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { TypeAnimation } from 'react-type-animation';
-import { Description as DescriptionIcon, Send as SendIcon, Close as CloseIcon } from '@mui/icons-material';
 import './styles.css';
-import { API_ENDPOINTS, getHeaders } from '@/config/api';
 
 const Notification = ({ pesan, tipe, onTutup }) => {
   useEffect(() => {
@@ -639,8 +638,8 @@ const Home = () => {
                         <MenuItem value="Surat Keterangan Usaha">Surat Keterangan Usaha</MenuItem>
                         <MenuItem value="Surat Keterangan Pindah">Surat Keterangan Pindah</MenuItem>
                         <MenuItem value="Surat Pengantar">Surat Pengantar</MenuItem>
-                        <MenuItem value="Surat Keterangan Kelahiran">Surat Keterangan Kelahiran</MenuItem>
-                        <MenuItem value="Surat Keterangan Kematian">Surat Keterangan Kematian</MenuItem>
+                        {/* <MenuItem value="Surat Keterangan Kelahiran">Surat Keterangan Kelahiran</MenuItem>
+                        <MenuItem value="Surat Keterangan Kematian">Surat Keterangan Kematian</MenuItem> */}
                       </Select>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontSize: '0.75rem' }}>
                         Contoh: Surat Keterangan Tidak Mampu
