@@ -412,7 +412,7 @@ export default function SuratMasuk() {
                 </Typography>
                 {(previewFile || existingFile) && (
                   <a
-                    href={previewFile || `http://192.168.1.85:8088${existingFile.replace(/^\./, '')}`}
+                    href={previewFile || `http://localhost:8088${existingFile.replace(/^\./, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
