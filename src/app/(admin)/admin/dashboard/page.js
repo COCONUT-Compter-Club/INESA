@@ -208,7 +208,7 @@ export default function Dashboard() {
         totalPengeluaran: pengeluaranData.total || 0,
         suratMasuk: suratMasukData.length || 0,
         suratKeluar: suratKeluarData.length || 0,
-        permohonanSurat: permohonanSuratData.length || 0,
+        permohonanSurat: permohonanSuratData.length || 0, // Updated to use length of permohonanSuratData
       })
     } catch (error) {
       console.error('[FETCH] Gagal mengambil data statistik:', error)
