@@ -1,4 +1,4 @@
-import { getHeaders } from '@/config/api/bendahara'
+import { getHeaders } from '@/config/api'
 import Cookies from 'js-cookie'
 
 export const laporanService = {
