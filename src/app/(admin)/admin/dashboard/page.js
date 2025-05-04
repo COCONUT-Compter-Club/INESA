@@ -208,7 +208,7 @@ export default function Dashboard() {
         totalPengeluaran: pengeluaranData.total || 0,
         suratMasuk: suratMasukData.length || 0,
         suratKeluar: suratKeluarData.length || 0,
-        permohonanSurat: permohonanSuratData.length || 0, // Updated to use length of permohonanSuratData
+        permohonanSurat: permohonanSuratData.length || 0, 
       })
     } catch (error) {
       console.error('[FETCH] Gagal mengambil data statistik:', error)
@@ -410,20 +410,20 @@ export default function Dashboard() {
                       <StatCard>
                         <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <StatIcon>
-                              {item.jenis === 'Surat Masuk' ? (
-                                <MailIcon sx={{ fontSize: 24, color: '#3b82f6' }} />
-                              ) : item.jenis === 'Surat Keluar' ? (
-                                <SendIcon sx={{ fontSize: 24, color: '#f59e0b' }} />
-                              ) : (
-                                <AssignmentIcon sx={{ fontSize: 24, color: '#10b981' }} />
-                              )}
-                            </StatIcon>
+                          <StatIcon>
+  {item.jenis === 'Surat Masuk' ? (
+    <MailIcon sx={{ fontSize: 24, color: '#3b82f6' }} />
+  ) : item.jenis === 'Surat Keluar' ? (
+    <SendIcon sx={{ fontSize: 24, color: '#f59e0b' }} />
+  ) : item.jenis === 'Permohonan Surat' ? (
+    <AssignmentIcon sx={{ fontSize: 24, color: '#10b981' }} />
+  ) : null}
+</StatIcon>
                             <Box>
                               <TextNoCursor variant="body1" color="textSecondary">
                                 {item.jenis}
                               </TextNoCursor>
-                              <TextNoCursor variant="h5" sx={{ fontWeight: 700, color: item.jenis === 'Surat Masuk' ? '#3b82f6' : item.jenis === 'Surat Keluar' ? '#f59e0b' : '#10b981' }}>
+                              <TextNoCursor variant="h5" sx={{ fontWeight: 700, color: item.jenis === 'Surat Masuk' ? '#3b82f6' : item.jenis === 'Surat Keluar' ? '#f59e0b' : item.jenis === 'Permohonan Surat' ? '#10b981' : '#10b981' }}>
                                 {item.jumlah}
                               </TextNoCursor>
                             </Box>
