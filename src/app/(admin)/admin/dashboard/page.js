@@ -140,7 +140,7 @@ export default function Dashboard() {
       // Fetch data penduduk (langsung ke endpoint yang benar)
       let pendudukData = { total: 0, laki: 0, perempuan: 0 }
       try {
-        pendudukData = await fetchWithTimeout('https://www.inesa.web.id/api/dashboard/stats', {
+        pendudukData = await fetchWithTimeout('https://bontomanai.inesa.id/api/dashboard/stats', {
           headers,
           credentials: 'include',
         })

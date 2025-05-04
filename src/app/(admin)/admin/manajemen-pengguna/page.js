@@ -79,7 +79,7 @@ export default function ManajemenPengguna() {
 
       setLoading(true)
       console.log('[FETCH] Mengambil data pengguna dengan token:', token)
-      const res = await fetch('https://www.inesa.web.id/api/users', {
+      const res = await fetch('https://bontomanai.inesa.id/api/users', {
         headers: { Authorization: `Bearer ${token}` }
       })
 
@@ -134,7 +134,7 @@ export default function ManajemenPengguna() {
 
       setLoading(true)
       console.log('[DELETE] Menghapus pengguna dengan ID:', id)
-      const res = await fetch(`https://www.inesa.web.id/api/deleteusers/${id}`, {
+      const res = await fetch(`https://bontomanai.inesa.id/api/deleteusers/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

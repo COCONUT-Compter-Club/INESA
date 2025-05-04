@@ -1,7 +1,7 @@
 // src/config/api.js
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://www.inesa.web.id/admin';
-const SEKRETARIS_API_BASE_URL = process.env.NEXT_PUBLIC_SEKRETARIS_API_BASE_URL || 'https://www.inesa.web.id/api/sekretaris';
-const PRODUCTION_API_BASE_URL = process.env.NEXT_PUBLIC_PRODUCTION_API_BASE_URL || 'https://www.inesa.web.id/api/bendahara';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://bontomanai.inesa.id/admin';
+const SEKRETARIS_API_BASE_URL = process.env.NEXT_PUBLIC_SEKRETARIS_API_BASE_URL || 'https://bontomanai.inesa.id/api/sekretaris';
+const PRODUCTION_API_BASE_URL = process.env.NEXT_PUBLIC_PRODUCTION_API_BASE_URL || 'https://bontomanai.inesa.id/api/bendahara';
 
 export const API_ENDPOINTS = {
   // Endpoint umum (autentikasi)

@@ -43,7 +43,7 @@ const WebsiteContentPage = () => {
           throw new Error('Token tidak ditemukan, silakan login kembali');
         }
         console.log('[FETCH] Mengambil konten dengan token:', token);
-        const res = await axios.get('https://www.inesa.web.id/api/content', {
+        const res = await axios.get('https://bontomanai.inesa.id/api/content', {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -140,7 +140,7 @@ const WebsiteContentPage = () => {
         throw new Error('Token tidak ditemukan, silakan login kembali');
       }
       console.log('[SUBMIT] Mengirim data ke /api/content');
-      await axios.put('https://www.inesa.web.id/api/content', formToSend, {
+      await axios.put('https://bontomanai.inesa.id/api/content', formToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -152,7 +152,7 @@ const WebsiteContentPage = () => {
       setLogoFile(null);
 
       // Refresh data after save
-      const res = await axios.get('https://www.inesa.web.id/api/content', {
+      const res = await axios.get('https://bontomanai.inesa.id/api/content', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -192,7 +192,7 @@ const WebsiteContentPage = () => {
         <Box sx={{ textAlign: 'center', mb: 2 }}>
           {formData.logo && !imgError ? (
             <img
-              src={`https://www.inesa.web.id/${formData.logo}`}
+              src={`https://bontomanai.inesa.id/${formData.logo}`}
               alt="Logo Website"
               style={{ maxHeight: 100, objectFit: 'contain' }}
               onError={() => setImgError(true)}
