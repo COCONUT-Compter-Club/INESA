@@ -196,9 +196,8 @@ export default function Dashboard() {
           headers,
           credentials: 'include',
         })
-
-        console.log('[DEBUG] Data Permohonan Surat:', permohonanSuratData); // Log data yang diterima
-  console.log('[DEBUG] Panjang Permohonan Surat:', permohonanSuratData.length); // Log panjang data
+        permohonanSuratData = Array.isArray(response.data) ? response.data : [];
+    
       } catch (error) {
         console.error('Error fetching permohonan surat:', error)
       }
