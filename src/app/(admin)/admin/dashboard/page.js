@@ -190,16 +190,15 @@ export default function Dashboard() {
       }
 
       // Fetch data permohonan surat menggunakan API_ENDPOINTS seperti Dashboard Sekretaris
-      let permohonanSuratData = []
+      let permohonanSuratData = [];
       try {
-        permohonanSuratData = await fetchWithTimeout(API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_GET_ALL, {
+        const response = await fetchWithTimeout(API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_GET_ALL, {
           headers,
           credentials: 'include',
-        })
-        permohonanSuratData = Array.isArray(response.data) ? response.data : [];
-    
+        });
+        permohonanSuratData = Array.isArray(response.data) ? response.data : Object.values(response.data);
       } catch (error) {
-        console.error('Error fetching permohonan surat:', error)
+        console.error('Gagal mengambil data permohonan surat:', error);
       }
 
       setStats({
