@@ -4,9 +4,12 @@ import { API_ENDPOINTS, getHeaders } from '@/config/api'
 import { laporanService } from '@/services/laporanService'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import AssignmentIcon from '@mui/icons-material/Assignment'
 import FemaleIcon from '@mui/icons-material/Female'
+import MailIcon from '@mui/icons-material/Mail'
 import MaleIcon from '@mui/icons-material/Male'
 import PeopleIcon from '@mui/icons-material/People'
+import SendIcon from '@mui/icons-material/Send'
 import {
   Alert,
   Box,
@@ -401,17 +404,36 @@ export default function Dashboard() {
                 <TextNoCursor variant="h5" sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
                   Statistik Surat
                 </TextNoCursor>
-                sx={{
-                fontWeight: 700,
-                color:
-                  item.jenis === 'Surat Masuk'
-                    ? '#3b82f6'
-                    : item.jenis === 'Surat Keluar'
-                    ? '#f59e0b'
-                    : item.jenis === 'Permohonan Surat'
-                    ? '#10b981'
-                    : '#10b981',
-              }}
+                <Grid container spacing={2}>
+                  {suratData.map((item) => (
+                    <Grid item xs={12} sm={6} md={4} key={item.jenis}>
+                      <StatCard>
+                        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <StatIcon>
+                              {item.jenis === 'Surat Masuk' ? (
+                                <MailIcon sx={{ fontSize: 24, color: '#3b82f6' }} />
+                              ) : item.jenis === 'Surat Keluar' ? (
+                                <SendIcon sx={{ fontSize: 24, color: '#f59e0b' }} />
+                              ) : (
+                                <AssignmentIcon sx={{ fontSize: 24, color: '#10b981' }} />
+                              )}
+                            </StatIcon>
+                            <Box>
+                              <TextNoCursor variant="body1" color="textSecondary">
+                                {item.jenis}
+                              </TextNoCursor>
+                              <TextNoCursor variant="h5" sx={{ fontWeight: 700, color: item.jenis === 'Surat Masuk' ? '#3b82f6' : item.jenis === 'Surat Keluar' ? '#f59e0b' : '#10b981' }}>
+                                {item.jumlah}
+                              </TextNoCursor>
+                            </Box>
+                          </Box>
+                         
+                        </CardContent>
+                      </StatCard>
+                    </Grid>
+                  ))}
+                </Grid>
               </Box>
             </>
           )}
