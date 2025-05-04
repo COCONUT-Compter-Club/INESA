@@ -39,7 +39,7 @@ function ResetPasswordContent() {
 
     try {
       setLoading(true)
-      const response = await fetch(`http://www.inesa.web.id/api/user/reset-password?token=${token}`, {
+      const response = await fetch(`http://bontomanai.inesa.id/api/user/reset-password?token=${token}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
