@@ -1,21 +1,37 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Box, Typography, Card, CardContent, IconButton, Tooltip,
-  Alert, CircularProgress, TablePagination, Chip, Avatar, Snackbar, DialogContentText
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { API_ENDPOINTS, getHeaders } from '@/config/api';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import DescriptionIcon from '@mui/icons-material/Description';
+import EditIcon from '@mui/icons-material/Edit';
+import {
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Card, CardContent,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Snackbar,
+  Table, TableBody, TableCell, TableContainer, TableHead,
+  TablePagination,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
-import { API_ENDPOINTS, getHeaders } from '@/config/api';
+import { useCallback, useEffect, useState } from 'react';
 
 // Styled components
 const StyledCard = styled(Card)({
@@ -271,7 +287,7 @@ export default function SuratKeluar() {
 
     if (row.file) {
       setExistingFile(row.file);
-      const backendBaseUrl = "http://192.168.1.85:8088";
+      const backendBaseUrl = "https://bontomanai.inesa.id";
       const filePath = row.file.startsWith(".") ? row.file.replace(".", "") : row.file;
       const previewUrl = `${backendBaseUrl}${filePath}`;
       setPreviewFile(previewUrl);
@@ -414,7 +430,7 @@ export default function SuratKeluar() {
                         <Tooltip title="Lihat File">
                           <IconButton
                             component="a"
-                            href={`http://192.168.1.85:8088/${row.file.replace(/^\./, '')}`}
+                            href={`http://localhost:8088/${row.file.replace(/^\./, '')}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
