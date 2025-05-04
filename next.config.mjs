@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const NGROK_URL = 'https://www.inesa.web.id';
+const NGROK_URL = 'https://www.inesa.web.id/api/bendahara';
 
 const nextConfig = {
   images: {
