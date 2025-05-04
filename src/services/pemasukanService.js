@@ -1,5 +1,4 @@
-import Cookies from 'js-cookie';
-import { format, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 
 // Fungsi untuk memformat tanggal dari datetime-local ke format backend
 const formatDateForBackend = (dateString) => {
@@ -48,7 +47,7 @@ export const pemasukanService = {
                 } : 'No file'
             }); // Enhanced debugging
 
-            const response = await fetch('/api/pemasukan/add', {
+            const response = await fetch('/api/bendahara/pemasukan/add', {
                 method: 'POST',
                 headers: {
                     'ngrok-skip-browser-warning': 'true'
@@ -106,7 +105,7 @@ export const pemasukanService = {
                 } : 'No file'
             }); // Enhanced debugging
 
-            const response = await fetch(`/api/pemasukan/update/${id}`, {
+            const response = await fetch(`/api/bendahara/pemasukan/update/${id}`, {
                 method: 'PUT',
                 headers: {
                     'ngrok-skip-browser-warning': 'true'
@@ -144,7 +143,7 @@ export const pemasukanService = {
                 throw new Error('ID tidak valid');
             }
 
-            const response = await fetch(`/api/pemasukan/delete/${id}`, {
+            const response = await fetch(`/api/bendahara/pemasukan/delete/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'ngrok-skip-browser-warning': 'true'
@@ -190,7 +189,7 @@ export const pemasukanService = {
      */
     async getAllPemasukan(page, pageSize) {
         try {
-            const response = await fetch(`/api/pemasukan/getall?page=${page}&page_size=${pageSize}`, {
+            const response = await fetch(`/api/bendahara/pemasukan/getall?page=${page}&page_size=${pageSize}`, {
                 method: 'GET',
                 headers: {
                     'ngrok-skip-browser-warning': 'true'
@@ -224,7 +223,7 @@ export const pemasukanService = {
                 throw new Error('Tanggal mulai dan akhir harus diisi');
             }
 
-            const response = await fetch(`/api/pemasukan/getall?page=${page}&page_size=${pageSize}&start_date=${start}&end_date=${end}`, {
+            const response = await fetch(`/api/bendahara/pemasukan/getall?page=${page}&page_size=${pageSize}&start_date=${start}&end_date=${end}`, {
                 method: 'GET',
                 headers: {
                     'ngrok-skip-browser-warning': 'true'
@@ -255,7 +254,7 @@ export const pemasukanService = {
                 throw new Error('ID tidak valid');
             }
 
-            const response = await fetch(`/api/pemasukan/get/${id}`, {
+            const response = await fetch(`/api/bendahara/pemasukan/get/${id}`, {
                 method: 'GET',
                 headers: {
                     'ngrok-skip-browser-warning': 'true'

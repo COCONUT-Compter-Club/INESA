@@ -57,7 +57,7 @@ export const pengeluaranService = {
             formData.append('keterangan', data.keterangan.trim());
             formData.append('nota', data.nota); // File object
 
-            const response = await fetch('/api/pengeluaran/add', {
+            const response = await fetch('/api/bendahara/pengeluaran/add', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -129,7 +129,7 @@ export const pengeluaranService = {
                 formData.append('nota', data.nota);
             }
 
-            const response = await fetch(`/api/pengeluaran/update/${id}`, {
+            const response = await fetch(`/api/bendahara/pengeluaran/update/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -173,7 +173,7 @@ export const pengeluaranService = {
                 throw new Error('ID tidak valid');
             }
 
-            const response = await fetch(`/api/pengeluaran/delete/${id}`, {
+            const response = await fetch(`/api/bendahara/pengeluaran/delete/${id}`, {
                 method: 'DELETE',
                 headers: {
                     ...getHeaders(token),
@@ -208,7 +208,7 @@ export const pengeluaranService = {
                 throw new Error('Token tidak ditemukan');
             }
 
-            const response = await fetch(`/api/pengeluaran/getall?page=${page}&page_size=${pageSize}`, {
+            const response = await fetch(`/api/bendahara/pengeluaran/getall?page=${page}&page_size=${pageSize}`, {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),
@@ -249,7 +249,7 @@ export const pengeluaranService = {
                 throw new Error('Tanggal mulai dan akhir harus diisi');
             }
 
-            const response = await fetch(`/api/pengeluaran/getall?page=${page}&page_size=${pageSize}&start_date=${start}&end_date=${end}`, {
+            const response = await fetch(`/api/bendahara/pengeluaran/getall?page=${page}&page_size=${pageSize}&start_date=${start}&end_date=${end}`, {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),
@@ -287,7 +287,7 @@ export const pengeluaranService = {
                 throw new Error('ID tidak valid');
             }
 
-            const response = await fetch(`/api/pengeluaran/get/${id}`, {
+            const response = await fetch(`/api/bendahara/pengeluaran/get/${id}`, {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),

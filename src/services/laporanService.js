@@ -1,4 +1,4 @@
-import { getHeaders } from '@/config/api'
+import { getHeaders } from '@/config/api/bendahara'
 import Cookies from 'js-cookie'
 
 export const laporanService = {
@@ -9,7 +9,7 @@ export const laporanService = {
                 window.location.href = '/authentication/sign-in'
                 throw new Error('Token tidak ditemukan')
             }
-            const response = await fetch(`/api/laporan/getall`, {
+            const response = await fetch(`/api/bendahara/laporan/getall`, {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),
@@ -42,7 +42,7 @@ export const laporanService = {
                 window.location.href = '/authentication/sign-in'
                 throw new Error('Token tidak ditemukan')
             }
-            const response = await fetch(`/api/laporan/saldo`, {
+            const response = await fetch(`/api/bendahara/laporan/saldo`, {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),
@@ -81,7 +81,7 @@ export const laporanService = {
                 window.location.href = '/authentication/sign-in'
                 throw new Error('Token tidak ditemukan')
             }
-            const response = await fetch(`/api/laporan/pengeluaran`, {
+            const response = await fetch(`/api/bendahara/laporan/pengeluaran`, {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),
@@ -114,7 +114,7 @@ export const laporanService = {
                 window.location.href = '/authentication/sign-in'
                 throw new Error('Token tidak ditemukan')
             }
-            const response = await fetch(`/api/laporan/pemasukan`, {
+            const response = await fetch(`/api/bendahara/laporan/pemasukan`, {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),
@@ -148,7 +148,7 @@ export const laporanService = {
                 throw new Error('Token tidak ditemukan')
             }
             const response = await fetch(
-                `/api/laporan/range?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
+                `/api/bendahara/laporan/range?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
                 {
                     method: 'GET',
                     headers: {

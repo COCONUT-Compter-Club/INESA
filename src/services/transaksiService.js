@@ -13,7 +13,7 @@ export const transaksiService = {
                 throw new Error('Token tidak ditemukan');
             }
 
-            const response = await fetch('/api/transaksi/getall', {
+            const response = await fetch('/api/bendahara/transaksi/getall', {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),
@@ -46,7 +46,7 @@ export const transaksiService = {
                 throw new Error('Token tidak ditemukan');
             }
 
-            const response = await fetch('/api/transaksi/getlast', {
+            const response = await fetch('/api/bendahara/transaksi/getlast', {
                 method: 'GET',
                 headers: {
                     ...getHeaders(token),
