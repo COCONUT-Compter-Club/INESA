@@ -195,14 +195,12 @@ export default function Dashboard() {
         permohonanSuratData = await fetchWithTimeout(API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_GET_ALL, {
           headers,
           credentials: 'include',
-          
         })
 
         console.log('[DEBUG] Data Permohonan Surat:', permohonanSuratData); // Log data yang diterima
-  console.log('[DEBUG] Panjang Permohonan Surat:', permohonanSuratData.length);
+  console.log('[DEBUG] Panjang Permohonan Surat:', permohonanSuratData.length); // Log panjang data
       } catch (error) {
         console.error('Error fetching permohonan surat:', error)
-
       }
 
       setStats({
@@ -406,46 +404,40 @@ export default function Dashboard() {
                 </Box>
               </Box>
               <Box sx={{ bgcolor: 'white', borderRadius: '12px', p: 3, boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)' }}>
-  <TextNoCursor variant="h5" sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
-    Statistik Surat
-  </TextNoCursor>
-  <Grid container spacing={2}>
-    {suratData.map((item) => (
-      <Grid item xs={12} sm={6} md={4} key={item.jenis}>
-        <StatCard>
-          <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <StatIcon>
-                {item.jenis === 'Surat Masuk' ? (
-                  <MailIcon sx={{ fontSize: 24, color: '#3b82f6' }} />
-                ) : item.jenis === 'Surat Keluar' ? (
-                  <SendIcon sx={{ fontSize: 24, color: '#f59e0b' }} />
-                ) : (
-                  <AssignmentIcon sx={{ fontSize: 24, color: '#10b981' }} />
-                )}
-              </StatIcon>
-              <Box>
-                <TextNoCursor variant="body1" color="textSecondary">
-                  {item.jenis}
+                <TextNoCursor variant="h5" sx={{ fontWeight: 600, color: '#1a237e', mb: 3 }}>
+                  Statistik Surat
                 </TextNoCursor>
-                <TextNoCursor variant="h5" sx={{ 
-                  fontWeight: 700, 
-                  color: item.jenis === 'Surat Masuk' 
-                    ? '#3b82f6' 
-                    : item.jenis === 'Surat Keluar' 
-                      ? '#f59e0b' 
-                      : '#10b981'
-                }}>
-                  {item.jumlah || 0}
-                </TextNoCursor>
+                <Grid container spacing={2}>
+                  {suratData.map((item) => (
+                    <Grid item xs={12} sm={6} md={4} key={item.jenis}>
+                      <StatCard>
+                        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <StatIcon>
+                              {item.jenis === 'Surat Masuk' ? (
+                                <MailIcon sx={{ fontSize: 24, color: '#3b82f6' }} />
+                              ) : item.jenis === 'Surat Keluar' ? (
+                                <SendIcon sx={{ fontSize: 24, color: '#f59e0b' }} />
+                              ) : (
+                                <AssignmentIcon sx={{ fontSize: 24, color: '#10b981' }} />
+                              )}
+                            </StatIcon>
+                            <Box>
+                              <TextNoCursor variant="body1" color="textSecondary">
+                                {item.jenis}
+                              </TextNoCursor>
+                              <TextNoCursor variant="h5" sx={{ fontWeight: 700, color: item.jenis === 'Surat Masuk' ? '#3b82f6' : item.jenis === 'Surat Keluar' ? '#f59e0b' : '#10b981' }}>
+                                {item.jumlah}
+                              </TextNoCursor>
+                            </Box>
+                          </Box>
+                         
+                        </CardContent>
+                      </StatCard>
+                    </Grid>
+                  ))}
+                </Grid>
               </Box>
-            </Box>
-          </CardContent>
-        </StatCard>
-      </Grid>
-    ))}
-  </Grid>
-</Box>
             </>
           )}
         </Box>
