@@ -1,6 +1,6 @@
 // src/config/api.js
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://www.inesa.web.id';
-const SEKRETARIS_API_BASE_URL = process.env.NEXT_PUBLIC_SEKRETARIS_API_BASE_URL || 'https://www.inesa.web.id/api/sekertaris';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://www.inesa.web.id/admin';
+const SEKRETARIS_API_BASE_URL = process.env.NEXT_PUBLIC_SEKRETARIS_API_BASE_URL || 'https://www.inesa.web.id/api/sekretaris';
 const PRODUCTION_API_BASE_URL = process.env.NEXT_PUBLIC_PRODUCTION_API_BASE_URL || 'https://www.inesa.web.id/api/bendahara';
 
 export const API_ENDPOINTS = {
@@ -30,7 +30,6 @@ export const API_ENDPOINTS = {
     SURAT_MASUK_GET_BY_ID: (id) => `${SEKRETARIS_API_BASE_URL}/suratmasuk/get/${id}`,
     SURAT_MASUK_UPDATE: (id) => `${SEKRETARIS_API_BASE_URL}/suratmasuk/update/${id}`,
     SURAT_MASUK_DELETE: (id) => `${SEKRETARIS_API_BASE_URL}/suratmasuk/delete/${id}`,
-    SURAT_MASUK_COUNT: `${SEKRETARIS_API_BASE_URL}/suratmasuk/count`,
     PERMOHONAN_SURAT_ADD: `${SEKRETARIS_API_BASE_URL}/permohonansurat`,
     PERMOHONAN_SURAT_GET_ALL: `${SEKRETARIS_API_BASE_URL}/permohonansurat`,
     PERMOHONAN_SURAT_GET_BY_ID: (id) => `${SEKRETARIS_API_BASE_URL}/permohonansurat/${id}`,
