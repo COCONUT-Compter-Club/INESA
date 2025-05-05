@@ -18,16 +18,13 @@ import {
   Typography,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({ nikadmin: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [logoUrl, setLogoUrl] = useState('/image.png');
-  const [title, setTitle] = useState('');
-  const [contentLoading, setContentLoading] = useState(true);
   const [openForgotDialog, setOpenForgotDialog] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
@@ -53,52 +50,6 @@ export default function SignIn() {
       return null;
     }
   };
-
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const res = await fetch('https://bontomanai.inesa.id/api/content', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'ngrok-skip-browser-warning': 'true',
-          },
-          credentials: 'include',
-          cache: 'no-store',
-        });
-
-        if (!res.ok) {
-          throw new Error(`Gagal mengambil data konten: ${res.status}`);
-        }
-
-        const result = await res.json();
-        console.log('[FETCH] Respons JSON (konten):', result);
-        const data = result.data ? result.data : result;
-
-        if (data.logo) {
-          setLogoUrl(`http://bontomanai.inesa.id/${data.logo}`);
-          localStorage.setItem('logo', data.logo);
-        } else {
-          setLogoUrl('/image.png');
-          localStorage.removeItem('logo');
-        }
-
-        if (data.title) setTitle(data.title);
-      } catch (err) {
-        console.error('Gagal fetch konten:', err.message);
-        const logoPath = localStorage.getItem('logo');
-        if (logoPath) {
-          const decodedLogoPath = decodeURIComponent(logoPath);
-          setLogoUrl(`https://bontomanai.inesa.id/${decodedLogoPath}`);
-        }
-      } finally {
-        setContentLoading(false);
-      }
-    };
-
-    fetchContent();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -233,33 +184,27 @@ export default function SignIn() {
       <Box sx={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Paper elevation={3} sx={{ p: 4, width: '100%', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-            {contentLoading ? (
-              <CircularProgress />
-            ) : (
-              <>
-                <img
-                  src={logoUrl}
-                  alt="Logo"
-                  width={80}
-                  height={80}
-                  style={{ 
-                    marginBottom: '16px', 
-                    borderRadius: '50%',
-                    objectFit: 'cover'
-                  }}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = '/image.png';
-                  }}
-                />
-                <Typography component="h1" variant="h5" sx={{ fontWeight: 600, color: '#1a237e', textAlign: 'center' }}>
-                  {title || 'Masuk'}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ mt: 1, textAlign: 'center' }}>
-                  Masukkan NIP dan kata sandi Anda
-                </Typography>
-              </>
-            )}
+            <img
+              src="/image.png"
+              alt="Logo"
+              width={80}
+              height={80}
+              style={{ 
+                marginBottom: '16px', 
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/image.png';
+              }}
+            />
+            <Typography component="h1" variant="h5" sx={{ fontWeight: 600, color: '#1a237e', textAlign: 'center' }}>
+              Desa Bontomanai
+            </Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1, textAlign: 'center' }}>
+              Masukkan NIP dan kata sandi Anda
+            </Typography>
           </Box>
 
           {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -275,7 +220,7 @@ export default function SignIn() {
               id="nikadmin"
               value={formData.nikadmin}
               onChange={handleChange}
-              disabled={loading || contentLoading}
+              disabled={loading}
               error={!!error}
               sx={{ mb: 2 }}
             />
@@ -289,7 +234,7 @@ export default function SignIn() {
               id="password"
               value={formData.password}
               onChange={handleChange}
-              disabled={loading || contentLoading}
+              disabled={loading}
               error={!!error}
               InputProps={{
                 endAdornment: (
@@ -298,7 +243,7 @@ export default function SignIn() {
                       aria-label="toggle password visibility"
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
-                      disabled={loading || contentLoading}
+                      disabled={loading}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -319,7 +264,7 @@ export default function SignIn() {
               type="submit"
               fullWidth
               variant="contained"
-              disabled={loading || contentLoading}
+              disabled={loading}
               sx={{ mt: 2, mb: 2, py: 1.5, backgroundColor: '#1a237e', '&:hover': { backgroundColor: '#0d47a1' } }}
             >
               {loading ? (

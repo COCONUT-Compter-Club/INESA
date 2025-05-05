@@ -577,7 +577,7 @@ export default function DataPegawai() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  rows.map((row, index) => (
+                  rows.map((row) => (
                     <TableRow key={row.id || row.nip}>
                       <TableCell>{row.nip}</TableCell>
                       <TableCell>{row.namalengkap}</TableCell>
@@ -585,7 +585,7 @@ export default function DataPegawai() {
                       <TableCell>{row.jabatan}</TableCell>
                       <TableCell>
                         <img
-                          src={`/foto${index + 1}.jpg`}
+                          src="/foto1.jpg"
                           alt={`Foto ${row.namalengkap}`}
                           style={{
                             width: '50px',
@@ -593,9 +593,9 @@ export default function DataPegawai() {
                             objectFit: 'cover',
                             borderRadius: '4px'
                           }}
-                          onLoad={() => console.log(`[IMG] Gambar foto${index + 1}.jpg berhasil dimuat`)}
+                          onLoad={() => console.log(`[IMG] Gambar foto1.jpg berhasil dimuat`)}
                           onError={(e) => {
-                            console.error(`[IMG] Gagal memuat gambar: foto${index + 1}.jpg`)
+                            console.error(`[IMG] Gagal memuat gambar: foto1.jpg`)
                             e.target.onerror = null
                             e.target.src = '/default-avatar.png'
                           }}
