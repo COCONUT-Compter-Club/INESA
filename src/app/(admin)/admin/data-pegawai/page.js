@@ -577,33 +577,29 @@ export default function DataPegawai() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  rows.map((row) => (
+                  rows.map((row, index) => (
                     <TableRow key={row.id || row.nip}>
                       <TableCell>{row.nip}</TableCell>
                       <TableCell>{row.namalengkap}</TableCell>
                       <TableCell>{row.email}</TableCell>
                       <TableCell>{row.jabatan}</TableCell>
                       <TableCell>
-                        {row.foto && row.foto !== '-' ? (
-                          <img
-                            src={`https://bontomanai.inesa.id/${row.foto}`}
-                            alt={`Foto ${row.namalengkap}`}
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              objectFit: 'cover',
-                              borderRadius: '4px'
-                            }}
-                            onLoad={() => console.log(`[IMG] Gambar ${row.foto} berhasil dimuat`)}
-                            onError={(e) => {
-                              console.error(`[IMG] Gagal memuat gambar: ${row.foto}`)
-                              e.target.onerror = null
-                              e.target.src = '/default-avatar.png'
-                            }}
-                          />
-                        ) : (
-                          '-'
-                        )}
+                        <img
+                          src={`/foto${index + 1}.jpg`}
+                          alt={`Foto ${row.namalengkap}`}
+                          style={{
+                            width: '50px',
+                            height: '50px',
+                            objectFit: 'cover',
+                            borderRadius: '4px'
+                          }}
+                          onLoad={() => console.log(`[IMG] Gambar foto${index + 1}.jpg berhasil dimuat`)}
+                          onError={(e) => {
+                            console.error(`[IMG] Gagal memuat gambar: foto${index + 1}.jpg`)
+                            e.target.onerror = null
+                            e.target.src = '/default-avatar.png'
+                          }}
+                        />
                       </TableCell>
                       <TableCell align="center">
                         <Tooltip title="Edit">
