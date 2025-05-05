@@ -585,7 +585,7 @@ export default function DataPegawai() {
                       <TableCell>{row.jabatan}</TableCell>
                       <TableCell>
                         <img
-                          src="/foto1.jpg"
+                          src="/foto1.jpeg"
                           alt={`Foto ${row.namalengkap}`}
                           style={{
                             width: '50px',
@@ -593,9 +593,9 @@ export default function DataPegawai() {
                             objectFit: 'cover',
                             borderRadius: '4px'
                           }}
-                          onLoad={() => console.log(`[IMG] Gambar foto1.jpg berhasil dimuat`)}
+                          onLoad={() => console.log(`[IMG] Gambar foto1.jpeg berhasil dimuat`)}
                           onError={(e) => {
-                            console.error(`[IMG] Gagal memuat gambar: foto1.jpg`)
+                            console.error(`[IMG] Gagal memuat gambar: foto1.jpeg`)
                             e.target.onerror = null
                             e.target.src = '/default-avatar.png'
                           }}
