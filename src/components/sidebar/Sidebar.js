@@ -181,7 +181,7 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     removeCookie('token')
-    localStorage.removeItem('logo') // Bersihkan logo dari localStorage
+    localStorage.removeItem('logo') 
     router.push('/authentication/sign-in')
   }
 
