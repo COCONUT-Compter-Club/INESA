@@ -285,7 +285,6 @@ export default function Pemasukan() {
         const total = await laporanService.getTotalPemasukan()
         setTotalPemasukan(Number.isFinite(total) ? total : 0)
       } catch (error) {
-        console.error('Gagal mengambil total pemasukan:', error)
         setTotalPemasukan(0)
         showSnackbar('Gagal memuat total pemasukan', 'error')
       } finally {
@@ -325,7 +324,6 @@ export default function Pemasukan() {
       setTotalItems(response?.data?.total_items || 0)
       setTotalPages(response?.data?.total_pages || 0)
     } catch (error) {
-      console.error('Error fetching data:', error)
       showSnackbar('Gagal mengambil data: ' + error.message, 'error')
       setRows([])
     } finally {
@@ -477,7 +475,6 @@ export default function Pemasukan() {
       setTotalPemasukan(Number.isFinite(total) ? total : 0)
       showSnackbar(`Pemasukan berhasil dihapus`, 'success')
     } catch (error) {
-      console.error('Error deleting data:', error)
       showSnackbar(`Gagal menghapus pemasukan: ${error.message}`, 'error')
     } finally {
       setLoading(false)
@@ -559,7 +556,6 @@ export default function Pemasukan() {
       const total = await laporanService.getTotalPemasukan()
       setTotalPemasukan(Number.isFinite(total) ? total : 0)
     } catch (error) {
-      console.error('Error saving data:', error)
       showSnackbar(error.message || 'Gagal menyimpan data', 'error')
     } finally {
       setLoading(false)
@@ -590,7 +586,6 @@ export default function Pemasukan() {
         minute: '2-digit'
       })
     } catch (e) {
-      console.error('Error formatting date:', e)
       return backendDateString
     }
   }

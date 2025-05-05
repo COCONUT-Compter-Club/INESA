@@ -104,14 +104,14 @@ export default function DataPenduduk() {
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
     try {
-      console.log(`[FETCH] Mengirim permintaan ke: ${url}`)
+  
       const response = await fetch(url, { ...options, signal: controller.signal })
-      console.log(`[FETCH] Status: ${response.status}, Content-Type: ${response.headers.get('Content-Type')}`)
+
       clearTimeout(id)
       return response
     } catch (error) {
       clearTimeout(id)
-      console.error(`[FETCH] Error ke ${url}:`, error)
+
       throw error
     }
   }
@@ -121,11 +121,11 @@ export default function DataPenduduk() {
       setLoading(true)
       const token = getCookie('token')
       if (!token) {
-        console.error('[FETCH] Token tidak ditemukan')
+  
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
-      console.log('[FETCH] Mengambil data warga dengan token:', token)
+  
       const res = await fetchWithTimeout('https://bontomanai.inesa.id/api/warga', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -134,21 +134,19 @@ export default function DataPenduduk() {
         credentials: 'include'
       }, 10000)
 
-      console.log('[FETCH] Status:', res.status)
       const text = await res.text()
-      console.log('[FETCH] Respons teks:', text)
+
 
       let data
       try {
         data = JSON.parse(text)
-        console.log('[FETCH] Respons JSON:', data)
+
       } catch (jsonError) {
-        console.error('[FETCH] Gagal parsing JSON:', jsonError)
         throw new Error(`Respons bukan JSON: ${text}`)
       }
 
       if (!res.ok) {
-        console.error('[FETCH] Respons tidak OK:', res.status, data)
+
         throw new Error(data.message || `Gagal mengambil data penduduk: ${res.status}`)
       }
 
@@ -170,13 +168,13 @@ export default function DataPenduduk() {
         kewarganegaraan: item.kewarganegaraan || item.Kewarganegaraan || '-'
       }))
 
-      console.log('[FETCH] Data ternormalisasi:', normalizedData)
+
       setRows(normalizedData)
       if (normalizedData.length === 0) {
         showAlertMessage('Tidak ada data penduduk di database', 'info')
       }
     } catch (err) {
-      console.error('[FETCH] Error saat fetch data:', err)
+
       let errorMessage = err.message
       if (err.name === 'AbortError') {
         errorMessage = 'Permintaan timeout, silakan coba lagi'
@@ -219,7 +217,7 @@ export default function DataPenduduk() {
   }
 
   const handleEdit = (row) => {
-    console.log('[EDIT] Mengedit data:', row)
+
     setEditingId(row.id)
     const validPekerjaan = [
       'Belum Bekerja', 'Pelajar/Mahasiswa', 'Petani', 'Nelayan', 'PNS', 'TNI/Polri', 'Karyawan Swasta',
@@ -248,11 +246,10 @@ export default function DataPenduduk() {
       setLoading(true)
       const token = getCookie('token')
       if (!token) {
-        console.error('[DELETE] Token tidak ditemukan')
+
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
-      console.log('[DELETE] Menghapus data dengan ID:', id)
       const res = await fetchWithTimeout(`https://bontomanai.inesa.id/api/warga/${id}`, {
         method: 'DELETE',
         headers: {
@@ -263,25 +260,20 @@ export default function DataPenduduk() {
       }, 10000)
 
       const text = await res.text()
-      console.log('[DELETE] Respons teks:', text)
       let data
 
       try {
         data = JSON.parse(text)
-        console.log('[DELETE] Respons JSON:', data)
       } catch (jsonError) {
-        console.error('[DELETE] Gagal parsing JSON:', jsonError)
         throw new Error(`Respons bukan JSON: ${text}`)
       }
 
       if (!res.ok) {
-        console.error('[DELETE] Respons tidak OK:', res.status, data)
         throw new Error(data.message || 'Gagal menghapus data')
       }
       showAlertMessage(data.message || 'Data berhasil dihapus', 'success')
       fetchUserData()
     } catch (err) {
-      console.error('[DELETE] Error:', err)
       let errorMessage = err.message
       if (err.name === 'AbortError') {
         errorMessage = 'Permintaan timeout, silakan coba lagi'
@@ -351,7 +343,6 @@ export default function DataPenduduk() {
       setLoading(true)
       const token = getCookie('token')
       if (!token) {
-        console.error('[SAVE] Token tidak ditemukan')
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
@@ -361,8 +352,7 @@ export default function DataPenduduk() {
         ...formData,
         pekerjaan: pekerjaan === 'Lainnya' ? pekerjaanLainnya : pekerjaan
       }
-      delete dataToSend.pekerjaanLainnya // Hapus field tambahan dari data yang dikirim
-      console.log('[SAVE] Mengirim data:', dataToSend, 'ke endpoint:', endpoint)
+      delete dataToSend.pekerjaanLainnya 
       const res = await fetchWithTimeout(endpoint, {
         method,
         headers: {
@@ -374,19 +364,17 @@ export default function DataPenduduk() {
       }, 10000)
 
       const text = await res.text()
-      console.log('[SAVE] Respons teks:', text)
       let data
 
       try {
         data = JSON.parse(text)
-        console.log('[SAVE] Respons JSON:', data)
+
       } catch (jsonError) {
-        console.error('[SAVE] Gagal parsing JSON:', jsonError)
+
         throw new Error(`Respons bukan JSON: ${text}`)
       }
 
       if (!res.ok) {
-        console.error('[SAVE] Respons tidak OK:', res.status, data)
         throw new Error(data.message || 'Gagal menyimpan data')
       }
       showAlertMessage(data.message || 'Data berhasil disimpan', 'success')
@@ -407,7 +395,6 @@ export default function DataPenduduk() {
       })
       fetchUserData()
     } catch (err) {
-      console.error('[SAVE] Error:', err)
       let errorMessage = err.message
       if (err.name === 'AbortError') {
         errorMessage = 'Permintaan timeout, silakan coba lagi'

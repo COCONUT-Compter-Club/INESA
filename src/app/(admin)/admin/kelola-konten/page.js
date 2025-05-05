@@ -42,7 +42,6 @@ const WebsiteContentPage = () => {
         if (!token) {
           throw new Error('Token tidak ditemukan, silakan login kembali');
         }
-        console.log('[FETCH] Mengambil konten dengan token:', token);
         const res = await axios.get('https://bontomanai.inesa.id/api/content', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -51,7 +50,6 @@ const WebsiteContentPage = () => {
           timeout: 10000
         });
 
-        console.log('[FETCH] Respons:', res.data);
         const result = res.data?.data ?? res.data;
         setFormData({
           logo: result.logo || '',
@@ -62,7 +60,6 @@ const WebsiteContentPage = () => {
           phone: result.phone || ''
         });
       } catch (error) {
-        console.error('[FETCH] Error:', error);
         let message = 'Gagal memuat konten';
         if (error.response) {
           message = error.response.data.message || `Error ${error.response.status}`;
@@ -139,7 +136,6 @@ const WebsiteContentPage = () => {
       if (!token) {
         throw new Error('Token tidak ditemukan, silakan login kembali');
       }
-      console.log('[SUBMIT] Mengirim data ke /api/content');
       await axios.put('https://bontomanai.inesa.id/api/content', formToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -159,7 +155,6 @@ const WebsiteContentPage = () => {
         },
         timeout: 10000
       });
-      console.log('[FETCH] Respons setelah simpan:', res.data);
       const result = res.data?.data ?? res.data;
       setFormData({
         logo: result.logo || '',
@@ -170,7 +165,6 @@ const WebsiteContentPage = () => {
         phone: result.phone || ''
       });
     } catch (error) {
-      console.error('[SUBMIT] Error:', error);
       let message = 'Gagal menyimpan konten';
       if (error.response) {
         message = error.response.data.message || `Error ${error.response.status}`;

@@ -92,10 +92,8 @@ export default function AdminLayout({ children }) {
         headers: { 'Content-Type': 'application/json' }
       });
       if (!response.ok) {
-        console.error('Backend logout failed:', response.statusText);
       }
     } catch (error) {
-      console.error('Error calling logout endpoint:', error);
     }
 
     localStorage.removeItem('token');
