@@ -41,6 +41,7 @@ export default function Clone() {
       setMessage(data.message)
       setShowMessage(true)
     } catch (error) {
+      console.error('Error cloning data:', error)
       setMessage('Gagal mengkloning data')
       setShowMessage(true)
     } finally {
