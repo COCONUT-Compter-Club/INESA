@@ -426,19 +426,19 @@ export default function SuratKeluar() {
                     <TableCell>{row.perihal}</TableCell>
                     <TableCell>{row.ditujukan}</TableCell>
                     <TableCell>
-                      {row.file && (
-                        <Tooltip title="Lihat File">
-                          <IconButton
-                            component="a"
-                            href={`http://localhost:8088/${row.file.replace(/^\./, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <DescriptionIcon />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </TableCell>
+  {row.file && (
+    <Tooltip title="Lihat File">
+      <IconButton
+        component="a"
+        href={`https://bontomanai.inesa.id/static/suratkeluar/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <DescriptionIcon />
+      </IconButton>
+    </Tooltip>
+  )}
+</TableCell>
                     <TableCell>
                       <Tooltip title="Edit">
                         <IconButton onClick={() => handleEdit(row)}>
@@ -494,21 +494,21 @@ export default function SuratKeluar() {
               <input type="file" name="file" hidden onChange={handleInputChange} />
             </Button>
             {(previewFile || existingFile) && (
-              <FilePreviewBox>
-                <Avatar><DescriptionIcon /></Avatar>
-                <Typography variant="body2">
-                  {formData.file?.name || existingFile?.split('/').pop()}
-                </Typography>
-                {(previewFile || existingFile) && (
-                  <a
-                    href={previewFile || `http://localhost:8088${existingFile.replace(/^\./, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button size="small">Lihat</Button>
-                  </a>
-                )}
-              </FilePreviewBox>
+             <FilePreviewBox>
+             <Avatar><DescriptionIcon /></Avatar>
+             <Typography variant="body2">
+               {formData.file?.name || existingFile?.split('/').pop()}
+             </Typography>
+             {(previewFile || existingFile) && (
+               <a
+                 href={previewFile || `https://bontomanai.inesa.id/static/suratkeluar/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+               >
+                 <Button size="small">Lihat</Button>
+               </a>
+             )}
+           </FilePreviewBox>
             )}
           </DialogContent>
           <DialogActions>
