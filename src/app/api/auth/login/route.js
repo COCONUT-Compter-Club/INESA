@@ -1,6 +1,6 @@
 // src/app/api/authentication/sign-in/route.js
-import { NextResponse } from 'next/server';
 import { API_ENDPOINTS } from '@/config/api';
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
@@ -54,7 +54,6 @@ export async function POST(request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Login error:', error);
     return NextResponse.json(
       {
         success: false,

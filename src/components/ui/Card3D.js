@@ -1,6 +1,5 @@
-import React from "react";
-import { useSpring, animated } from "react-spring";
-import './card.css'
+import { animated, useSpring } from "react-spring";
+import './card.css';
 
 const trans = (x, y, s) =>
     `perspective(600px) rotateX(${x}deg) rotateY(${y}deg) scale(${s})`;
@@ -11,8 +10,6 @@ const calc = (x, y) => {
     const why = -(y - window.innerHeight / 2) / BUFFER;
     const ex = (x - window.innerWidth / 2) / BUFFER;
 
-    console.log("why", why);
-    console.log("y", y);
     return [-(y / 50), x / 50, 1.1];
 };
 

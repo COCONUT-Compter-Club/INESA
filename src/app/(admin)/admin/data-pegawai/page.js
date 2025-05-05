@@ -106,14 +106,11 @@ export default function DataPegawai() {
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
     try {
-      console.log(`[FETCH] Mengirim permintaan ke: ${url}`, options)
       const response = await fetch(url, { ...options, signal: controller.signal })
-      console.log(`[FETCH] Status: ${response.status}, Headers:`, Object.fromEntries(response.headers))
       clearTimeout(id)
       return response
     } catch (error) {
       clearTimeout(id)
-      console.error(`[FETCH] Error ke ${url}:`, error)
       throw error
     }
   }
@@ -122,8 +119,6 @@ export default function DataPegawai() {
     try {
       setLoading(true)
       const token = getCookie('token')
-      console.log('[FETCH] Token:', token || 'Tidak ada token ditemukan')
-
       const headers = token
         ? {
             'Authorization': `Bearer ${token}`,
@@ -139,21 +134,15 @@ export default function DataPegawai() {
         credentials: 'include'
       }, 10000)
 
-      console.log('[FETCH] Status:', res.status)
       const text = await res.text()
-      console.log('[FETCH] Respons teks:', text)
-
       let data
       try {
         data = JSON.parse(text)
-        console.log('[FETCH] Respons JSON:', data)
       } catch (jsonError) {
-        console.error('[FETCH] Gagal parsing JSON:', jsonError)
         throw new Error(`Respons bukan JSON: ${text}`)
       }
 
       if (!res.ok) {
-        console.error('[FETCH] Respons tidak OK:', res.status, data)
         throw new Error(data.message || `Gagal mengambil data pegawai: ${res.status}`)
       }
 
@@ -174,15 +163,12 @@ export default function DataPegawai() {
         foto: item.foto || item.Foto || '-'
       }))
 
-      console.log('[FETCH] Data ternormalisasi:', normalizedData)
       setRows(normalizedData)
       if (normalizedData.length === 0) {
         showAlertMessage('Tidak ada data pegawai di database', 'info')
       }
     } catch (err) {
-      console.error('[FETCH] Error saat fetch data:', err)
       if (retryCount > 0) {
-        console.log(`[FETCH] Mencoba lagi, sisa percobaan: ${retryCount}`)
         await new Promise(resolve => setTimeout(resolve, 1000))
         return fetchPegawaiData(retryCount - 1)
       }
@@ -240,9 +226,7 @@ export default function DataPegawai() {
       let data
       try {
         data = JSON.parse(text)
-        console.log('[EDIT] Respons JSON:', data)
       } catch (jsonError) {
-        console.error('[EDIT] Gagal parsing JSON:', jsonError)
         throw new Error(`Respons bukan JSON: ${text}`)
       }
 
@@ -273,11 +257,9 @@ export default function DataPegawai() {
       setLoading(true)
       const token = getCookie('token')
       if (!token) {
-        console.error('[DELETE] Token tidak ditemukan')
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
-      console.log('[DELETE] Menghapus data dengan ID:', id)
       const res = await fetchWithTimeout(`https://bontomanai.inesa.id/api/pegawai/delete/${id}`, {
         method: 'DELETE',
         headers: {
@@ -288,25 +270,19 @@ export default function DataPegawai() {
       }, 10000)
 
       const text = await res.text()
-      console.log('[DELETE] Respons teks:', text)
       let data
-
       try {
         data = JSON.parse(text)
-        console.log('[DELETE] Respons JSON:', data)
       } catch (jsonError) {
-        console.error('[DELETE] Gagal parsing JSON:', jsonError)
         throw new Error(`Respons bukan JSON: ${text}`)
       }
 
       if (!res.ok) {
-        console.error('[DELETE] Respons tidak OK:', res.status, data)
         throw new Error(data.message || 'Gagal menghapus data')
       }
       showAlertMessage(data.message || 'Data berhasil dihapus', 'success')
       fetchPegawaiData()
     } catch (err) {
-      console.error('[DELETE] Error:', err)
       let errorMessage = err.message
       if (err.name === 'AbortError') {
         errorMessage = 'Permintaan timeout, silakan coba lagi'
@@ -329,7 +305,6 @@ export default function DataPegawai() {
       return
     }
 
-    // Validasi NIP hanya untuk tambah data baru
     if (!editingId && !/^\d{8,}$/.test(nip)) {
       showAlertMessage('NIP harus minimal 8 digit angka', 'error')
       return
@@ -344,7 +319,6 @@ export default function DataPegawai() {
       setLoading(true)
       const token = getCookie('token')
       if (!token) {
-        console.error('[SAVE] Token tidak ditemukan')
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
@@ -361,10 +335,6 @@ export default function DataPegawai() {
         formDataToSend.append('foto', foto)
       }
 
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(`[SAVE] FormData - ${key}:`, value)
-      }
-
       const res = await fetchWithTimeout(endpoint, {
         method: method,
         headers: {
@@ -375,19 +345,12 @@ export default function DataPegawai() {
       }, 10000)
 
       const contentType = res.headers.get('content-type')
-      console.log('[SAVE] Content-Type:', contentType)
-      console.log('[SAVE] Status:', res.status)
-
       const text = await res.text()
-      console.log('[SAVE] Respons teks:', text)
-
       let data
       if (contentType && contentType.includes('application/json')) {
         try {
           data = JSON.parse(text)
-          console.log('[SAVE] Respons JSON:', data)
         } catch (jsonError) {
-          console.error('[SAVE] Gagal parsing JSON:', jsonError)
           throw new Error(`Respons bukan JSON yang valid: ${text}`)
         }
       } else {
@@ -395,7 +358,6 @@ export default function DataPegawai() {
       }
 
       if (!res.ok) {
-        console.error('[SAVE] Respons tidak OK:', res.status, data)
         throw new Error(data.message || `Gagal menyimpan data: ${res.status}`)
       }
 
@@ -411,7 +373,6 @@ export default function DataPegawai() {
       })
       fetchPegawaiData()
     } catch (err) {
-      console.error('[SAVE] Error:', err)
       let errorMessage = err.message
       if (err.name === 'AbortError') {
         errorMessage = 'Permintaan timeout, silakan coba lagi'
@@ -453,7 +414,6 @@ export default function DataPegawai() {
       setLoading(true)
       const token = getCookie('token')
       if (!token) {
-        console.error('[ADMIN] Token tidak ditemukan')
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
@@ -463,7 +423,6 @@ export default function DataPegawai() {
         pass: adminPassword,
         role_id: adminRole
       }
-      console.log('[ADMIN] Mengirim data:', payload)
 
       const res = await fetchWithTimeout('https://bontomanai.inesa.id/api/admin/create', {
         method: 'POST',
@@ -476,19 +435,12 @@ export default function DataPegawai() {
       }, 10000)
 
       const contentType = res.headers.get('content-type')
-      console.log('[ADMIN] Content-Type:', contentType)
-      console.log('[ADMIN] Status:', res.status)
-
       const text = await res.text()
-      console.log('[ADMIN] Respons teks:', text)
-
       let data
       if (contentType && contentType.includes('application/json')) {
         try {
           data = JSON.parse(text)
-          console.log('[ADMIN] Respons JSON:', data)
         } catch (jsonError) {
-          console.error('[ADMIN] Gagal parsing JSON:', jsonError)
           throw new Error(`Respons bukan JSON yang valid: ${text}`)
         }
       } else {
@@ -496,7 +448,6 @@ export default function DataPegawai() {
       }
 
       if (!res.ok) {
-        console.error('[ADMIN] Respons tidak OK:', res.status, data)
         throw new Error(data.message || `Gagal membuat admin: ${res.status}`)
       }
 
@@ -507,7 +458,6 @@ export default function DataPegawai() {
       setAdminRole('')
       fetchPegawaiData()
     } catch (err) {
-      console.error('[ADMIN] Error:', err)
       let errorMessage = err.message
       if (err.name === 'AbortError') {
         errorMessage = 'Permintaan timeout, silakan coba lagi'
@@ -593,9 +543,7 @@ export default function DataPegawai() {
                             objectFit: 'cover',
                             borderRadius: '4px'
                           }}
-                          onLoad={() => console.log(`[IMG] Gambar foto1.jpeg berhasil dimuat`)}
                           onError={(e) => {
-                            console.error(`[IMG] Gagal memuat gambar: foto1.jpeg`)
                             e.target.onerror = null
                             e.target.src = '/default-avatar.png'
                           }}

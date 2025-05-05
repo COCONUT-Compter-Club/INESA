@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { API_ENDPOINTS } from '@/config/api';
+import { NextResponse } from 'next/server';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '*',
@@ -124,7 +124,6 @@ export async function PUT(request, { params }) {
       { status: 200, headers: CORS_HEADERS }
     );
   } catch (error) {
-    console.error('Error updating pengeluaran:', error);
     return NextResponse.json(
       {
         success: false,

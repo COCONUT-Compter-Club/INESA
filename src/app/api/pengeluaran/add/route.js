@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { API_ENDPOINTS } from '@/config/api';
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
     try {
@@ -60,7 +60,6 @@ export async function POST(request) {
         try {
             responseData = JSON.parse(responseText);
         } catch (error) {
-            console.error('Response text:', responseText);
             return NextResponse.json({
                 success: false,
                 message: 'Format response tidak valid',
@@ -101,7 +100,7 @@ export async function POST(request) {
             }
         });
     } catch (error) {
-        console.error('Error adding pengeluaran:', error);
+
         return NextResponse.json({
             success: false,
             message: 'Terjadi kesalahan saat menambah pengeluaran'

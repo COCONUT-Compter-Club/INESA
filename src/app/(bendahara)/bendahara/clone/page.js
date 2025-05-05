@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import { 
-  Button, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Grid,
-  CircularProgress,
-  Alert,
-  Snackbar
-} from '@mui/material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Grid,
+  Snackbar,
+  Typography
+} from '@mui/material'
+import { useState } from 'react'
 
 export default function Clone() {
   const [loading, setLoading] = useState({
@@ -41,7 +41,6 @@ export default function Clone() {
       setMessage(data.message)
       setShowMessage(true)
     } catch (error) {
-      console.error('Error cloning data:', error)
       setMessage('Gagal mengkloning data')
       setShowMessage(true)
     } finally {

@@ -1,18 +1,16 @@
 'use client';
 
-import {
-  Box,
-  Typography,
-  Grid,
-  CircularProgress,
-} from '@mui/material';
-import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import { Card } from '@/components/ui/card';
+import { API_ENDPOINTS, getHeaders } from '@/config/api';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import SendIcon from '@mui/icons-material/Send';
-import SearchHistory from '@/components/dashboard/search-history';
-import { useState, useEffect } from 'react';
-import { API_ENDPOINTS, getHeaders } from '@/config/api';
+import {
+  Box,
+  Grid,
+  Typography
+} from '@mui/material';
+import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
+import { useEffect, useState } from 'react';
 
 // Buat tema MUI
 const theme = createTheme({
@@ -84,7 +82,6 @@ export default function Dashboard() {
       if (!response.ok) throw new Error('Gagal mengambil data surat masuk');
       return await response.json();
     } catch (error) {
-      console.error('Error fetching surat masuk:', error);
       throw error;
     }
   };
@@ -99,7 +96,6 @@ export default function Dashboard() {
       if (!response.ok) throw new Error('Gagal mengambil data surat keluar');
       return await response.json();
     } catch (error) {
-      console.error('Error fetching surat keluar:', error);
       throw error;
     }
   };

@@ -88,18 +88,15 @@ const fetchWithTimeout = async (url, options, timeout = 15000) => {
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), timeout)
   try {
-    console.log(`[FETCH] Mengirim permintaan ke: ${url}`)
     const response = await fetch(url, { ...options, signal: controller.signal })
     if (!response.ok) {
       const text = await response.text()
       throw new Error(`HTTP error! status: ${response.status}, message: ${text}`)
     }
-    console.log(`[FETCH] Status: ${response.status}, Content-Type: ${response.headers.get('Content-Type')}`)
     clearTimeout(id)
     return response.json()
   } catch (error) {
     clearTimeout(id)
-    console.error(`[FETCH] Error ke ${url}:`, error.message)
     throw error
   }
 }
@@ -145,7 +142,6 @@ export default function Dashboard() {
           credentials: 'include',
         })
       } catch (error) {
-        console.error('Error fetching penduduk:', error)
       }
 
       // Fetch data keuangan menggunakan laporanService seperti Dashboard Bendahara
@@ -160,11 +156,9 @@ export default function Dashboard() {
 
           pemasukanData = { total: pemasukan }
           pengeluaranData = { total: pengeluaran }
-        } else {
-          console.warn('Data laporan keuangan tidak tersedia')
         }
       } catch (error) {
-        console.error('Error fetching laporan keuangan:', error)
+
       }
 
       // Fetch data surat masuk menggunakan API_ENDPOINTS seperti Dashboard Sekretaris
@@ -175,7 +169,6 @@ export default function Dashboard() {
           credentials: 'include',
         })
       } catch (error) {
-        console.error('Error fetching surat masuk:', error)
       }
 
       // Fetch data surat keluar menggunakan API_ENDPOINTS seperti Dashboard Sekretaris
@@ -186,19 +179,17 @@ export default function Dashboard() {
           credentials: 'include',
         })
       } catch (error) {
-        console.error('Error fetching surat keluar:', error)
       }
 
       // Fetch data permohonan surat menggunakan API_ENDPOINTS seperti Dashboard Sekretaris
-      let permohonanSuratData = [];
+      let permohonanSuratData = []
       try {
         const response = await fetchWithTimeout(API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_GET_ALL, {
           headers,
           credentials: 'include',
-        });
-        permohonanSuratData = Array.isArray(response.data) ? response.data : Object.values(response.data);
+        })
+        permohonanSuratData = Array.isArray(response.data) ? response.data : Object.values(response.data)
       } catch (error) {
-        console.error('Gagal mengambil data permohonan surat:', error);
       }
 
       setStats({
@@ -209,12 +200,10 @@ export default function Dashboard() {
         totalPengeluaran: pengeluaranData.total || 0,
         suratMasuk: suratMasukData.length || 0,
         suratKeluar: suratKeluarData.length || 0,
-        permohonanSurat: permohonanSuratData.length || 0, 
+        permohonanSurat: permohonanSuratData.length || 0,
       })
     } catch (error) {
-      console.error('[FETCH] Gagal mengambil data statistik:', error)
       if (retryCount > 0) {
-        console.log(`[FETCH] Mencoba lagi, sisa percobaan: ${retryCount}`)
         await new Promise(resolve => setTimeout(resolve, 1000))
         return fetchStats(retryCount - 1)
       }
@@ -429,7 +418,6 @@ export default function Dashboard() {
                               </TextNoCursor>
                             </Box>
                           </Box>
-                         
                         </CardContent>
                       </StatCard>
                     </Grid>

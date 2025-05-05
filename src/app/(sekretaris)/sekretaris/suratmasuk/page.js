@@ -122,7 +122,6 @@ export default function SuratMasuk() {
       setError(null);
     } catch (err) {
       setError('Gagal mengambil data surat masuk');
-      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }

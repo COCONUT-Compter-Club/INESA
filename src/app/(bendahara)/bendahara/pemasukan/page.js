@@ -1,53 +1,53 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { API_ENDPOINTS } from '@/config/api'
+import { laporanService } from '@/services/laporanService'
+import { pemasukanService } from '@/services/pemasukanService'
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
+import AddIcon from '@mui/icons-material/Add'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+import CloseIcon from '@mui/icons-material/Close'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
+import ReceiptIcon from '@mui/icons-material/Receipt'
+import SaveIcon from '@mui/icons-material/Save'
+import WarningIcon from '@mui/icons-material/Warning'
 import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Slide,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Paper,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  IconButton,
-  Tooltip,
-  Divider,
-  CircularProgress,
-  MenuItem,
   TablePagination,
-  Snackbar,
-  Slide,
-  Alert,
-  FormControl,
-  InputLabel,
-  Select
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography
 } from '@mui/material'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import AddIcon from '@mui/icons-material/Add'
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
-import SaveIcon from '@mui/icons-material/Save'
-import CloseIcon from '@mui/icons-material/Close'
-import WarningIcon from '@mui/icons-material/Warning'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import ReceiptIcon from '@mui/icons-material/Receipt'
 import { styled } from '@mui/material/styles'
-import { pemasukanService } from '@/services/pemasukanService'
-import { laporanService } from '@/services/laporanService'
-import { API_ENDPOINTS } from '@/config/api'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { format, isValid, startOfDay, endOfDay } from 'date-fns'
+import { endOfDay, format, isValid, startOfDay } from 'date-fns'
+import { useEffect, useState } from 'react'
 
 // Styled components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -285,9 +285,7 @@ export default function Pemasukan() {
         const total = await laporanService.getTotalPemasukan()
         setTotalPemasukan(Number.isFinite(total) ? total : 0)
       } catch (error) {
-        console.error('Gagal mengambil total pemasukan:', error)
         setTotalPemasukan(0)
-        showSnackbar('Gagal memuat total pemasukan', 'error')
       } finally {
         setIsLoadingTotal(false)
       }
@@ -325,7 +323,6 @@ export default function Pemasukan() {
       setTotalItems(response?.data?.total_items || 0)
       setTotalPages(response?.data?.total_pages || 0)
     } catch (error) {
-      console.error('Error fetching data:', error)
       showSnackbar('Gagal mengambil data: ' + error.message, 'error')
       setRows([])
     } finally {
@@ -477,7 +474,7 @@ export default function Pemasukan() {
       setTotalPemasukan(Number.isFinite(total) ? total : 0)
       showSnackbar(`Pemasukan berhasil dihapus`, 'success')
     } catch (error) {
-      console.error('Error deleting data:', error)
+
       showSnackbar(`Gagal menghapus pemasukan: ${error.message}`, 'error')
     } finally {
       setLoading(false)
@@ -559,7 +556,6 @@ export default function Pemasukan() {
       const total = await laporanService.getTotalPemasukan()
       setTotalPemasukan(Number.isFinite(total) ? total : 0)
     } catch (error) {
-      console.error('Error saving data:', error)
       showSnackbar(error.message || 'Gagal menyimpan data', 'error')
     } finally {
       setLoading(false)
@@ -590,7 +586,6 @@ export default function Pemasukan() {
         minute: '2-digit'
       })
     } catch (e) {
-      console.error('Error formatting date:', e)
       return backendDateString
     }
   }

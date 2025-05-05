@@ -1,7 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext();
 
@@ -9,8 +9,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Simulasi pengguna login untuk pengujian
-    console.log('AuthContext: Simulating logged-in user');
     setUser({ role: 'admin' });
     Cookies.set('auth_token', 'dummy_token', { expires: 7 });
   }, []);

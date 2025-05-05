@@ -1,37 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
-import { useSoftUIController, setMiniSidenav } from '@/context';
+import { setMiniSidenav, useSoftUIController } from '@/context';
+import { colors, shadows } from '@/styles/colors';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   AppBar,
+  Box,
+  Container,
   Drawer,
+  Grid,
   IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Toolbar,
-  Typography,
-  Box,
   Menu,
   MenuItem,
-  Container,
-  Grid,
+  Toolbar,
+  Typography,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import Link from 'next/link';
 import Image from 'next/image';
-import { colors, shadows } from '@/styles/colors';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/bendahara/dashboard' },
@@ -174,7 +173,7 @@ export default function BendaharaLayout({ children }) {
 
       <List sx={{ px: 2, mt: 'auto' }}>
         <ListItem
-          onClick={() => console.log('Logout clicked')}
+          onClick={handleLogout}
           sx={{
             borderRadius: '12px',
             py: 1,

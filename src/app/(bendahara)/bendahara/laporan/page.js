@@ -1,57 +1,52 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { laporanService } from '@/services/laporanService'
 import {
+  AccountBalance as AccountBalanceIcon,
+  CalendarToday as CalendarTodayIcon,
+  TableView as ExcelIcon,
+  FileDownload as FileDownloadIcon,
+  PictureAsPdf as PdfIcon,
+  TrendingDown as TrendingDownIcon,
+  TrendingUp as TrendingUpIcon
+} from '@mui/icons-material'
+import {
+  Alert,
   Box,
-  Card,
-  Typography,
   Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fade,
+  FormControl,
+  Grid,
+  InputLabel,
+  Menu,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Menu,
-  MenuItem,
-  Container,
-  Grid,
-  Fade,
-  Grow,
-  styled,
+  TextField,
+  Typography,
   keyframes,
-  CircularProgress,
-  IconButton,
-  CardContent,
-  Select,
-  FormControl,
-  InputLabel,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField
+  styled
 } from '@mui/material'
-import {
-  FileDownload as FileDownloadIcon,
-  PictureAsPdf as PdfIcon,
-  TableView as ExcelIcon,
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  AccountBalance as AccountBalanceIcon,
-  CalendarToday as CalendarTodayIcon
-} from '@mui/icons-material'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import * as XLSX from 'xlsx'
-import { laporanService } from '@/services/laporanService'
-import { pemasukanService } from '@/services/pemasukanService'
-import { pengeluaranService } from '@/services/pengeluaranService'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { format, isValid, startOfDay, endOfDay, parse } from 'date-fns'
+import { endOfDay, isValid, startOfDay } from 'date-fns'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { useEffect, useState } from 'react'
+import * as XLSX from 'xlsx'
 
 // Animasi dan styled components
 const slideUp = keyframes`
@@ -247,7 +242,6 @@ export default function LaporanKeuangan() {
         setTotalPengeluaran(Number.isFinite(pengeluaran) ? pengeluaran : 0)
         setSaldoAkhir(Number.isFinite(saldo) ? saldo : 0)
       } catch (error) {
-        console.error('Error fetching summary:', error)
         setAlert({
           open: true,
           message: 'Gagal memuat ringkasan keuangan',
@@ -286,7 +280,6 @@ export default function LaporanKeuangan() {
         minute: '2-digit'
       })
     } catch (e) {
-      console.error('Error formatting date:', e)
       return backendDateString
     }
   }
@@ -365,7 +358,6 @@ export default function LaporanKeuangan() {
       setData(rangeData)
       setFilteredData(rangeData)
     } catch (error) {
-      console.error('Error fetching data:', error)
       setError('Gagal mengambil data laporan: ' + error.message)
       setData([])
       setFilteredData([])
@@ -544,7 +536,6 @@ export default function LaporanKeuangan() {
       doc.save('laporan-keuangan-desa.pdf')
       handleClose()
     } catch (error) {
-      console.error('Error generating PDF:', error)
       setAlert({
         open: true,
         message: 'Terjadi kesalahan saat membuat PDF',
@@ -575,7 +566,6 @@ export default function LaporanKeuangan() {
       XLSX.writeFile(wb, 'laporan-keuangan.xlsx')
       handleClose()
     } catch (error) {
-      console.error('Error exporting Excel:', error)
       setAlert({
         open: true,
         message: 'Terjadi kesalahan saat membuat Excel',

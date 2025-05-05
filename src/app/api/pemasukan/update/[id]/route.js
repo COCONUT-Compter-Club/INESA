@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { API_ENDPOINTS } from '@/config/api';
+import { NextResponse } from 'next/server';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '*',
@@ -99,11 +99,11 @@ export async function PUT(request, { params }) {
           { status: 400, headers: CORS_HEADERS }
         );
       }
-      console.log('Received nota:', {
-        name: nota.name,
-        size: nota.size,
-        type: nota.type
-      }); // Log nota details
+      // console.log('Received nota:', {
+      //   name: nota.name,
+      //   size: nota.size,
+      //   type: nota.type
+      // }); // Log nota details
     }
 
     // 9. Prepare FormData for backend
@@ -128,7 +128,6 @@ export async function PUT(request, { params }) {
 
     // 11. Handle backend response
     const responseData = await response.json();
-    console.log('Backend response:', responseData); // Log backend response
 
     if (!response.ok) {
       return NextResponse.json(
@@ -149,7 +148,6 @@ export async function PUT(request, { params }) {
       { status: 200, headers: CORS_HEADERS }
     );
   } catch (error) {
-    console.error('Error updating pemasukan:', error);
     return NextResponse.json(
       {
         success: false,

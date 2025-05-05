@@ -79,7 +79,6 @@ export const pengeluaranService = {
                 message: 'Pengeluaran berhasil ditambahkan'
             };
         } catch (error) {
-            console.error('Error in addPengeluaran:', error);
             throw error;
         }
     },
@@ -151,7 +150,6 @@ export const pengeluaranService = {
                 message: 'Pengeluaran berhasil diupdate'
             };
         } catch (error) {
-            console.error('Error in updatePengeluaran:', error);
             throw error;
         }
     },
@@ -189,7 +187,6 @@ export const pengeluaranService = {
 
             return await response.json();
         } catch (error) {
-            console.error('Error in deletePengeluaran:', error);
             throw error;
         }
     },
@@ -224,7 +221,7 @@ export const pengeluaranService = {
 
             return await response.json(); // Kembalikan seluruh response termasuk metadata pagination
         } catch (error) {
-            console.error('Error in getAllPengeluaran:', error);
+
             throw error;
         }
     },
@@ -265,7 +262,6 @@ export const pengeluaranService = {
 
             return await response.json(); // Kembalikan seluruh response termasuk metadata pagination
         } catch (error) {
-            console.error('Error in getPengeluaranByDateRange:', error);
             throw error;
         }
     },
@@ -304,7 +300,6 @@ export const pengeluaranService = {
             const { data } = await response.json();
             return data;
         } catch (error) {
-            console.error('Error in getPengeluaranById:', error);
             throw error;
         }
     }

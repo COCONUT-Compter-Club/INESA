@@ -297,7 +297,6 @@ const Home = () => {
       try {
         result = JSON.parse(responseText);
       } catch (error) {
-        console.error('Failed to parse response:', responseText);
         throw new Error('Format data dari server tidak valid');
       }
       setFormData((prev) => ({
@@ -432,7 +431,7 @@ const Home = () => {
       try {
         result = JSON.parse(responseText);
       } catch (error) {
-        console.error('Failed to parse response:', responseText);
+
         throw new Error('Format data dari server tidak valid');
       }
       if (!result || typeof result !== 'object') {

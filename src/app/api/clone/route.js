@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { API_ENDPOINTS, getHeaders } from '@/config/api'
+import { NextResponse } from 'next/server'
 
 const cloneIuran = async (token, data) => {
   const response = await fetch(API_ENDPOINTS.IURAN_ADD, {
@@ -101,7 +101,6 @@ export async function POST(request) {
       results 
     })
   } catch (error) {
-    console.error('Error cloning data:', error)
     return NextResponse.json({ error: 'Failed to clone data' }, { status: 500 })
   }
 } 

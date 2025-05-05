@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { API_ENDPOINTS } from '@/config/api';
+import { NextResponse } from 'next/server';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '*',
@@ -118,13 +118,13 @@ export async function POST(request) {
       formDataPayload.append('nota', notaFile);
     }
 
-    console.log('Forwarding to backend:', {
-      tanggal: formValues.tanggal,
-      nominal: nominal,
-      kategori: formValues.kategori,
-      keterangan: formValues.keterangan,
-      nota: notaFile ? `File attached: ${notaFile.name}` : 'No file provided (optional)',
-    });
+    // console.log('Forwarding to backend:', {
+    //   tanggal: formValues.tanggal,
+    //   nominal: nominal,
+    //   kategori: formValues.kategori,
+    //   keterangan: formValues.keterangan,
+    //   nota: notaFile ? `File attached: ${notaFile.name}` : 'No file provided (optional)',
+    // });
 
     // 10. Forward to backend API
     const backendResponse = await fetch(API_ENDPOINTS.BENDAHARA.PEMASUKAN_ADD, {
@@ -145,7 +145,7 @@ export async function POST(request) {
         errorData = { message: await backendResponse.text() };
       }
 
-      console.error('Backend error:', backendResponse.status, errorData);
+      // console.error('Backend error:', backendResponse.status, errorData);
 
       return NextResponse.json(
         {
@@ -174,7 +174,7 @@ export async function POST(request) {
       }
     );
   } catch (error) {
-    console.error('Server error:', error);
+    // console.error('Server error:', error);
     return NextResponse.json(
       {
         success: false,

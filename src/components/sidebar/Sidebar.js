@@ -1,27 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { styled } from '@mui/material/styles'
+import {
+  Assessment as AssessmentIcon,
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  TrendingDown as TrendingDownIcon,
+  TrendingUp as TrendingUpIcon,
+} from '@mui/icons-material'
 import {
   Box,
+  CircularProgress,
   Drawer,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Typography,
-  CircularProgress,
-  Button,
+  Typography
 } from '@mui/material'
-import {
-  Dashboard as DashboardIcon,
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  Assessment as AssessmentIcon,
-  Person as PersonIcon,
-} from '@mui/icons-material'
-import { useRouter, usePathname } from 'next/navigation'
+import { styled } from '@mui/material/styles'
 import Image from 'next/image'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 const drawerWidth = 280
 
@@ -134,19 +133,15 @@ export default function Sidebar() {
         })
 
         const text = await response.text()
-        console.log('[FETCH] Respons teks (konten):', text)
         let data
 
         try {
           data = JSON.parse(text)
-          console.log('[FETCH] Respons JSON (konten):', data)
         } catch (parseErr) {
-          console.error('[FETCH] Gagal parsing JSON:', parseErr)
           throw new Error('Respons bukan JSON: ' + text)
         }
 
         if (!response.ok) {
-          console.error('[FETCH] Respons tidak OK:', response.status, data)
           throw new Error(data.message || `Gagal mengambil data konten: ${response.status}`)
         }
 
@@ -165,7 +160,6 @@ export default function Sidebar() {
           description: contentData.description || 'Kec. Tarowang, Kab. Jeneponto',
         })
       } catch (err) {
-        console.error('[FETCH] Gagal mengambil data konten:', err)
         setError('Gagal mengambil data konten: ' + err.message)
 
         setContent({
@@ -186,10 +180,8 @@ export default function Sidebar() {
   }
 
   const handleLogout = () => {
-    console.log('[LOGOUT] Menghapus cookie token') // Debugging
     removeCookie('token')
-    localStorage.removeItem('logo') // Bersihkan logo dari localStorage
-    console.log('[LOGOUT] Mengarahkan ke /authentication/sign-in') // Debugging
+    localStorage.removeItem('logo')
     router.push('/authentication/sign-in')
   }
 

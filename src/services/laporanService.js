@@ -30,7 +30,6 @@ export const laporanService = {
             const { data } = await response.json()
             return Array.isArray(data) ? data : []
         } catch (error) {
-            console.error('Error in getAllLaporan:', error)
             throw error
         }
     },
@@ -64,12 +63,10 @@ export const laporanService = {
             // Tangani berbagai format respons
             const saldo = result.data ?? result.saldo ?? result.total ?? 0
             if (!Number.isFinite(Number(saldo))) {
-                console.warn('Saldo tidak valid:', saldo)
                 return 0
             }
             return Number(saldo)
         } catch (error) {
-            console.error('Error in getSaldo:', error.message)
             throw error
         }
     },
@@ -102,7 +99,6 @@ export const laporanService = {
             const { total } = await response.json()
             return Number.isFinite(Number(total)) ? Number(total) : 0
         } catch (error) {
-            console.error('Error in getTotalPengeluaran:', error)
             throw error
         }
     },
@@ -135,7 +131,7 @@ export const laporanService = {
             const { total } = await response.json()
             return Number.isFinite(Number(total)) ? Number(total) : 0
         } catch (error) {
-            console.error('Error in getTotalPemasukan:', error)
+            // console.error('Error in getTotalPemasukan:', error)
             throw error
         }
     },
@@ -171,7 +167,7 @@ export const laporanService = {
             const { data } = await response.json()
             return Array.isArray(data) ? data : []
         } catch (error) {
-            console.error('Error in getLaporanByDateRange:', error)
+
             throw error
         }
     }

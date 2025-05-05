@@ -30,7 +30,6 @@ export const transaksiService = {
             const { data } = await response.json();
             return data;
         } catch (error) {
-            console.error('Error in getAllTransaksi:', error);
             throw error;
         }
     },
@@ -63,7 +62,6 @@ export const transaksiService = {
             const { data } = await response.json();
             return data;
         } catch (error) {
-            console.error('Error in getLastTransaksi:', error);
             throw error;
         }
     }

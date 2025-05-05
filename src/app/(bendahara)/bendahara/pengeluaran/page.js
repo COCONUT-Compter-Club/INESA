@@ -1,52 +1,51 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { API_ENDPOINTS } from '@/config/api'
+import { laporanService } from '@/services/laporanService'
+import { pengeluaranService } from '@/services/pengeluaranService'
+import AddIcon from '@mui/icons-material/Add'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+import CloseIcon from '@mui/icons-material/Close'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
+import MoneyOffIcon from '@mui/icons-material/MoneyOff'
+import ReceiptIcon from '@mui/icons-material/Receipt'
+import WarningIcon from '@mui/icons-material/Warning'
 import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slide,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
-  Paper,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  IconButton,
-  Tooltip,
-  Divider,
-  CircularProgress,
   TablePagination,
-  Snackbar,
-  Slide,
-  Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography
 } from '@mui/material'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import AddIcon from '@mui/icons-material/Add'
-import MoneyOffIcon from '@mui/icons-material/MoneyOff'
-import ReceiptIcon from '@mui/icons-material/Receipt'
-import CloseIcon from '@mui/icons-material/Close'
-import WarningIcon from '@mui/icons-material/Warning'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import { styled } from '@mui/material/styles'
-import { pengeluaranService } from '@/services/pengeluaranService'
-import { laporanService } from '@/services/laporanService'
-import { API_ENDPOINTS } from '@/config/api'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { format, isValid, startOfDay, endOfDay } from 'date-fns'
+import { endOfDay, isValid, startOfDay } from 'date-fns'
+import { useEffect, useState } from 'react'
 
 // Styled components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -239,7 +238,6 @@ export default function Pengeluaran() {
         minute: '2-digit'
       })
     } catch (e) {
-      console.error('Error formatting date:', e)
       return backendDateString
     }
   }
@@ -302,10 +300,8 @@ export default function Pengeluaran() {
       try {
         setIsLoadingTotal(true)
         const total = await laporanService.getTotalPengeluaran()
-        console.log('Fetched Total Pengeluaran:', total)
         setTotalPengeluaran(Number.isFinite(total) ? total : 0)
       } catch (error) {
-        console.error('Gagal mengambil total pengeluaran:', error)
         setTotalPengeluaran(0)
         showSnackbar('Gagal memuat total pengeluaran', 'error')
       } finally {
@@ -344,7 +340,6 @@ export default function Pengeluaran() {
       setTotalItems(response.data.total_items)
       setTotalPages(response.data.total_pages)
     } catch (error) {
-      console.error('Error fetching data:', error)
       showSnackbar('Gagal mengambil data: ' + error.message, 'error')
       setRows([])
     } finally {
@@ -487,7 +482,6 @@ export default function Pengeluaran() {
       setTotalPengeluaran(Number.isFinite(total) ? total : 0)
       showSnackbar(`Pengeluaran berhasil dihapus`, 'success')
     } catch (error) {
-      console.error('Error deleting data:', error)
       showSnackbar(`Gagal menghapus pengeluaran: ${error.message}`, 'error')
     } finally {
       setLoading(false)
@@ -567,7 +561,6 @@ export default function Pengeluaran() {
       const total = await laporanService.getTotalPengeluaran()
       setTotalPengeluaran(Number.isFinite(total) ? total : 0)
     } catch (error) {
-      console.error('Error saving data:', error)
       showSnackbar(error.message || 'Gagal menyimpan data', 'error')
     } finally {
       setLoading(false)

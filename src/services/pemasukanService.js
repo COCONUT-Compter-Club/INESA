@@ -35,17 +35,17 @@ export const pemasukanService = {
                 formData.append('nota', data.nota);
             }
 
-            console.log('Sending FormData to server:', {
-                tanggal: formData.get('tanggal'),
-                nominal: formData.get('nominal'),
-                kategori: formData.get('kategori'),
-                keterangan: formData.get('keterangan'),
-                nota: formData.get('nota') ? {
-                    name: data.nota.name,
-                    size: data.nota.size,
-                    type: data.nota.type
-                } : 'No file'
-            }); // Enhanced debugging
+            // console.log('Sending FormData to server:', {
+            //     tanggal: formData.get('tanggal'),
+            //     nominal: formData.get('nominal'),
+            //     kategori: formData.get('kategori'),
+            //     keterangan: formData.get('keterangan'),
+            //     nota: formData.get('nota') ? {
+            //         name: data.nota.name,
+            //         size: data.nota.size,
+            //         type: data.nota.type
+            //     } : 'No file'
+            // }); // Enhanced debugging
 
             const response = await fetch('/api/bendahara/pemasukan/add', {
                 method: 'POST',
@@ -68,7 +68,6 @@ export const pemasukanService = {
                 message: result.message || 'Pemasukan berhasil ditambahkan'
             };
         } catch (error) {
-            console.error('Error in addPemasukan:', error);
             throw error;
         }
     },
@@ -93,17 +92,17 @@ export const pemasukanService = {
                 formData.append('nota', data.nota);
             }
 
-            console.log('Updating FormData for ID:', id, {
-                tanggal: formData.get('tanggal'),
-                nominal: formData.get('nominal'),
-                kategori: formData.get('kategori'),
-                keterangan: formData.get('keterangan'),
-                nota: formData.get('nota') ? {
-                    name: data.nota.name,
-                    size: data.nota.size,
-                    type: data.nota.type
-                } : 'No file'
-            }); // Enhanced debugging
+            // console.log('Updating FormData for ID:', id, {
+            //     tanggal: formData.get('tanggal'),
+            //     nominal: formData.get('nominal'),
+            //     kategori: formData.get('kategori'),
+            //     keterangan: formData.get('keterangan'),
+            //     nota: formData.get('nota') ? {
+            //         name: data.nota.name,
+            //         size: data.nota.size,
+            //         type: data.nota.type
+            //     } : 'No file'
+            // }); // Enhanced debugging
 
             const response = await fetch(`/api/bendahara/pemasukan/update/${id}`, {
                 method: 'PUT',
@@ -115,7 +114,6 @@ export const pemasukanService = {
             });
 
             const result = await response.json();
-            console.log('Update response:', result); // Log response for debugging
 
             if (!response.ok) {
                 throw new Error(result.message || 'Gagal mengupdate pemasukan');
@@ -127,7 +125,6 @@ export const pemasukanService = {
                 message: result.message || 'Pemasukan berhasil diupdate'
             };
         } catch (error) {
-            console.error('Error in updatePemasukan:', error);
             throw error;
         }
     },
@@ -151,10 +148,6 @@ export const pemasukanService = {
                 credentials: 'include'
             });
 
-            // Log response for debugging
-            console.log('Delete response status:', response.status);
-            console.log('Delete response headers:', Object.fromEntries(response.headers));
-
             // Handle 204 No Content or successful responses
             if (response.status === 204) {
                 return {
@@ -164,7 +157,6 @@ export const pemasukanService = {
             }
 
             const result = await response.json();
-            console.log('Delete response body:', result);
 
             if (!response.ok) {
                 throw new Error(result.message || 'Gagal menghapus pemasukan');
@@ -176,7 +168,6 @@ export const pemasukanService = {
                 message: result.message || 'Pemasukan berhasil dihapus'
             };
         } catch (error) {
-            console.error('Error in deletePemasukan:', error);
             throw error;
         }
     },
@@ -204,7 +195,6 @@ export const pemasukanService = {
 
             return await response.json();
         } catch (error) {
-            console.error('Error in getAllPemasukan:', error);
             throw error;
         }
     },
@@ -238,7 +228,6 @@ export const pemasukanService = {
 
             return await response.json();
         } catch (error) {
-            console.error('Error in getPemasukanByDateRange:', error);
             throw error;
         }
     },
@@ -270,7 +259,6 @@ export const pemasukanService = {
             const { data } = await response.json();
             return data;
         } catch (error) {
-            console.error('Error in getPemasukanById:', error);
             throw error;
         }
     }

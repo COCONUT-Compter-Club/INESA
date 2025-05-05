@@ -1,37 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useSoftUIController, setMiniSidenav } from '@/context';
+import { setMiniSidenav, useSoftUIController } from '@/context';
+import { colors, shadows } from '@/styles/colors';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import PeopleIcon from '@mui/icons-material/People';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   AppBar,
+  Box,
+  Container,
   Drawer,
+  Grid,
   IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Toolbar,
-  Typography,
-  Box,
   Menu,
   MenuItem,
-  Container,
-  Grid
+  Toolbar,
+  Typography
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import Link from 'next/link';
-import Image from 'next/image';
 import Cookies from 'js-cookie';
-import { colors, shadows } from '@/styles/colors';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/admin/dashboard' },
@@ -76,16 +75,6 @@ export default function AdminLayout({ children }) {
   };
 
   const handleLogout = async () => {
-    console.log('Logout initiated');
-    console.log('Before logout - localStorage:', {
-      token: localStorage.getItem('token'),
-      user: localStorage.getItem('user')
-    });
-    console.log('Before logout - Cookies:', {
-      token: Cookies.get('token'),
-      isAuthenticated: Cookies.get('isAuthenticated')
-    });
-
     try {
       const response = await fetch('http://localhost:8080/api/logout', {
         method: 'POST',
@@ -93,25 +82,14 @@ export default function AdminLayout({ children }) {
         headers: { 'Content-Type': 'application/json' }
       });
       if (!response.ok) {
-        console.error('Backend logout failed:', response.statusText);
       }
     } catch (error) {
-      console.error('Error calling logout endpoint:', error);
     }
 
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     Cookies.remove('token', { path: '/' });
     Cookies.remove('isAuthenticated', { path: '/' });
-
-    console.log('After logout - localStorage:', {
-      token: localStorage.getItem('token'),
-      user: localStorage.getItem('user')
-    });
-    console.log('After logout - Cookies:', {
-      token: Cookies.get('token'),
-      isAuthenticated: Cookies.get('isAuthenticated')
-    });
 
     router.push('/authentication/sign-in');
   };
@@ -239,7 +217,7 @@ export default function AdminLayout({ children }) {
           '& .MuiIconButton-root': { color: darkMode ? '#fff' : colors.text.secondary }
         }}
       >
-        <Toolbar sx={{ minHeight: { xs: '64px', sm: '80px' }, paddingX: { xs: 2, sm: 3 } }}>
+        <Toolbar sx={{ minHeight: { xs: '64px', sm: '80px' }, padding众生: { xs: 2, sm: 3 } }}>
           <IconButton
             color="inherit"
             edge="start"

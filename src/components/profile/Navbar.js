@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
-import { AppBar, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { AppBar, Box, Button, Container, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import './navbar-styles.css';
 
 const Navbar = () => {
@@ -22,7 +22,6 @@ const Navbar = () => {
     const handleScroll = () => {
       const isScrolled = window.scrollY > 50;
       setScrolled(isScrolled);
-      console.log('Scroll position:', window.scrollY, 'Scrolled state:', isScrolled);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
