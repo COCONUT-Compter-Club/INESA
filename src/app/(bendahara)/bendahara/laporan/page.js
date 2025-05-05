@@ -242,6 +242,7 @@ export default function LaporanKeuangan() {
         setTotalPengeluaran(Number.isFinite(pengeluaran) ? pengeluaran : 0)
         setSaldoAkhir(Number.isFinite(saldo) ? saldo : 0)
       } catch (error) {
+        console.error('Error fetching summary:', error)
         setAlert({
           open: true,
           message: 'Gagal memuat ringkasan keuangan',
@@ -280,6 +281,7 @@ export default function LaporanKeuangan() {
         minute: '2-digit'
       })
     } catch (e) {
+      console.error('Error formatting date:', e)
       return backendDateString
     }
   }
@@ -358,6 +360,7 @@ export default function LaporanKeuangan() {
       setData(rangeData)
       setFilteredData(rangeData)
     } catch (error) {
+      console.error('Error fetching data:', error)
       setError('Gagal mengambil data laporan: ' + error.message)
       setData([])
       setFilteredData([])
@@ -536,6 +539,7 @@ export default function LaporanKeuangan() {
       doc.save('laporan-keuangan-desa.pdf')
       handleClose()
     } catch (error) {
+      console.error('Error generating PDF:', error)
       setAlert({
         open: true,
         message: 'Terjadi kesalahan saat membuat PDF',
@@ -566,6 +570,7 @@ export default function LaporanKeuangan() {
       XLSX.writeFile(wb, 'laporan-keuangan.xlsx')
       handleClose()
     } catch (error) {
+      console.error('Error exporting Excel:', error)
       setAlert({
         open: true,
         message: 'Terjadi kesalahan saat membuat Excel',

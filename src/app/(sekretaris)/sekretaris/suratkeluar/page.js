@@ -122,6 +122,7 @@ export default function SuratKeluar() {
       setError(null);
     } catch (err) {
       setError('Gagal mengambil data surat keluar');
+      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }

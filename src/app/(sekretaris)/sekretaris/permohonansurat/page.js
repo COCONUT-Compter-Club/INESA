@@ -893,6 +893,7 @@ export default function PermohonanSurat() {
         const module = await import('html2pdf.js');
         setHtml2pdf(() => module.default);
       } catch (err) {
+        console.error('Gagal memuat html2pdf:', err);
         setError('Gagal memuat generator PDF');
       }
     };
@@ -925,6 +926,7 @@ export default function PermohonanSurat() {
 
   // Buka form untuk memproses permohonan
   const handleOpenForm = (permohonan) => {
+    console.log('Data permohonan:', permohonan); // Debugging
     setSelectedPermohonan(permohonan);
     const template = suratTemplates[permohonan.jenis_surat];
     if (!template) {
@@ -970,6 +972,7 @@ export default function PermohonanSurat() {
       nomor_hp: safeFormString(permohonan.nomor_hp),
     };
 
+    console.log('Form data:', formData); // Debugging
     setFormData(formData);
   };
 
@@ -1128,6 +1131,7 @@ export default function PermohonanSurat() {
 
     } catch (err) {
       setError('Gagal menyimpan surat: ' + err.message);
+      console.error('Error:', err);
     } finally {
       setLoading(false);
     }

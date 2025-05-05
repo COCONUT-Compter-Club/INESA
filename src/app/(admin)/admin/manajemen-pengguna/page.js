@@ -64,6 +64,7 @@ export default function ManajemenPengguna() {
       if (parts.length === 2) return parts.pop().split(';').shift()
       return null
     } catch (err) {
+      console.error('Gagal parsing cookie:', err)
       return null
     }
   }
@@ -77,16 +78,21 @@ export default function ManajemenPengguna() {
       }
 
       setLoading(true)
+      console.log('[FETCH] Mengambil data pengguna dengan token:', token)
       const res = await fetch('https://bontomanai.inesa.id/api/users', {
         headers: { Authorization: `Bearer ${token}` }
       })
 
+      console.log('[FETCH] Status:', res.status)
       const text = await res.text()
+      console.log('[FETCH] Respons teks:', text)
 
       let data
       try {
         data = JSON.parse(text)
+        console.log('[FETCH] Respons JSON:', data)
       } catch (jsonError) {
+        console.error('[FETCH] Gagal parsing JSON:', jsonError)
         throw new Error(`Respons bukan JSON: ${text}`)
       }
 
@@ -107,6 +113,7 @@ export default function ManajemenPengguna() {
         showAlertMessage('Tidak ada data pengguna di database', 'info')
       }
     } catch (err) {
+      console.error('Fetch error:', err)
       showAlertMessage(err.message || 'Gagal memuat data pengguna', 'error')
     } finally {
       setLoading(false)
@@ -126,6 +133,7 @@ export default function ManajemenPengguna() {
       }
 
       setLoading(true)
+      console.log('[DELETE] Menghapus pengguna dengan ID:', id)
       const res = await fetch(`https://bontomanai.inesa.id/api/deleteusers/${id}`, {
         method: 'DELETE',
         headers: {
@@ -134,12 +142,16 @@ export default function ManajemenPengguna() {
         },
       })
 
+      console.log('[DELETE] Status:', res.status)
       const text = await res.text()
+      console.log('[DELETE] Respons teks:', text)
 
       let data
       try {
         data = JSON.parse(text)
+        console.log('[DELETE] Respons JSON:', data)
       } catch (jsonError) {
+        console.error('[DELETE] Gagal parsing JSON:', jsonError)
         throw new Error(`Respons bukan JSON: ${text}`)
       }
 
@@ -150,6 +162,7 @@ export default function ManajemenPengguna() {
       showAlertMessage('Pengguna berhasil dihapus', 'success')
       fetchUsers()
     } catch (err) {
+      console.error('Delete error:', err)
       showAlertMessage(err.message || 'Gagal menghapus pengguna', 'error')
     } finally {
       setLoading(false)

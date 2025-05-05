@@ -173,7 +173,7 @@ export default function BendaharaLayout({ children }) {
 
       <List sx={{ px: 2, mt: 'auto' }}>
         <ListItem
-          onClick={handleLogout}
+          onClick={() => console.log('Logout clicked')}
           sx={{
             borderRadius: '12px',
             py: 1,

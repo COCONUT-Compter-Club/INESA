@@ -82,6 +82,7 @@ export default function Dashboard() {
       if (!response.ok) throw new Error('Gagal mengambil data surat masuk');
       return await response.json();
     } catch (error) {
+      console.error('Error fetching surat masuk:', error);
       throw error;
     }
   };
@@ -96,6 +97,7 @@ export default function Dashboard() {
       if (!response.ok) throw new Error('Gagal mengambil data surat keluar');
       return await response.json();
     } catch (error) {
+      console.error('Error fetching surat keluar:', error);
       throw error;
     }
   };

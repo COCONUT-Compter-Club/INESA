@@ -88,11 +88,13 @@ const fetchWithTimeout = async (url, options, timeout = 15000) => {
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), timeout)
   try {
+    console.log(`[FETCH] Mengirim permintaan ke: ${url}`)
     const response = await fetch(url, { ...options, signal: controller.signal })
     if (!response.ok) {
       const text = await response.text()
       throw new Error(`HTTP error! status: ${response.status}, message: ${text}`)
     }
+    console.log(`[FETCH] Status: ${response.status}, Content-Type: ${response.headers.get('Content-Type')}`)
     clearTimeout(id)
     return response.json()
   } catch (error) {
@@ -212,6 +214,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error('[FETCH] Gagal mengambil data statistik:', error)
       if (retryCount > 0) {
+        console.log(`[FETCH] Mencoba lagi, sisa percobaan: ${retryCount}`)
         await new Promise(resolve => setTimeout(resolve, 1000))
         return fetchStats(retryCount - 1)
       }
@@ -426,6 +429,7 @@ export default function Dashboard() {
                               </TextNoCursor>
                             </Box>
                           </Box>
+                         
                         </CardContent>
                       </StatCard>
                     </Grid>
