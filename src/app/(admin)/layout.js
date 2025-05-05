@@ -75,6 +75,16 @@ export default function AdminLayout({ children }) {
   };
 
   const handleLogout = async () => {
+    console.log('Logout initiated');
+    console.log('Before logout - localStorage:', {
+      token: localStorage.getItem('token'),
+      user: localStorage.getItem('user')
+    });
+    console.log('Before logout - Cookies:', {
+      token: Cookies.get('token'),
+      isAuthenticated: Cookies.get('isAuthenticated')
+    });
+
     try {
       const response = await fetch('http://localhost:8080/api/logout', {
         method: 'POST',
@@ -82,14 +92,25 @@ export default function AdminLayout({ children }) {
         headers: { 'Content-Type': 'application/json' }
       });
       if (!response.ok) {
+        console.error('Backend logout failed:', response.statusText);
       }
     } catch (error) {
+      console.error('Error calling logout endpoint:', error);
     }
 
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     Cookies.remove('token', { path: '/' });
     Cookies.remove('isAuthenticated', { path: '/' });
+
+    console.log('After logout - localStorage:', {
+      token: localStorage.getItem('token'),
+      user: localStorage.getItem('user')
+    });
+    console.log('After logout - Cookies:', {
+      token: Cookies.get('token'),
+      isAuthenticated: Cookies.get('isAuthenticated')
+    });
 
     router.push('/authentication/sign-in');
   };
@@ -217,7 +238,7 @@ export default function AdminLayout({ children }) {
           '& .MuiIconButton-root': { color: darkMode ? '#fff' : colors.text.secondary }
         }}
       >
-        <Toolbar sx={{ minHeight: { xs: '64px', sm: '80px' }, padding众生: { xs: 2, sm: 3 } }}>
+        <Toolbar sx={{ minHeight: { xs: '64px', sm: '80px' }, paddingX: { xs: 2, sm: 3 } }}>
           <IconButton
             color="inherit"
             edge="start"
