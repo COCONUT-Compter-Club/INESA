@@ -77,8 +77,8 @@ const Location = () => {
               <ContactInfoItem>
                 <PhoneIcon />
                 <Typography>
-                  <Link href="tel:+6281234567890" color="inherit">
-                    +62 812-3456-7890
+                  <Link href="tel:+6285231379723" color="inherit">
+                    +62 852-3137-9723
                   </Link>
                 </Typography>
               </ContactInfoItem>
