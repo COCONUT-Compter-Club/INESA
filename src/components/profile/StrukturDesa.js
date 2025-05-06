@@ -8,28 +8,18 @@ const strukturDesa = {
   kepengurusan: [
     {
       jabatan: "KEPALA DESA",
-      nama: "NURLENI",
+      nama: " H. ABD. RASYID",
       foto: "/pengurus/kades.png",
     },
     {
       jabatan: "SEKRETARIS",
-      nama: "NOVIANTI",
+      nama: "SYAPARUDDIN",
       foto: "/pengurus/sekretaris.jpg",
     },
     {
       jabatan: "BENDAHARA",
-      nama: "PATTOLA DG BALI",
+      nama: "SUPRIADI. S",
       foto: "/pengurus/bendahara.jpg",
-    },
-    {
-      jabatan: "KASI PEMERINTAHAN",
-      nama: "MUHAMMAD SAKIR",
-      foto: "/pengurus/kasi.jpg",
-    },
-    {
-      jabatan: "KASI PEMBANGUNAN",
-      nama: "HADALIA DG. CAYA",
-      foto: "/pengurus/kasi2.jpg",
     },
   ],
 };
