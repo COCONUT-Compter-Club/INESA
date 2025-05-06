@@ -1,12 +1,17 @@
 'use client'
 
-import { Box, TextField, MenuItem, Container, Typography, Button } from "@mui/material";
+import { Box, TextField, MenuItem, Container, Typography, Button, Alert, Snackbar } from "@mui/material";
 import { useState } from "react";
 
 export default function FormWarga() {
 
     const [showAlert, setShowAlert] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [notification, setNotification] = useState({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
 
     const [formData, setFormData] = useState({
         nik: '',
@@ -16,7 +21,7 @@ export default function FormWarga() {
         jenis_kelamin: '',
         pendidikan: '',
         pekerjaan: '',
-        pekerjaanLainnya: '', // State baru untuk pekerjaan manual
+        pekerjaanLainnya: '',
         agama: '',
         status_pernikahan: '',
         kewarganegaraan: ''
@@ -27,20 +32,23 @@ export default function FormWarga() {
         setFormData(prev => ({ ...prev, [name]: value }))
     }
 
+    const handleCloseNotification = () => {
+        setNotification(prev => ({ ...prev, open: false }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
         setShowAlert(true)
 
         try {
-            // Prepare the data
             const submitData = { ...formData }
             if (submitData.pekerjaan === 'Lainnya') {
                 submitData.pekerjaan = submitData.pekerjaanLainnya
             }
             delete submitData.pekerjaanLainnya
 
-            const response = await fetch('http://bontomanai.inesa.id/api/warga', {
+            const response = await fetch('https://bontomanai.inesa.id/api/warga', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,7 +60,12 @@ export default function FormWarga() {
                 throw new Error('Gagal mengirim data')
             }
 
-            // Reset form after successful submission
+            setNotification({
+                open: true,
+                message: 'Data berhasil dikirim',
+                severity: 'success'
+            });
+
             setFormData({
                 nik: '',
                 nama_lengkap: '',
@@ -69,6 +82,11 @@ export default function FormWarga() {
             setShowAlert(false)
         } catch (error) {
             console.error('Error:', error)
+            setNotification({
+                open: true,
+                message: 'Gagal mengirim data',
+                severity: 'error'
+            });
         } finally {
             setLoading(false)
         }
@@ -314,6 +332,22 @@ export default function FormWarga() {
                 </Button>
             </Box>
         </Container>
+
+        <Snackbar
+            open={notification.open}
+            autoHideDuration={5000}
+            onClose={handleCloseNotification}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+            <Alert 
+                onClose={handleCloseNotification} 
+                severity={notification.severity}
+                variant="filled"
+                sx={{ width: '100%' }}
+            >
+                {notification.message}
+            </Alert>
+        </Snackbar>
         </div>
     );
 }
