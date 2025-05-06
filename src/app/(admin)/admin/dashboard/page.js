@@ -214,6 +214,7 @@ export default function Dashboard() {
         errorMessage = 'Gagal terhubung ke server, periksa backend atau koneksi'
       } else if (error.message.includes('401')) {
         errorMessage = 'Token tidak valid, silakan login kembali'
+        window.location.href = "/authentication/sign-in"
       }
       setError(errorMessage)
     } finally {
