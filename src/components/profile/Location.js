@@ -68,8 +68,8 @@ const Location = () => {
               <ContactInfoItem>
                 <EmailIcon />
                 <Typography>
-                  <Link href="mailto:kontak@desabontomanai.go.id" color="inherit">
-                    kontak@desabontomanai.go.id
+                  <Link href="mailto:desbontomanai@gmail.com" color="inherit">
+                    desbontomanai@gmail.com
                   </Link>
                 </Typography>
               </ContactInfoItem>

@@ -52,7 +52,7 @@ const Footer = () => {
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Email sx={{ mr: 1, fontSize: '1.2rem' }} />
                 <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
-                  desabontomanai@example.com
+                  desbontomanai@gmail.com
                 </Typography>
               </Box>
             </motion.div>
