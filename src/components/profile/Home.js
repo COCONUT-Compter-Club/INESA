@@ -648,24 +648,54 @@ const Home = () => {
                   {renderAdditionalFields()}
                 </Grid>
                 <Divider sx={{ my: 2 }} />
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 2 }}>
-                  <Button
-                    onClick={handleCloseDialog}
-                    variant="outlined"
-                    sx={{ borderRadius: '8px', padding: '8px 16px', fontSize: '0.875rem' }}
-                  >
-                    Batal
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    variant="contained"
-                    disabled={sedangMemuat}
-                    endIcon={sedangMemuat ? <CircularProgress size={20} /> : <SendIcon fontSize="small" />}
-                    sx={{ borderRadius: '8px', padding: '8px 16px', fontSize: '0.875rem' }}
-                  >
-                    {sedangMemuat ? 'Mengirim...' : 'Kirim Pengajuan'}
-                  </Button>
+                <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    mb: 2 
+                }}>
+                    <Button
+                        href="/form-warga"
+                        variant="contained"
+                        color="secondary"
+                        sx={{ 
+                            borderRadius: '8px', 
+                            padding: '8px 16px', 
+                            fontSize: '0.875rem',
+                            bgcolor: '#2196f3', // blue color
+                            '&:hover': {
+                                bgcolor: '#1976d2'
+                            }
+                        }}
+                    >
+                        Tambah Data Warga
+                    </Button>
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Button
+                            onClick={handleCloseDialog}
+                            variant="outlined"
+                            sx={{ 
+                                borderRadius: '8px', 
+                                padding: '8px 16px', 
+                                fontSize: '0.875rem' 
+                            }}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="submit"
+                            color="primary"
+                            variant="contained"
+                            disabled={sedangMemuat}
+                            endIcon={sedangMemuat ? <CircularProgress size={20} /> : <SendIcon fontSize="small" />}
+                            sx={{ 
+                                borderRadius: '8px', 
+                                padding: '8px 16px', 
+                                fontSize: '0.875rem' 
+                            }}
+                        >
+                            {sedangMemuat ? 'Mengirim...' : 'Kirim Pengajuan'}
+                        </Button>
+                    </Box>
                 </Box>
               </form>
             </Card>
