@@ -73,6 +73,12 @@ export default function BendaharaLayout({ children }) {
     handleClose();
   };
 
+  const handleLogout = () => {
+    Cookies.remove('isAuthenticated');
+    localStorage.removeItem('user');
+    router.push('/authentication/sign-in');
+  };
+
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar sx={{ display: 'flex', alignItems: 'center', px: 3, py: 2, minHeight: '80px !important' }}>
@@ -172,8 +178,8 @@ export default function BendaharaLayout({ children }) {
       </List>
 
       <List sx={{ px: 2, mt: 'auto' }}>
-        <ListItem
-          onClick={() => console.log('Logout clicked')}
+        <ListItem 
+          onClick={handleLogout}
           sx={{
             borderRadius: '12px',
             py: 1,
@@ -187,7 +193,7 @@ export default function BendaharaLayout({ children }) {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <LogoutIcon />
           </ListItemIcon>
-          <ListItemText primary="Logout" />
+          <ListItemText primary="Keluar" />
         </ListItem>
       </List>
     </Box>
