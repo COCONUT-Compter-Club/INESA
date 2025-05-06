@@ -73,9 +73,42 @@ export default function BendaharaLayout({ children }) {
     handleClose();
   };
 
-  const handleLogout = () => {
-    Cookies.remove('isAuthenticated');
+  const handleLogout = async () => {
+    console.log('Logout initiated');
+    console.log('Before logout - localStorage:', {
+      token: localStorage.getItem('token'),
+      user: localStorage.getItem('user')
+    });
+    console.log('Before logout - Cookies:', {
+      token: Cookies.get('token'),
+      isAuthenticated: Cookies.get('isAuthenticated')
+    });
+
+    try {
+      const response = await fetch('http://localhost:8080/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) {
+      }
+    } catch (error) {
+    }
+
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
+    Cookies.remove('token', { path: '/' });
+    Cookies.remove('isAuthenticated', { path: '/' });
+
+    console.log('After logout - localStorage:', {
+      token: localStorage.getItem('token'),
+      user: localStorage.getItem('user')
+    });
+    console.log('After logout - Cookies:', {
+      token: Cookies.get('token'),
+      isAuthenticated: Cookies.get('isAuthenticated')
+    });
+
     router.push('/authentication/sign-in');
   };
 
@@ -178,7 +211,7 @@ export default function BendaharaLayout({ children }) {
       </List>
 
       <List sx={{ px: 2, mt: 'auto' }}>
-        <ListItem 
+        <ListItem
           onClick={handleLogout}
           sx={{
             borderRadius: '12px',
@@ -186,14 +219,14 @@ export default function BendaharaLayout({ children }) {
             color: darkMode ? '#fff' : colors.text.secondary,
             cursor: 'pointer',
             '&:hover': {
-              bgcolor: darkMode ? 'rgba(255, 255, 255, 0.05)' : `${colors.primary.light}20`,
-            },
-          }}
+              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : `${colors.primary.light}20`
+            }}
+          }
         >
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <LogoutIcon />
           </ListItemIcon>
-          <ListItemText primary="Keluar" />
+          <ListItemText primary="Logout" />
         </ListItem>
       </List>
     </Box>

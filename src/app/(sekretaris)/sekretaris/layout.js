@@ -1,24 +1,23 @@
 'use client';
 
-import { AppBar, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography, Box, Menu, MenuItem, Divider, Container, Grid } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead'; // Ikon Surat Masuk
-import SendIcon from '@mui/icons-material/Send'; // Ikon Surat Keluar
-import ArchiveIcon from '@mui/icons-material/Archive'; // Ikon Arsip Surat
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import AssignmentIcon from '@mui/icons-material/Assignment'; // Ikon Permohonan Surat
-import LogoutIcon from '@mui/icons-material/Logout';
-import SettingsIcon from '@mui/icons-material/Settings';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
-import { useSoftUIController, setMiniSidenav } from '@/context';
+import { setMiniSidenav, useSoftUIController } from '@/context';
 import { colors, shadows } from '@/styles/colors';
-import { useState, useEffect } from 'react';
+import ArchiveIcon from '@mui/icons-material/Archive'; // Ikon Arsip Surat
+import AssignmentIcon from '@mui/icons-material/Assignment'; // Ikon Permohonan Surat
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead'; // Ikon Surat Masuk
+import MenuIcon from '@mui/icons-material/Menu';
+import SendIcon from '@mui/icons-material/Send'; // Ikon Surat Keluar
+import SettingsIcon from '@mui/icons-material/Settings';
+import { AppBar, Box, Container, Drawer, Grid, IconButton, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import Cookies from 'js-cookie';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 // Menu untuk persuratan
 const menuItems = [
@@ -73,9 +72,42 @@ export default function DashboardLayout({ children }) {
     handleClose();
   };
 
-  const handleLogout = () => {
-    Cookies.remove('isAuthenticated');
+  const handleLogout = async () => {
+    console.log('Logout initiated');
+    console.log('Before logout - localStorage:', {
+      token: localStorage.getItem('token'),
+      user: localStorage.getItem('user')
+    });
+    console.log('Before logout - Cookies:', {
+      token: Cookies.get('token'),
+      isAuthenticated: Cookies.get('isAuthenticated')
+    });
+
+    try {
+      const response = await fetch('http://localhost:8080/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) {
+      }
+    } catch (error) {
+    }
+
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
+    Cookies.remove('token', { path: '/' });
+    Cookies.remove('isAuthenticated', { path: '/' });
+
+    console.log('After logout - localStorage:', {
+      token: localStorage.getItem('token'),
+      user: localStorage.getItem('user')
+    });
+    console.log('After logout - Cookies:', {
+      token: Cookies.get('token'),
+      isAuthenticated: Cookies.get('isAuthenticated')
+    });
+
     router.push('/authentication/sign-in');
   };
 
@@ -182,7 +214,7 @@ export default function DashboardLayout({ children }) {
       </List>
 
       <List sx={{ px: 2, mt: 'auto' }}>
-        <ListItem 
+        <ListItem
           onClick={handleLogout}
           sx={{
             borderRadius: '12px',
@@ -190,14 +222,14 @@ export default function DashboardLayout({ children }) {
             color: darkMode ? '#fff' : colors.text.secondary,
             cursor: 'pointer',
             '&:hover': {
-              bgcolor: darkMode ? 'rgba(255, 255, 255, 0.05)' : `${colors.primary.light}20`,
-            },
-          }}
+              backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : `${colors.primary.light}20`
+            }}
+          }
         >
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <LogoutIcon />
           </ListItemIcon>
-          <ListItemText primary="Keluar" />
+          <ListItemText primary="Logout" />
         </ListItem>
       </List>
     </Box>
