@@ -1,18 +1,16 @@
-import React from 'react';
-import Carousel from 'react-material-ui-carousel';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  useTheme,
-  useMediaQuery
-} from '@mui/material';
 import {
   ArrowBack,
-  ArrowForward,
-  ZoomIn
+  ArrowForward
 } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Paper,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@mui/material';
+import Carousel from 'react-material-ui-carousel';
 
 const Gallery = () => {
   const theme = useTheme();
