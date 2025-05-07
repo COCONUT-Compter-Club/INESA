@@ -35,6 +35,7 @@ export const API_ENDPOINTS = {
     PERMOHONAN_SURAT_GET_BY_ID: (id) => `${SEKRETARIS_API_BASE_URL}/permohonansurat/${id}`,
     PERMOHONAN_SURAT_UPDATE: (id) => `${SEKRETARIS_API_BASE_URL}/permohonansurat/${id}`,
     PERMOHONAN_SURAT_UPDATE_STATUS: (id) => `${SEKRETARIS_API_BASE_URL}/permohonansurat/patch/${id}`,
+    SURAT_KELUAR_SERVE_FILE: (filename) => `${SEKRETARIS_API_BASE_URL}/suratkeluar/file/${filename}`,
   },
 
   // Endpoint bendahara
