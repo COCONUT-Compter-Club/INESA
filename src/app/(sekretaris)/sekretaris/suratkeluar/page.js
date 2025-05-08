@@ -417,11 +417,11 @@ export default function SuratKeluar() {
   {row.file && (
     <Tooltip title="Lihat File">
       <IconButton
-        component="a"
-        href={`https://bontomanai.inesa.id/static/suratkeluar/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+  component="a"
+  href={`https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+  target="_blank"
+  rel="noopener noreferrer"
+>
         <DescriptionIcon />
       </IconButton>
     </Tooltip>
@@ -488,14 +488,14 @@ export default function SuratKeluar() {
                {formData.file?.name || existingFile?.split('/').pop()}
              </Typography>
              {(previewFile || existingFile) && (
-               <a
-                 href={previewFile || `https://bontomanai.inesa.id/static/suratkeluar/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
-                 target="_blank"
-                 rel="noopener noreferrer"
-               >
-                 <Button size="small">Lihat</Button>
-               </a>
-             )}
+  <a
+    href={previewFile || `https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Button size="small">Lihat</Button>
+  </a>
+)}
            </FilePreviewBox>
             )}
           </DialogContent>
