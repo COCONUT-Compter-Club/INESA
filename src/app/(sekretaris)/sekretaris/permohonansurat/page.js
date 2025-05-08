@@ -619,7 +619,7 @@ export default function PermohonanSurat() {
     const fetchPermohonan = async () => {
       setLoading(true);
       try {
-        const response = await fetch(API_ENDPOINTS.PERMOHONAN_SURAT_GET_ALL, {
+        const response = await fetch(API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_GET_ALL, {
           method: 'GET',
           headers: getHeaders(),
         });
@@ -792,7 +792,7 @@ export default function PermohonanSurat() {
       formDataToSend.append('title', selectedPermohonan.jenis_surat);
       formDataToSend.append('file', pdfBlob, opt.filename);
 
-      const response = await fetch(API_ENDPOINTS.SURAT_KELUAR_ADD, {
+      const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_ADD, {
         method: 'POST',
         body: formDataToSend,
       });
