@@ -82,8 +82,8 @@ const letterFields = {
     { name: 'nama_lengkap', label: 'Nama Lengkap', type: 'text', placeholder: 'Masukkan Nama Lengkap', disabled: true, required: true },
     { name: 'tempat_lahir', label: 'Tempat Lahir', type: 'text', placeholder: 'Masukkan Tempat Lahir', disabled: true, required: true },
     { name: 'tanggal_lahir', label: 'Tanggal Lahir', type: 'date', placeholder: 'Pilih Tanggal Lahir', disabled: true, required: true },
-    { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan', required: true },
-    { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true, required: true, multiline: true, rows: 2 },
+    { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan', disabled: true, required: true },
+    { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', required: true, multiline: true, rows: 2 },
     { name: 'keperluan', label: 'Keperluan', type: 'text', placeholder: 'Masukkan Keperluan', required: true },
     { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP', required: true },
     { name: 'keterangan', label: 'Keterangan', type: 'text', placeholder: 'Masukkan Keterangan', required: true },
@@ -93,7 +93,7 @@ const letterFields = {
     { name: 'nama_lengkap', label: 'Nama Lengkap', type: 'text', placeholder: 'Masukkan Nama Lengkap', disabled: true, required: true },
     { name: 'tempat_lahir', label: 'Tempat Lahir', type: 'text', placeholder: 'Masukkan Tempat Lahir', disabled: true, required: true },
     { name: 'tanggal_lahir', label: 'Tanggal Lahir', type: 'date', placeholder: 'Pilih Tanggal Lahir', disabled: true, required: true },
-    { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true, required: true, multiline: true, rows: 2 },
+    { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', required: true, multiline: true, rows: 2 },
     { name: 'nama_usaha', label: 'Nama Usaha', type: 'text', placeholder: 'Masukkan Nama Usaha', required: true },
     { name: 'jenis_usaha', label: 'Jenis Usaha', type: 'select', placeholder: 'Pilih Jenis Usaha', required: true, options: [
       { value: '', label: 'Pilih jenis usaha' },
@@ -112,8 +112,8 @@ const letterFields = {
     { name: 'nik', label: 'NIK', type: 'text', placeholder: 'Masukkan NIK', disabled: true, required: true },
     { name: 'nama_lengkap', label: 'Nama Lengkap', type: 'text', placeholder: 'Masukkan Nama Lengkap', disabled: true, required: true },
     { name: 'tempat_lahir', label: 'Tempat Lahir', type: 'text', placeholder: 'Masukkan Tempat Lahir', disabled: true, required: true },
-    { name: 'tanggal_lahir', label: 'Tanggal Lahir', type: 'date', placeholder: 'Pilih Tanggal Lahir', disabled: true, required: true },
-    { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true, required: true, multiline: true, rows: 2 },
+    { name: 'tanggal_lhir', label: 'Tanggal Lahir', type: 'date', placeholder: 'Pilih Tanggal Lahir', disabled: true, required: true },
+    { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', required: true, multiline: true, rows: 2 },
     { name: 'status_pernikahan', label: 'Status Pernikahan', type: 'select', placeholder: 'Pilih Status Pernikahan', required: true, options: [
       { value: '', label: 'Pilih status' },
       { value: 'Belum Menikah', label: 'Belum Menikah' },
@@ -125,61 +125,31 @@ const letterFields = {
     { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP', required: true },
     { name: 'keterangan', label: 'Keterangan', type: 'text', placeholder: 'Masukkan Keterangan', required: true },
   ],
-  'Surat Keterangan Pindah': [
+  'Surat Pengantar SKCK': [
     { name: 'nik', label: 'NIK', type: 'text', placeholder: 'Masukkan NIK', disabled: true, required: true },
     { name: 'nama_lengkap', label: 'Nama Lengkap', type: 'text', placeholder: 'Masukkan Nama Lengkap', disabled: true, required: true },
     { name: 'tempat_lahir', label: 'Tempat Lahir', type: 'text', placeholder: 'Masukkan Tempat Lahir', disabled: true, required: true },
     { name: 'tanggal_lahir', label: 'Tanggal Lahir', type: 'date', placeholder: 'Pilih Tanggal Lahir', disabled: true, required: true },
-    { name: 'alamat_lengkap', label: 'Alamat Asal', type: 'text', placeholder: 'Masukkan Alamat Asal', disabled: true, required: true, multiline: true, rows: 2 },
-    { name: 'alamat_tujuan', label: 'Alamat Tujuan', type: 'text', placeholder: 'Masukkan Alamat Tujuan', required: true, multiline: true, rows: 2 },
-    { name: 'alasan_pindah', label: 'Alasan Pindah', type: 'select', placeholder: 'Pilih Alasan Pindah', required: true, options: [
-      { value: '', label: 'Pilih alasan pindah' },
-      { value: 'Pekerjaan', label: 'Pekerjaan' },
-      { value: 'Pendidikan', label: 'Pendidikan' },
-      { value: 'Keluarga', label: 'Keluarga' },
-      { value: 'Kesehatan', label: 'Kesehatan' },
+    { name: 'jenis_kelamin', label: 'Jenis Kelamin', type: 'select', placeholder: 'Pilih Jenis Kelamin', required: true, options: [
+      { value: '', label: 'Pilih jenis kelamin' },
+      { value: 'Laki-laki', label: 'Laki-laki' },
+      { value: 'Perempuan', label: 'Perempuan' },
+    ]},
+    { name: 'agama', label: 'Agama', type: 'select', placeholder: 'Pilih Agama', disabled: true, required: true, options: [
+      { value: '', label: 'Pilih agama' },
+      { value: 'Islam', label: 'Islam' },
+      { value: 'Kristen', label: 'Kristen' },
+      { value: 'Katolik', label: 'Katolik' },
+      { value: 'Hindu', label: 'Hindu' },
+      { value: 'Buddha', label: 'Buddha' },
+      { value: 'Konghucu', label: 'Konghucu' },
       { value: 'Lainnya', label: 'Lainnya' },
     ]},
-    { name: 'keperluan', label: 'Keperluan', type: 'text', placeholder: 'Masukkan Keperluan', required: true },
+    { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan', disabled: true, required: true },
+    { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', required: true, multiline: true, rows: 2 },
+    { name: 'tujuan', label: 'Tujuan', type: 'text', placeholder: 'Masukkan Tujuan SKCK', required: true },
     { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP', required: true },
-    { name: 'keterangan', label: 'Keterangan', type: 'text', placeholder: 'Masukkan Keterangan', required: true },
   ],
-  'Surat Pengantar': [
-    { name: 'nik', label: 'NIK', type: 'text', placeholder: 'Masukkan NIK', disabled: true, required: true },
-    { name: 'nama_lengkap', label: 'Nama Lengkap', type: 'text', placeholder: 'Masukkan Nama Lengkap', disabled: true, required: true },
-    { name: 'tempat_lahir', label: 'Tempat Lahir', type: 'text', placeholder: 'Masukkan Tempat Lahir', disabled: true, required: true },
-    { name: 'tanggal_lahir', label: 'Tanggal Lahir', type: 'date', placeholder: 'Pilih Tanggal Lahir', disabled: true, required: true },
-    { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true, required: true, multiline: true, rows: 2 },
-    { name: 'keperluan', label: 'Keperluan', type: 'text', placeholder: 'Masukkan Keperluan', required: true },
-    { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP', required: true },
-    { name: 'keterangan', label: 'Keterangan', type: 'text', placeholder: 'Masukkan Keterangan', required: true },
-  ],
-  // 'Surat Keterangan Kelahiran': [
-  //   { name: 'nama_lengkap', label: 'Nama Anak', type: 'text', placeholder: 'Masukkan Nama Anak', required: true },
-  //   { name: 'jenis_kelamin', label: 'Jenis Kelamin', type: 'select', placeholder: 'Pilih Jenis Kelamin', required: true, options: [
-  //     { value: '', label: 'Pilih jenis kelamin' },
-  //     { value: 'Laki-laki', label: 'Laki-laki' },
-  //     { value: 'Perempuan', label: 'Perempuan' },
-  //   ]},
-  //   { name: 'tempat_lahir', label: 'Tempat Lahir Anak', type: 'text', placeholder: 'Masukkan Tempat Lahir', required: true },
-  //   { name: 'tanggal_lahir', label: 'Tanggal Lahir Anak', type: 'date', placeholder: 'Pilih Tanggal Lahir', required: true },
-  //   { name: 'nama_ayah', label: 'Nama Ayah', type: 'text', placeholder: 'Masukkan Nama Ayah', required: true },
-  //   { name: 'nama_ibu', label: 'Nama Ibu', type: 'text', placeholder: 'Masukkan Nama Ibu', required: true },
-  //   { name: 'alamat_lengkap', label: 'Alamat Orang Tua', type: 'text', placeholder: 'Masukkan Alamat Orang Tua', required: true, multiline: true, rows: 2 },
-  //   { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP', required: true },
-  //   { name: 'keterangan', label: 'Keterangan', type: 'text', placeholder: 'Masukkan Keterangan', required: true },
-  // ],
-  // 'Surat Keterangan Kematian': [
-  //   { name: 'nik', label: 'NIK', type: 'text', placeholder: 'Masukkan NIK', disabled: true, required: true },
-  //   { name: 'nama_lengkap', label: 'Nama Lengkap', type: 'text', placeholder: 'Masukkan Nama Lengkap', disabled: true, required: true },
-  //   { name: 'tempat_lahir', label: 'Tempat Lahir', type: 'text', placeholder: 'Masukkan Tempat Lahir', disabled: true, required: true },
-  //   { name: 'tanggal_lahir', label: 'Tanggal Lahir', type: 'date', placeholder: 'Pilih Tanggal Lahir', disabled: true, required: true },
-  //   { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true, required: true, multiline: true, rows: 2 },
-  //   { name: 'tgl_kematian', label: 'Tanggal Kematian', type: 'date', placeholder: 'Pilih Tanggal Kematian', required: true },
-  //   { name: 'penyebab_kematian', label: 'Penyebab Kematian', type: 'text', placeholder: 'Masukkan Penyebab Kematian', required: true },
-  //   { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP', required: true },
-  //   { name: 'keterangan', label: 'Keterangan', type: 'text', placeholder: 'Masukkan Keterangan', required: true },
-  // ],
 };
 
 const Home = () => {
@@ -213,6 +183,7 @@ const Home = () => {
     tgl_kematian: '',
     penyebab_kematian: '',
     keperluan: '',
+    tujuan: '',
   };
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -329,6 +300,7 @@ const Home = () => {
         tgl_kematian: result.tanggal_kematian || prev.tgl_kematian,
         penyebab_kematian: result.penyebab_kematian || prev.penyebab_kematian,
         keperluan: result.keperluan || prev.keperluan,
+        tujuan: result.tujuan || prev.tujuan,
       }));
       setNikTerdaftar(true);
       setNotifikasi({
@@ -410,6 +382,7 @@ const Home = () => {
         tanggal_kematian: formData.tgl_kematian || undefined,
         penyebab_kematian: formData.penyebab_kematian || undefined,
         keperluan: formData.keperluan || undefined,
+        tujuan: formData.tujuan || undefined,
       };
       const response = await fetch(API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_ADD, {
         method: 'POST',
@@ -431,7 +404,6 @@ const Home = () => {
       try {
         result = JSON.parse(responseText);
       } catch (error) {
-
         throw new Error('Format data dari server tidak valid');
       }
       if (!result || typeof result !== 'object') {
@@ -635,10 +607,7 @@ const Home = () => {
                         <MenuItem value="Surat Keterangan Tidak Mampu">Surat Keterangan Tidak Mampu</MenuItem>
                         <MenuItem value="Surat Keterangan Domisili">Surat Keterangan Domisili</MenuItem>
                         <MenuItem value="Surat Keterangan Usaha">Surat Keterangan Usaha</MenuItem>
-                        <MenuItem value="Surat Keterangan Pindah">Surat Keterangan Pindah</MenuItem>
-                        <MenuItem value="Surat Pengantar">Surat Pengantar</MenuItem>
-                        {/* <MenuItem value="Surat Keterangan Kelahiran">Surat Keterangan Kelahiran</MenuItem>
-                        <MenuItem value="Surat Keterangan Kematian">Surat Keterangan Kematian</MenuItem> */}
+                        <MenuItem value="Surat Pengantar SKCK">Surat Pengantar SKCK</MenuItem>
                       </Select>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontSize: '0.75rem' }}>
                         Contoh: Surat Keterangan Tidak Mampu
@@ -661,7 +630,7 @@ const Home = () => {
                             borderRadius: '8px', 
                             padding: '8px 16px', 
                             fontSize: '0.875rem',
-                            bgcolor: '#2196f3', // blue color
+                            bgcolor: '#2196f3',
                             '&:hover': {
                                 bgcolor: '#1976d2'
                             }
