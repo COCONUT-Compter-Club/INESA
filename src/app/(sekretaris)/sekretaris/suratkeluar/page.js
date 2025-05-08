@@ -412,7 +412,7 @@ export default function SuratKeluar() {
                   <TableRow key={row.id}>
                     <TableCell>{row.nomor}</TableCell>
                     <TableCell>{dayjs(row.tanggal).format('DD-MM-YYYY')}</TableCell>
-                    <TableCell>{row.ditujukan}</TableCell>
+                    <TableCell>{row.perihal}</TableCell>
                     <TableCell>
   {row.file && (
     <Tooltip title="Lihat File">
