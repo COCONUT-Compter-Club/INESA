@@ -144,6 +144,12 @@ export default function SuratMasuk() {
   };
 
   const handleSave = async () => {
+    // Tambahkan di bagian atas fungsi handleSave
+    if (!formData.tanggal) {
+      setError('Tanggal harus diisi');
+      return;
+    }
+
     if (!formData.nomor || !formData.tanggal || !formData.perihal || !formData.asal) {
       setError('Semua field harus diisi');
       return;
@@ -229,9 +235,19 @@ export default function SuratMasuk() {
   const isFormChanged = () => {
     if (!initialFormData) return false;
 
+    // Pengecekan tanggal yang aman
+    const compareDates = () => {
+      // Jika keduanya null/undefined, dianggap sama
+      if (!formData.tanggal && !initialFormData.tanggal) return true;
+      // Jika salah satu null/undefined, berarti berbeda
+      if (!formData.tanggal || !initialFormData.tanggal) return false;
+      // Baru bandingkan jika keduanya ada
+      return formData.tanggal.format("YYYY-MM-DD") === dayjs(initialFormData.tanggal).format("YYYY-MM-DD");
+    };
+
     return (
       formData.nomor !== initialFormData.nomor ||
-      formData.tanggal.format("YYYY-MM-DD") !== dayjs(initialFormData.tanggal).format("YYYY-MM-DD") ||
+      !compareDates() ||
       formData.perihal !== initialFormData.perihal ||
       formData.asal !== initialFormData.asal ||
       (formData.file instanceof File)
@@ -254,7 +270,7 @@ export default function SuratMasuk() {
         headers: getHeaders(),
       });
       if (!response.ok) throw new Error('Gagal menghapus data');
-      
+
       setSnackbar({
         open: true,
         message: 'Data surat masuk telah dihapus.',
