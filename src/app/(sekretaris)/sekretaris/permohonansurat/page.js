@@ -607,17 +607,17 @@ export default function PermohonanSurat() {
   const pdfRef = useRef(null);
   const [html2pdf, setHtml2pdf] = useState(null);
 
-  // Inisialisasi html2pdf di sisi klien dengan pemeriksaan tambahan
+  // Inisialisasi html2pdf di sisi klien dengan pemeriksaan ketat
   useEffect(() => {
     if (typeof window !== 'undefined') {
       import('html2pdf.js')
         .then((module) => {
           const html2pdfLib = module.default;
-          if (typeof html2pdfLib !== 'function') {
-            throw new Error('html2pdf.js tidak menghasilkan fungsi yang valid');
+          if (!html2pdfLib || typeof html2pdfLib !== 'function') {
+            throw new Error('html2pdf.js tidak menghasilkan fungsi yang valid. Pastikan versi library kompatibel.');
           }
           setHtml2pdf(() => html2pdfLib);
-          console.log('html2pdf initialized successfully');
+          console.log('html2pdf initialized successfully:', html2pdfLib);
         })
         .catch((err) => {
           setError('Gagal memuat html2pdf.js: ' + err.message);
@@ -625,6 +625,11 @@ export default function PermohonanSurat() {
         });
     }
   }, []);
+
+  // Log status html2pdf setiap kali berubah
+  useEffect(() => {
+    console.log('Current html2pdf state:', html2pdf);
+  }, [html2pdf]);
 
   // Fetch daftar permohonan
   useEffect(() => {
@@ -750,20 +755,21 @@ export default function PermohonanSurat() {
       setPreviewContent(content);
     } catch (err) {
       setError('Gagal generate preview surat: ' + err.message);
+      console.error('Error in handleGenerateSurat:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSaveSurat = async () => {
-    if (!html2pdf) {
-      setError('Generator PDF belum siap. Silakan coba lagi nanti.');
-      console.error('html2pdf is not initialized');
+    if (!html2pdf || typeof html2pdf !== 'function') {
+      setError('Generator PDF belum siap atau tidak valid. Silakan coba lagi nanti.');
+      console.error('html2pdf is not a function:', html2pdf);
       return;
     }
     if (!pdfRef.current || !previewContent) {
       setError('Konten preview tidak tersedia.');
-      console.error('pdfRef or previewContent is missing');
+      console.error('pdfRef or previewContent is missing:', { pdfRef: pdfRef.current, previewContent });
       return;
     }
 
@@ -789,12 +795,13 @@ export default function PermohonanSurat() {
         },
       };
 
-      console.log('Generating PDF with options:', opt);
+      console.log('Attempting to generate PDF with options:', opt);
       const pdfBlob = await html2pdf()
         .set(opt)
         .from(contentClone)
         .output('blob');
 
+      console.log('PDF generated successfully, blob size:', pdfBlob.size);
       document.body.removeChild(contentClone);
 
       const formDataToSend = new FormData();
@@ -1195,7 +1202,7 @@ export default function PermohonanSurat() {
               onClick={handleSaveSurat}
               variant="contained"
               startIcon={<SaveIcon />}
-              disabled={loading}
+              disabled={loading || !html2pdf}
               sx={{ backgroundColor: '#2e7d32', '&:hover': { backgroundColor: '#1b5e20' } }}
             >
               Simpan
