@@ -126,7 +126,7 @@ export default function DataPenduduk() {
         return
       }
       console.log('[FETCH] Mengambil data warga dengan token:', token)
-      const res = await fetchWithTimeout('http://192.168.1.85:8080/api/warga', {
+      const res = await fetchWithTimeout('http://bontomanai.inesa.id/api/warga', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -253,7 +253,7 @@ export default function DataPenduduk() {
         return
       }
       console.log('[DELETE] Menghapus data dengan ID:', id)
-      const res = await fetchWithTimeout(`http://192.168.1.85:8080/api/warga/${id}`, {
+      const res = await fetchWithTimeout(`http://bontomanai.inesa.id/api/warga/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -355,7 +355,7 @@ export default function DataPenduduk() {
         showAlertMessage('Token tidak ditemukan, silakan login kembali', 'error')
         return
       }
-      const endpoint = editingId ? `http://192.168.1.85:8080/api/warga/${editingId}` : 'http://192.168.1.85:8080/api/warga'
+      const endpoint = editingId ? `http://bontomanai.inesa.id/api/warga/${editingId}` : 'http://bontomanai.inesa.id/api/warga'
       const method = editingId ? 'PUT' : 'POST'
       const dataToSend = {
         ...formData,
