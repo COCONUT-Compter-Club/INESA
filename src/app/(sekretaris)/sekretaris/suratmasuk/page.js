@@ -33,6 +33,18 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useState } from 'react';
 
+// Fungsi untuk memformat tanggal ke format Indonesia
+const formatTanggalIndonesia = (tanggal) => {
+  if (!tanggal) return '-';
+  const date = new Date(tanggal);
+  if (isNaN(date.getTime())) return '-';
+  const bulan = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
+};
+
 // Styled components
 const StyledCard = styled(Card)({
   backgroundColor: '#ffffff',
@@ -159,6 +171,7 @@ export default function SuratMasuk() {
     try {
       const data = new FormData();
       data.append('nomor', formData.nomor);
+      // Tetap gunakan format YYYY-MM-DD untuk data yang dikirim ke server
       data.append('tanggal', dayjs(formData.tanggal).format('YYYY-MM-DD'));
       data.append('perihal', formData.perihal);
       data.append('asal', formData.asal);
@@ -348,7 +361,7 @@ export default function SuratMasuk() {
                 {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>{row.nomor}</TableCell>
-                    <TableCell>{dayjs(row.tanggal).format('DD-MM-YYYY')}</TableCell>
+                    <TableCell>{formatTanggalIndonesia(row.tanggal)}</TableCell>
                     <TableCell>{row.perihal}</TableCell>
                     <TableCell>{row.asal}</TableCell>
                     <TableCell>
