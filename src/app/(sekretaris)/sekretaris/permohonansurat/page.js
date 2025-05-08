@@ -179,9 +179,6 @@ const suratTemplates = {
               Adalah benar warga kami yang berdomisili di Dusun Bajiminasa, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, Provinsi Sulawesi Selatan.
             </p>
             <p style="text-indent: 40px; margin: 10px 0;">
-              Lampiran Dokumen: ${data.dokumen_url ? 'Ada' : 'Tidak Ada'}
-            </p>
-            <p style="text-indent: 40px; margin: 10px 0;">
               Demikian Surat Keterangan Domisili ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
             </p>
           </div>
@@ -207,7 +204,6 @@ const suratTemplates = {
       { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan' },
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'dokumen_url', label: 'Lampiran Dokumen', type: 'file', accept: '.pdf,.jpg,.png' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
       { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
     ]
@@ -299,9 +295,7 @@ const suratTemplates = {
             <p style="text-indent: 40px; margin: 10px 0;">
               Benar bahwa yang tersebut namanya di atas adalah penduduk/warga asli Dusun Bulueng, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, dan tergolong tidak mampu/miskin.
             </p>
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Lampiran Dokumen: ${data.dokumen_url ? 'Ada' : 'Tidak Ada'}
-            </p>
+
             <p style="text-indent: 40px; margin: 10px 0;">
               Demikian surat keterangan ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.
             </p>
@@ -330,7 +324,6 @@ const suratTemplates = {
       { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan' },
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'dokumen_url', label: 'Lampiran Dokumen', type: 'file', accept: '.pdf,.jpg,.png' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
       { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
     ]
@@ -433,9 +426,6 @@ const suratTemplates = {
               Bahwa nama yang tersebut di atas benar warga Dusun Lembang-Lembang, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, Provinsi Sulawesi Selatan, dan memiliki usaha yang masih aktif hingga saat ini.
             </p>
             <p style="text-indent: 40px; margin: 10px 0;">
-              Lampiran Dokumen: ${data.dokumen_url ? 'Ada' : 'Tidak Ada'}
-            </p>
-            <p style="text-indent: 40px; margin: 10px 0;">
               Demikian Surat Keterangan Usaha ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
             </p>
           </div>
@@ -465,7 +455,6 @@ const suratTemplates = {
       { name: 'berdiri_sejak', label: 'Berdiri Sejak', type: 'date', placeholder: 'Pilih Tanggal Berdiri' },
       { name: 'alamat_usaha', label: 'Alamat Usaha', type: 'text', placeholder: 'Masukkan Alamat Usaha' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'dokumen_url', label: 'Lampiran Dokumen', type: 'file', accept: '.pdf,.jpg,.png' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
       { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
     ]
@@ -563,10 +552,6 @@ const suratTemplates = {
                 <td>${safeString(data.nomor_hp)}</td>
               </tr>
             </table>
-
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Lampiran Dokumen: ${data.dokumen_url ? 'Ada' : 'Tidak Ada'}
-            </p>
             <p style="text-indent: 40px; margin: 10px 0;">
               Demikian Surat Pengantar ini dibuat dan diberikan kepada yang bersangkutan untuk dapat dipergunakan sebagaimana mestinya.
             </p>
@@ -598,7 +583,6 @@ const suratTemplates = {
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'tujuan', label: 'Tujuan', type: 'text', placeholder: 'Masukkan Tujuan' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'dokumen_url', label: 'Lampiran Dokumen', type: 'file', accept: '.pdf,.jpg,.png' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
       { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
     ]
@@ -635,7 +619,7 @@ export default function PermohonanSurat() {
     const fetchPermohonan = async () => {
       setLoading(true);
       try {
-        const response = await fetch(API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_GET_ALL, {
+        const response = await fetch(API_ENDPOINTS.PERMOHONAN_SURAT_GET_ALL, {
           method: 'GET',
           headers: getHeaders(),
         });
@@ -808,7 +792,7 @@ export default function PermohonanSurat() {
       formDataToSend.append('title', selectedPermohonan.jenis_surat);
       formDataToSend.append('file', pdfBlob, opt.filename);
 
-      const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_ADD, {
+      const response = await fetch(API_ENDPOINTS.SURAT_KELUAR_ADD, {
         method: 'POST',
         body: formDataToSend,
       });
@@ -831,7 +815,7 @@ export default function PermohonanSurat() {
 
   const updatePermohonanStatus = async (id) => {
     const response = await fetch(
-      API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_UPDATE_STATUS(id),
+      API_ENDPOINTS.PERMOHONAN_SURAT_UPDATE_STATUS(id),
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },

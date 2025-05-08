@@ -160,17 +160,8 @@ export default function SuratKeluar() {
       case 'Surat Keterangan Usaha':
         perihal = 'Keterangan Usaha';
         break;
-      case 'Surat Keterangan Pindah':
-        perihal = 'Keterangan Pindah';
-        break;
-      case 'Surat Pengantar':
-        perihal = 'Surat Pengantar';
-        break;
-      case 'Surat Keterangan Kelahiran':
-        perihal = 'Keterangan Kelahiran';
-        break;
-      case 'Surat Keterangan Kematian':
-        perihal = 'Keterangan Kematian';
+      case 'Surat Pengantar SKCK':
+        perihal = 'Pengantar SKCK';
         break;
       default:
         perihal = template;
@@ -412,7 +403,6 @@ export default function SuratKeluar() {
                   <TableCell><strong>Nomor Surat</strong></TableCell>
                   <TableCell><strong>Tanggal</strong></TableCell>
                   <TableCell><strong>Perihal</strong></TableCell>
-                  <TableCell><strong>Ditujukan</strong></TableCell>
                   <TableCell><strong>File</strong></TableCell>
                   <TableCell><strong>Aksi</strong></TableCell>
                 </TableRow>
@@ -422,7 +412,6 @@ export default function SuratKeluar() {
                   <TableRow key={row.id}>
                     <TableCell>{row.nomor}</TableCell>
                     <TableCell>{dayjs(row.tanggal).format('DD-MM-YYYY')}</TableCell>
-                    <TableCell>{row.perihal}</TableCell>
                     <TableCell>{row.ditujukan}</TableCell>
                     <TableCell>
   {row.file && (
