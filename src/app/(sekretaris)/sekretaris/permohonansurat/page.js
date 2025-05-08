@@ -352,7 +352,7 @@ const suratTemplates = {
           </div>
 
           <!-- Judul Surat -->
-          <div style="text-align: ORS center; margin: 20px 0;">
+          <div style="text-align: center; margin: 20px 0;">
             <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN USAHA</p>
             <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
           </div>
@@ -607,15 +607,21 @@ export default function PermohonanSurat() {
   const pdfRef = useRef(null);
   const [html2pdf, setHtml2pdf] = useState(null);
 
-  // Inisialisasi html2pdf di sisi klien
+  // Inisialisasi html2pdf di sisi klien dengan pemeriksaan tambahan
   useEffect(() => {
     if (typeof window !== 'undefined') {
       import('html2pdf.js')
         .then((module) => {
-          setHtml2pdf(() => module.default);
+          const html2pdfLib = module.default;
+          if (typeof html2pdfLib !== 'function') {
+            throw new Error('html2pdf.js tidak menghasilkan fungsi yang valid');
+          }
+          setHtml2pdf(() => html2pdfLib);
+          console.log('html2pdf initialized successfully');
         })
         .catch((err) => {
-          setError('Gagal memuat generator PDF: ' + err.message);
+          setError('Gagal memuat html2pdf.js: ' + err.message);
+          console.error('Error loading html2pdf:', err);
         });
     }
   }, []);
@@ -657,7 +663,6 @@ export default function PermohonanSurat() {
       return date.toISOString().split('T')[0];
     };
 
-    // Initialize formData with all fields from template and permohonan data
     const formData = {};
     template.formFields.forEach((field) => {
       if (field.name === 'tanggal_lahir' || field.name === 'berdiri_sejak') {
@@ -666,7 +671,6 @@ export default function PermohonanSurat() {
         formData[field.name] = safeFormString(permohonan[field.name]);
       }
     });
-    // Add additional fields not in formFields but used in template
     formData.jenis_surat = safeFormString(permohonan.jenis_surat);
     formData.keterangan = safeFormString(permohonan.keterangan);
     formData.status = safeFormString(permohonan.status) || 'Diproses';
@@ -675,7 +679,6 @@ export default function PermohonanSurat() {
     setFormData(formData);
   };
 
-  // Tutup form
   const handleCloseForm = () => {
     setSelectedPermohonan(null);
     setFormData({});
@@ -683,7 +686,6 @@ export default function PermohonanSurat() {
     setError(null);
   };
 
-  // Tangani perubahan input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let updatedFormData = { ...formData, [name]: value };
@@ -696,44 +698,47 @@ export default function PermohonanSurat() {
     setFormData(updatedFormData);
   };
 
-  // Tangani upload file
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files && files[0]) {
-      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+      setFormData((prev) => {
+        const updated = { ...prev, [name]: files[0] };
+        console.log('Updated formData with file:', updated);
+        return updated;
+      });
+    } else {
+      setError('Silakan pilih file yang valid.');
     }
   };
 
-  // Generate preview surat
   const handlePreview = () => {
     if (!selectedPermohonan) {
-      setCantFindError('Pilih permohonan terlebih dahulu.');
+      setError('Pilih permohonan terlebih dahulu.');
       return null;
     }
     const selectedTemplate = selectedPermohonan.jenis_surat;
     if (!suratTemplates[selectedTemplate]) {
-      setCantFindError(`Template untuk ${selectedTemplate} tidak ditemukan.`);
+      setError(`Template untuk ${selectedTemplate} tidak ditemukan.`);
       return null;
     }
     if (!Object.keys(formData).length) {
-      setCantFindError('Isi formulir terlebih dahulu.');
+      setError('Isi formulir terlebih dahulu.');
       return null;
     }
     if (!formData.ttd_nama) {
-      setCantFindError('Silakan pilih "Yang Bertandatangan".');
+      setError('Silakan pilih "Yang Bertandatangan".');
       return null;
     }
     if (!formData.ttd_nama_lengkap) {
-      setCantFindError('Nama Yang Bertandatangan tidak tersedia.');
+      setError('Nama Yang Bertandatangan tidak tersedia.');
       return null;
     }
     return suratTemplates[selectedTemplate].template(formData);
   };
 
-  // Tombol Generate Surat
   const handleGenerateSurat = () => {
     if (!selectedPermohonan) {
-      setCantFindError('Pilih permohonan terlebih dahulu.');
+      setError('Pilih permohonan terlebih dahulu.');
       return;
     }
     try {
@@ -744,20 +749,21 @@ export default function PermohonanSurat() {
       }
       setPreviewContent(content);
     } catch (err) {
-      setCantFindError('Gagal generate preview surat: ' + err.message);
+      setError('Gagal generate preview surat: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Simpan surat ke server
   const handleSaveSurat = async () => {
     if (!html2pdf) {
-      setCantFindError('Generator PDF belum siap');
+      setError('Generator PDF belum siap. Silakan coba lagi nanti.');
+      console.error('html2pdf is not initialized');
       return;
     }
     if (!pdfRef.current || !previewContent) {
-      setCantFindError('Konten preview tidak tersedia');
+      setError('Konten preview tidak tersedia.');
+      console.error('pdfRef or previewContent is missing');
       return;
     }
 
@@ -783,6 +789,7 @@ export default function PermohonanSurat() {
         },
       };
 
+      console.log('Generating PDF with options:', opt);
       const pdfBlob = await html2pdf()
         .set(opt)
         .from(contentClone)
@@ -813,32 +820,37 @@ export default function PermohonanSurat() {
       handleCloseForm();
       alert('Surat berhasil disimpan dan status diperbarui.');
     } catch (err) {
-      setCantFindError('Gagal menyimpan surat: ' + err.message);
+      setError('Gagal menyimpan surat: ' + err.message);
+      console.error('Error in handleSaveSurat:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const updatePermohonanStatus = async (id) => {
-    const response = await fetch(
-      API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_UPDATE_STATUS(id),
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'Selesai' }),
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_UPDATE_STATUS(id),
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Selesai' }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Gagal memperbarui status permohonan');
       }
-    );
 
-    if (!response.ok) {
-      throw new Error('Gagal memperbarui status permohonan');
+      setPermohonanList((prevList) =>
+        prevList.map((item) => (item.id === id ? { ...item, status: 'Selesai' } : item))
+      );
+    } catch (err) {
+      setError('Gagal memperbarui status: ' + err.message);
+      console.error('Error in updatePermohonanStatus:', err);
     }
-
-    setPermohonanList((prevList) =>
-      prevList.map((item) => (item.id === id ? { ...item, status: 'Selesai' } : item))
-    );
   };
 
-  // Cetak surat
   const handlePrint = () => {
     if (!previewContent) {
       alert('Silakan generate preview surat terlebih dahulu.');
@@ -885,7 +897,6 @@ export default function PermohonanSurat() {
     setPage(0);
   };
 
-  // Render error state
   if (error) {
     return (
       <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, display: 'flex', flexDirection: 'column', gap: 4 }}>
