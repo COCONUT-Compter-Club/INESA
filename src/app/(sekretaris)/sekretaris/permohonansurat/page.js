@@ -6,8 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import {
   Box,
   Button,
-  Card,
-  CardContent,
+  Card, CardContent,
   Chip,
   CircularProgress,
   Dialog,
@@ -19,26 +18,39 @@ import {
   MenuItem,
   Paper,
   Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
+  Table, TableBody, TableCell, TableContainer, TableHead,
   TablePagination,
   TableRow,
   TextField,
   Typography,
-  styled,
+  styled
 } from '@mui/material';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+
+// Dynamic import for jsPDF and html2canvas
+const JSPDF = dynamic(
+  () => import('jspdf').then((mod) => mod.default),
+  { 
+    ssr: false,
+    loading: () => <p>Menyiapkan generator PDF...</p>
+  }
+);
+const Html2Canvas = dynamic(
+  () => import('html2canvas').then((mod) => mod.default),
+  { 
+    ssr: false,
+    loading: () => <p>Menyiapkan generator PDF...</p>
+  }
+);
 
 // Styled components
 const StyledCard = styled(Card)({
   backgroundColor: '#ffffff',
   borderRadius: '16px',
   boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)',
-  overflow: 'hidden',
+  overflow: 'hidden'
 });
 
 const HeaderBox = styled(Box)({
@@ -48,20 +60,20 @@ const HeaderBox = styled(Box)({
   borderRadius: '16px 16px 0 0',
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'center',
+  alignItems: 'center'
 });
 
 // Status colors mapping
 const statusColors = {
-  Diproses: 'primary',
-  Selesai: 'success',
-  Ditolak: 'error',
+  'Diproses': 'primary',
+  'Selesai': 'success',
+  'Ditolak': 'error'
 };
 
 // Daftar opsi penandatangan
 const penandatanganOptions = {
   'Kepala Desa': { nip: '19651231 200001 1 001', namaLengkap: 'H. Abd. Rasyid' },
-  'Sekretaris Desa': { nip: '19701231 200112 2 002', namaLengkap: 'Dra. Hj. Sitti Rahma' },
+  'Sekretaris Desa': { nip: '19701231 200112 2 002', namaLengkap: 'Dra. Hj. Sitti Rahma' }
 };
 
 // Fungsi untuk memformat tanggal ke format Indonesia
@@ -70,18 +82,8 @@ const formatTanggalIndonesia = (tanggal) => {
   const date = new Date(tanggal);
   if (isNaN(date.getTime())) return '...........................';
   const bulan = [
-    'Januari',
-    'Februari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
   ];
   return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
 };
@@ -210,8 +212,8 @@ const suratTemplates = {
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true },
-    ],
+      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+    ]
   },
   'Surat Keterangan Tidak Mampu': {
     title: 'Surat Keterangan Tidak Mampu',
@@ -330,8 +332,8 @@ const suratTemplates = {
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true },
-    ],
+      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+    ]
   },
   'Surat Keterangan Usaha': {
     title: 'Surat Keterangan Usaha',
@@ -352,7 +354,7 @@ const suratTemplates = {
           </div>
 
           <!-- Judul Surat -->
-          <div style="text-align: center; margin: 20px 0;">
+          <div style="text-align: Cheltenham; margin: 20px 0;">
             <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN USAHA</p>
             <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
           </div>
@@ -461,8 +463,8 @@ const suratTemplates = {
       { name: 'alamat_usaha', label: 'Alamat Usaha', type: 'text', placeholder: 'Masukkan Alamat Usaha' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true },
-    ],
+      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+    ]
   },
   'Surat Pengantar SKCK': {
     title: 'Surat Pengantar SKCK',
@@ -589,9 +591,9 @@ const suratTemplates = {
       { name: 'tujuan', label: 'Tujuan', type: 'text', placeholder: 'Masukkan Tujuan' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true },
-    ],
-  },
+      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+    ]
+  }
 };
 
 export default function PermohonanSurat() {
@@ -605,38 +607,29 @@ export default function PermohonanSurat() {
   const [previewContent, setPreviewContent] = useState('');
   const router = useRouter();
   const pdfRef = useRef(null);
-  const [html2pdf, setHtml2pdf] = useState(null);
+  const [jspdf, setJspdf] = useState(null);
+  const [html2canvas, setHtml2canvas] = useState(null);
 
-  // Inisialisasi html2pdf di sisi klien dengan pemeriksaan ketat
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      import('html2pdf.js')
-        .then((module) => {
-          const html2pdfLib = module.default;
-          if (!html2pdfLib || typeof html2pdfLib !== 'function') {
-            throw new Error('html2pdf.js tidak menghasilkan fungsi yang valid. Pastikan versi library kompatibel.');
-          }
-          setHtml2pdf(() => html2pdfLib);
-          console.log('html2pdf initialized successfully:', html2pdfLib);
-        })
-        .catch((err) => {
-          setError('Gagal memuat html2pdf.js: ' + err.message);
-          console.error('Error loading html2pdf:', err);
-        });
-    }
+    const loadLibraries = async () => {
+      try {
+        const jspdfModule = await import('jspdf');
+        const html2canvasModule = await import('html2canvas');
+        setJspdf(() => jspdfModule.default);
+        setHtml2canvas(() => html2canvasModule.default);
+      } catch (err) {
+        setError('Gagal memuat generator PDF');
+      }
+    };
+    loadLibraries();
   }, []);
-
-  // Log status html2pdf setiap kali berubah
-  useEffect(() => {
-    console.log('Current html2pdf state:', html2pdf);
-  }, [html2pdf]);
 
   // Fetch daftar permohonan
   useEffect(() => {
     const fetchPermohonan = async () => {
       setLoading(true);
       try {
-        const response = await fetch(API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_GET_ALL, {
+        const response = await fetch(API_ENDPOINTS.PERMOHONAN_SURAT_GET_ALL, {
           method: 'GET',
           headers: getHeaders(),
         });
@@ -668,14 +661,16 @@ export default function PermohonanSurat() {
       return date.toISOString().split('T')[0];
     };
 
+    // Initialize formData with all fields from template and permohonan data
     const formData = {};
-    template.formFields.forEach((field) => {
+    template.formFields.forEach(field => {
       if (field.name === 'tanggal_lahir' || field.name === 'berdiri_sejak') {
         formData[field.name] = formatDateSafely(permohonan[field.name]);
       } else {
         formData[field.name] = safeFormString(permohonan[field.name]);
       }
     });
+    // Add additional fields not in formFields but used in template
     formData.jenis_surat = safeFormString(permohonan.jenis_surat);
     formData.keterangan = safeFormString(permohonan.keterangan);
     formData.status = safeFormString(permohonan.status) || 'Diproses';
@@ -684,6 +679,7 @@ export default function PermohonanSurat() {
     setFormData(formData);
   };
 
+  // Tutup form
   const handleCloseForm = () => {
     setSelectedPermohonan(null);
     setFormData({});
@@ -691,6 +687,7 @@ export default function PermohonanSurat() {
     setError(null);
   };
 
+  // Tangani perubahan input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let updatedFormData = { ...formData, [name]: value };
@@ -703,19 +700,15 @@ export default function PermohonanSurat() {
     setFormData(updatedFormData);
   };
 
+  // Tangani upload file
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files && files[0]) {
-      setFormData((prev) => {
-        const updated = { ...prev, [name]: files[0] };
-        console.log('Updated formData with file:', updated);
-        return updated;
-      });
-    } else {
-      setError('Silakan pilih file yang valid.');
+      setFormData(prev => ({ ...prev, [name]: files[0] }));
     }
   };
 
+  // Generate preview surat
   const handlePreview = () => {
     if (!selectedPermohonan) {
       setError('Pilih permohonan terlebih dahulu.');
@@ -741,6 +734,7 @@ export default function PermohonanSurat() {
     return suratTemplates[selectedTemplate].template(formData);
   };
 
+  // Tombol Generate Surat
   const handleGenerateSurat = () => {
     if (!selectedPermohonan) {
       setError('Pilih permohonan terlebih dahulu.');
@@ -755,21 +749,19 @@ export default function PermohonanSurat() {
       setPreviewContent(content);
     } catch (err) {
       setError('Gagal generate preview surat: ' + err.message);
-      console.error('Error in handleGenerateSurat:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Simpan surat ke server
   const handleSaveSurat = async () => {
-    if (!html2pdf || typeof html2pdf !== 'function') {
-      setError('Generator PDF belum siap atau tidak valid. Silakan coba lagi nanti.');
-      console.error('html2pdf is not a function:', html2pdf);
+    if (!jspdf || !html2canvas) {
+      setError('Generator PDF belum siap');
       return;
     }
     if (!pdfRef.current || !previewContent) {
-      setError('Konten preview tidak tersedia.');
-      console.error('pdfRef or previewContent is missing:', { pdfRef: pdfRef.current, previewContent });
+      setError('Konten preview tidak tersedia');
       return;
     }
 
@@ -778,30 +770,39 @@ export default function PermohonanSurat() {
       const contentClone = pdfRef.current.cloneNode(true);
       document.body.appendChild(contentClone);
 
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: `${selectedPermohonan.jenis_surat}_${formData.no_surat || 'surat'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          allowTaint: true,
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait',
-        },
-      };
+      const canvas = await html2canvas(contentClone, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        allowTaint: true
+      });
 
-      console.log('Attempting to generate PDF with options:', opt);
-      const pdfBlob = await html2pdf()
-        .set(opt)
-        .from(contentClone)
-        .output('blob');
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const pdf = new jspdf({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
 
-      console.log('PDF generated successfully, blob size:', pdfBlob.size);
+      const imgWidth = 190; // Lebar gambar dalam mm (A4 width - margin)
+      const pageHeight = 297; // Tinggi halaman A4 dalam mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 10; // Margin atas
+
+      pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - 20; // Kurangi tinggi halaman dikurangi margin
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - 20;
+      }
+
+      const filename = `${selectedPermohonan.jenis_surat}_${formData.no_surat || 'surat'}.pdf`;
+      const pdfBlob = pdf.output('blob');
+
       document.body.removeChild(contentClone);
 
       const formDataToSend = new FormData();
@@ -810,9 +811,9 @@ export default function PermohonanSurat() {
       formDataToSend.append('tanggal', new Date().toISOString().split('T')[0]);
       formDataToSend.append('perihal', formData.keterangan || selectedPermohonan.jenis_surat);
       formDataToSend.append('title', selectedPermohonan.jenis_surat);
-      formDataToSend.append('file', pdfBlob, opt.filename);
+      formDataToSend.append('file', pdfBlob, filename);
 
-      const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_ADD, {
+      const response = await fetch(API_ENDPOINTS.SURAT_KELUAR_ADD, {
         method: 'POST',
         body: formDataToSend,
       });
@@ -828,36 +829,33 @@ export default function PermohonanSurat() {
       alert('Surat berhasil disimpan dan status diperbarui.');
     } catch (err) {
       setError('Gagal menyimpan surat: ' + err.message);
-      console.error('Error in handleSaveSurat:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const updatePermohonanStatus = async (id) => {
-    try {
-      const response = await fetch(
-        API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_UPDATE_STATUS(id),
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'Selesai' }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Gagal memperbarui status permohonan');
+    const response = await fetch(
+      API_ENDPOINTS.PERMOHONAN_SURAT_UPDATE_STATUS(id),
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Selesai' }),
       }
+    );
 
-      setPermohonanList((prevList) =>
-        prevList.map((item) => (item.id === id ? { ...item, status: 'Selesai' } : item))
-      );
-    } catch (err) {
-      setError('Gagal memperbarui status: ' + err.message);
-      console.error('Error in updatePermohonanStatus:', err);
+    if (!response.ok) {
+      throw new Error('Gagal memperbarui status permohonan');
     }
+
+    setPermohonanList(prevList =>
+      prevList.map(item => 
+        item.id === id ? { ...item, status: 'Selesai' } : item
+      )
+    );
   };
 
+  // Cetak surat
   const handlePrint = () => {
     if (!previewContent) {
       alert('Silakan generate preview surat terlebih dahulu.');
@@ -880,6 +878,7 @@ export default function PermohonanSurat() {
               line-height: 1.5; 
               margin: 20px;
             }
+.....(tampilan tetap sama)
             @page { margin: 0; }
           </style>
         </head>
@@ -904,6 +903,7 @@ export default function PermohonanSurat() {
     setPage(0);
   };
 
+  // Render error state
   if (error) {
     return (
       <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -938,7 +938,7 @@ export default function PermohonanSurat() {
               <CircularProgress />
             </Box>
           ) : permohonanList.length === 0 ? (
-            <Typography align="center" p={4}>
+            <Typography p={4}>
               Tidak ada permohonan surat.
             </Typography>
           ) : (
@@ -947,30 +947,14 @@ export default function PermohonanSurat() {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>
-                        <strong>No</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>NIK</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Nama</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Jenis Surat</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Keterangan</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Status</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Tanggal</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Aksi</strong>
-                      </TableCell>
+                      <TableCell><strong>No</strong></TableCell>
+                      <TableCell><strong>NIK</strong></TableCell>
+                      <TableCell><strong>Nama</strong></TableCell>
+                      <TableCell><strong>Jenis Surat</strong></TableCell>
+                      <TableCell><strong>Keterangan</strong></TableCell>
+                      <TableCell><strong>Status</strong></TableCell>
+                      <TableCell><strong>Tanggal</strong></TableCell>
+                      <TableCell><strong>Aksi</strong></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1034,104 +1018,101 @@ export default function PermohonanSurat() {
           </DialogTitle>
           <DialogContent dividers>
             <Box component="form" sx={{ mt: 2 }}>
-              {selectedPermohonan &&
-                suratTemplates[selectedPermohonan.jenis_surat]?.formFields.map((field) => (
-                  <Box key={field.name} sx={{ mb: 3 }}>
-                    <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
-                      {field.label} {field.required && <span style={{ color: 'red' }}>*</span>}
-                    </Typography>
-                    {field.type === 'select' ? (
-                      <FormControl fullWidth error={!formData[field.name] && field.required}>
-                        <Select
-                          id={field.name}
-                          name={field.name}
-                          value={formData[field.name] || ''}
-                          onChange={handleInputChange}
-                          disabled={field.disabled}
-                          sx={{
-                            '& .MuiOutlinedInput-notchedOutline': { borderColor: '#ccc' },
-                            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#999' },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1976d2' },
-                          }}
-                        >
-                          <MenuItem value="">
-                            <em>Pilih {field.label}</em>
-                          </MenuItem>
-                          {field.options.map((option) => (
-                            <MenuItem key={option} value={option}>
-                              {option}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {!formData[field.name] && field.required && (
-                          <Typography color="error" variant="caption">
-                            {field.label} wajib diisi
-                          </Typography>
-                        )}
-                        {field.name === 'ttd_nama' && formData.ttd_nama && (
-                          <Box sx={{ mt: 2 }}>
-                            <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
-                              Nama Yang Bertandatangan
-                            </Typography>
-                            <TextField
-                              value={formData.ttd_nama_lengkap || ''}
-                              fullWidth
-                              disabled
-                              variant="outlined"
-                              sx={{
-                                '& .MuiOutlinedInput-root': {
-                                  '& fieldset': { borderColor: '#ccc' },
-                                  '&:hover fieldset': { borderColor: '#999' },
-                                  '&.Mui-focused fieldset': { borderColor: '#1976d2' },
-                                },
-                              }}
-                            />
-                          </Box>
-                        )}
-                      </FormControl>
-                    ) : field.type === 'file' ? (
-                      <Box>
-                        <input
-                          id={field.name}
-                          name={field.name}
-                          type="file"
-                          accept={field.accept}
-                          onChange={handleFileChange}
-                          style={{ marginTop: '8px', display: 'block', fontSize: '16px' }}
-                        />
-                        {formData[field.name] && (
-                          <Typography variant="caption" sx={{ mt: 1, color: '#555' }}>
-                            File terpilih: {formData[field.name].name || formData[field.name]}
-                          </Typography>
-                        )}
-                      </Box>
-                    ) : (
-                      <TextField
+              {selectedPermohonan && suratTemplates[selectedPermohonan.jenis_surat]?.formFields.map((field) => (
+                <Box key={field.name} sx={{ mb: 3 }}>
+                  <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
+                    {field.label} {field.required && <span style={{ color: 'red' }}>*</span>}
+                  </Typography>
+                  {field.type === 'select' ? (
+                    <FormControl fullWidth error={!formData[field.name] && field.required}>
+                      <Select
                         id={field.name}
                         name={field.name}
                         value={formData[field.name] || ''}
                         onChange={handleInputChange}
-                        placeholder={field.placeholder}
-                        type={field.type === 'date' ? 'date' : 'text'}
-                        multiline={field.type === 'textarea'}
-                        rows={field.type === 'textarea' ? 4 : 1}
-                        fullWidth
-                        variant="outlined"
                         disabled={field.disabled}
-                        InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
-                        error={field.required && !formData[field.name]}
-                        helperText={field.required && !formData[field.name] ? `${field.label} wajib diisi` : ''}
                         sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': { borderColor: '#ccc' },
-                            '&:hover fieldset': { borderColor: '#999' },
-                            '&.Mui-focused fieldset': { borderColor: '#1976d2' },
-                          },
+                          '& .MuiOutlinedInput-notchedOutline': { borderColor: '#ccc' },
+                          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#999' },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1976d2' },
                         }}
+                      >
+                        <MenuItem value="">
+                          <em>Pilih {field.label}</em>
+                        </MenuItem>
+                        {field.options.map((option) => (
+                          <MenuItem key={option} value={option}>{option}</MenuItem>
+                        ))}
+                      </Select>
+                      {!formData[field.name] && field.required && (
+                        <Typography color="error" variant="caption">
+                          {field.label} wajib diisi
+                        </Typography>
+                      )}
+                      {field.name === 'ttd_nama' && formData.ttd_nama && (
+                        <Box sx={{ mt: 2 }}>
+                          <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
+                            Nama Yang Bertandatangan
+                          </Typography>
+                          <TextField
+                            value={formData.ttd_nama_lengkap || ''}
+                            fullWidth
+                            disabled
+                            variant="outlined"
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                '& fieldset': { borderColor: '#ccc' },
+                                '&:hover fieldset': { borderColor: '#999' },
+                                '&.Mui-focused fieldset': { borderColor: '#1976d2' },
+                              },
+                            }}
+                          />
+                        </Box>
+                      )}
+                    </FormControl>
+                  ) : field.type === 'file' ? (
+                    <Box>
+                      <input
+                        id={field.name}
+                        name={field.name}
+                        type="file"
+                        accept={field.accept}
+                        onChange={handleFileChange}
+                        style={{ marginTop: '8px', display: 'block', fontSize: '16px' }}
                       />
-                    )}
-                  </Box>
-                ))}
+                      {formData[field.name] && (
+                        <Typography variant="caption" sx={{ mt: 1, color: '#555' }}>
+                          File terpilih: {formData[field.name].name || formData[field.name]}
+                        </Typography>
+                      )}
+                    </Box>
+                  ) : (
+                    <TextField
+                      id={field.name}
+                      name={field.name}
+                      value={formData[field.name] || ''}
+                      onChange={handleInputChange}
+                      placeholder={field.placeholder}
+                      type={field.type === 'date' ? 'date' : 'text'}
+                      multiline={field.type === 'textarea'}
+                      rows={field.type === 'textarea' ? 4 : 1}
+                      fullWidth
+                      variant="outlined"
+                      disabled={field.disabled}
+                      InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
+                      error={field.required && !formData[field.name]}
+                      helperText={field.required && !formData[field.name] ? `${field.label} wajib diisi` : ''}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': { borderColor: '#ccc' },
+                          '&:hover fieldset': { borderColor: '#999' },
+                          '&.Mui-focused fieldset': { borderColor: '#1976d2' },
+                        },
+                      }}
+                    />
+                  )}
+                </Box>
+              ))}
               <Box sx={{ mb: 3 }}>
                 <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
                   Keterangan
@@ -1183,14 +1164,14 @@ export default function PermohonanSurat() {
             </IconButton>
           </DialogTitle>
           <DialogContent dividers>
-            <div
+            <div 
               ref={pdfRef}
-              dangerouslySetInnerHTML={{ __html: previewContent }}
-              style={{
+              dangerouslySetInnerHTML={{ __html: previewContent }} 
+              style={{ 
                 padding: '20px',
                 fontFamily: "'Times New Roman', serif",
                 fontSize: '12pt',
-                lineHeight: 1.5,
+                lineHeight: 1.5 
               }}
             />
           </DialogContent>
@@ -1202,9 +1183,9 @@ export default function PermohonanSurat() {
               onClick={handleSaveSurat}
               variant="contained"
               startIcon={<SaveIcon />}
-              disabled={loading || !html2pdf}
+              disabled={loading}
               sx={{ backgroundColor: '#2e7d32', '&:hover': { backgroundColor: '#1b5e20' } }}
-            >
+            >  
               Simpan
             </Button>
             <Button
