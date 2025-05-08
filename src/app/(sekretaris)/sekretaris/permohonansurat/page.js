@@ -815,7 +815,7 @@ export default function PermohonanSurat() {
 
   const updatePermohonanStatus = async (id) => {
     const response = await fetch(
-      API_ENDPOINTS.PERMOHONAN_SURAT_UPDATE_STATUS(id),
+      API_ENDPOINTS.SEKRETARIS.PERMOHONAN_SURAT_UPDATE_STATUS(id),
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
