@@ -453,9 +453,7 @@ export default function LaporanKeuangan() {
 
       // Helper function to add header
       const addHeader = (isNewPage = false) => {
-        // Reset currentY for new pages to avoid overlap
         const headerY = isNewPage ? margin : currentY
-        // doc.addImage('/logo.png', 'PNG', margin, headerY, 25, 25)
         doc.setFont('helvetica', 'bold')
         doc.setFontSize(20)
         doc.setTextColor(25, 118, 210)
@@ -475,7 +473,6 @@ export default function LaporanKeuangan() {
         doc.setDrawColor(200, 200, 200)
         doc.line(margin, headerY + 25, pageWidth - margin, headerY + 25)
 
-        // Update currentY only for initial call, not in didDrawPage
         if (!isNewPage) {
           currentY = headerY + 30
         }
@@ -498,7 +495,6 @@ export default function LaporanKeuangan() {
 
       // Initial header
       addHeader()
-      // currentY += 30 (moved inside addHeader)
 
       // Ringkasan Keuangan
       doc.setFont('helvetica', 'bold')
@@ -656,9 +652,8 @@ export default function LaporanKeuangan() {
           didDrawPage: (data) => {
             const pageCount = doc.internal.getNumberOfPages()
             const currentPage = doc.internal.getCurrentPageInfo().pageNumber
-            addHeader(true) // Pass true to indicate new page
+            addHeader(true)
             addFooter(currentPage, pageCount)
-            // Ensure table continues below header
             if (data.cursor) {
               data.cursor.y = margin + 30
             }
@@ -669,12 +664,10 @@ export default function LaporanKeuangan() {
         currentY = doc.lastAutoTable.finalY + 15
       }
 
-      // Add signature section on a new page if necessary
-      if (currentY > pageHeight - 50) {
-        doc.addPage()
-        currentY = margin
-        addHeader(true)
-      }
+      // Add signature section on a new page to avoid overlap
+      doc.addPage()
+      currentY = margin
+      addHeader(true)
 
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(12)
