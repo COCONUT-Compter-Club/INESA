@@ -701,13 +701,13 @@ export default function LaporanKeuangan() {
       const workbook = new ExcelJS.Workbook()
       const worksheet = workbook.addWorksheet('Laporan Keuangan')
 
-      // Define columns
+      // Define columns with increased width for Nota
       worksheet.columns = [
         { header: 'Tanggal', key: 'tanggal', width: 20 },
         { header: 'Keterangan', key: 'keterangan', width: 30 },
         { header: 'Pemasukan', key: 'pemasukan', width: 15, style: { numFmt: '"Rp"#,##0' } },
         { header: 'Pengeluaran', key: 'pengeluaran', width: 15, style: { numFmt: '"Rp"#,##0' } },
-        { header: 'Nota', key: 'nota', width: 20 },
+        { header: 'Nota', key: 'nota', width: 25 }, // Increased from 20 to 25
         { header: 'Saldo', key: 'saldo', width: 15, style: { numFmt: '"Rp"#,##0' } }
       ]
 
@@ -776,14 +776,18 @@ export default function LaporanKeuangan() {
               base64: imageData,
               extension: getImageFormat(getNotaLink(row.nota)).toLowerCase()
             })
-            excelRow.height = 60
+            const columnWidthUnits = worksheet.columns[4].width || 25 // 25 units
+            const columnWidthPixels = columnWidthUnits * 7 // Approximate: 1 unit ≈ 7 pixels
+            const imageWidth = Math.min(140, columnWidthPixels - 10) // Fit within column, with 10px margin
+            const imageHeight = (imageWidth / 140) * 45 // Maintain aspect ratio (original: 140x45)
+            excelRow.height = Math.max(60, imageHeight + 10) // Ensure row height fits image
             worksheet.addImage(imageId, {
               tl: { col: 4, row: index + 1 },
-              ext: { width: 60, height: 45 },
-              editAs: 'oneCell'
+              ext: { width: imageWidth, height: imageHeight },
+              editAs: 'absolute' // Use absolute positioning to prevent resizing
             })
-            excelRow.getCell(5).value = ''
-            console.log(`Excel image: col=4, row=${index + 1}`)
+            excelRow.getCell(5).value = '' // Clear text to avoid overlap
+            console.log(`Excel image: col=4, row=${index + 1}, width=${imageWidth}, height=${imageHeight}, columnWidth=${columnWidthPixels}`)
           } else {
             excelRow.getCell(5).value = 'Gagal memuat'
           }
