@@ -9,7 +9,8 @@ import {
   FileDownload as FileDownloadIcon,
   PictureAsPdf as PdfIcon,
   TrendingDown as TrendingDownIcon,
-  TrendingUp as TrendingUpIcon
+  TrendingUp as TrendingUpIcon,
+  Visibility as VisibilityIcon // NEW: Ikon untuk pratinjau nota
 } from '@mui/icons-material'
 import {
   Alert,
@@ -26,6 +27,7 @@ import {
   Fade,
   FormControl,
   Grid,
+  IconButton, // NEW: Untuk ikon klik
   InputLabel,
   Menu,
   MenuItem,
@@ -37,6 +39,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip, // NEW: Untuk tooltip ikon
   Typography,
   keyframes,
   styled
@@ -230,6 +233,23 @@ export default function LaporanKeuangan() {
   const [previousTimeRange, setPreviousTimeRange] = useState('7days')
   const open = Boolean(anchorEl)
 
+  // NEW: Fungsi untuk memuat gambar sebagai base64
+  const loadImageAsBase64 = async (url) => {
+    try {
+      const response = await fetch(url, { mode: 'cors' })
+      if (!response.ok) throw new Error('Gagal memuat gambar')
+      const blob = await response.blob()
+      return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.readAsDataURL(blob)
+      })
+    } catch (error) {
+      console.error('Error loading image:', error)
+      return null
+    }
+  }
+
   useEffect(() => {
     const fetchSummary = async () => {
       try {
@@ -291,7 +311,7 @@ export default function LaporanKeuangan() {
 
   const getNotaLink = (nota) => {
     return nota && nota.trim() !== '' ? `${API_ENDPOINTS.BENDAHARA.UPLOAD_URL}${nota}` : null
-  } // MODIFIED: Fungsi untuk membentuk URL nota
+  }
 
   const getDateRange = (range) => {
     const today = new Date()
@@ -401,7 +421,7 @@ export default function LaporanKeuangan() {
     }).format(validNumber)
   }
 
-  const generatePDF = () => {
+  const generatePDF = async () => { // MODIFIED: Tambahkan async untuk memuat gambar
     try {
       const doc = new jsPDF('l', 'mm', 'a4')
       const pageWidth = doc.internal.pageSize.width
@@ -489,7 +509,7 @@ export default function LaporanKeuangan() {
           row.keterangan,
           formatRupiah(row.pemasukan || 0),
           formatRupiah(row.pengeluaran || 0),
-          formatNota(row.nota), // MODIFIED: Tetap gunakan teks untuk PDF
+          row.nota ? '' : 'Tidak Ada', // MODIFIED: Kosongkan untuk gambar, teks untuk tidak ada nota
           formatRupiah(row.total_saldo || 0)
         ])
 
@@ -523,11 +543,24 @@ export default function LaporanKeuangan() {
             1: { cellWidth: 80, halign: 'left' },
             2: { cellWidth: 40, halign: 'right' },
             3: { cellWidth: 40, halign: 'right' },
-            4: { cellWidth: 30, halign: 'center' },
+            4: { cellWidth: 30, halign: 'center' }, // MODIFIED: Pastikan lebar cukup untuk gambar
             5: { cellWidth: 40, halign: 'right' }
           },
           margin: { left: margin, right: margin },
           theme: 'grid',
+          didDrawCell: async (data) => {
+            if (data.column.index === 4 && data.cell.section === 'body' && filteredData[data.row.index]?.nota) {
+              const notaUrl = getNotaLink(filteredData[data.row.index].nota)
+              const imgData = await loadImageAsBase64(notaUrl)
+              if (imgData) {
+                const imgWidth = 20 // Lebar gambar dalam mm
+                const imgHeight = 10 // Tinggi gambar dalam mm
+                const x = data.cell.x + (data.cell.width - imgWidth) / 2
+                const y = data.cell.y + (data.cell.height - imgHeight) / 2
+                doc.addImage(imgData, 'JPEG', x, y, imgWidth, imgHeight)
+              }
+            }
+          }, // NEW: Tambahkan gambar di kolom Nota
           didDrawPage: (data) => {
             const pageCount = doc.internal.getNumberOfPages()
             for (let i = 1; i <= pageCount; i++) {
@@ -561,7 +594,7 @@ export default function LaporanKeuangan() {
         Keterangan: row.keterangan,
         Pemasukan: row.pemasukan || 0,
         Pengeluaran: row.pengeluaran || 0,
-        Nota: row.nota ? { t: 's', v: 'Lihat Nota', l: { Target: getNotaLink(row.nota) } } : 'Tidak Ada', // MODIFIED: Tambahkan hyperlink
+        Nota: row.nota ? { t: 's', v: 'Lihat Nota', l: { Target: getNotaLink(row.nota) } } : 'Tidak Ada',
         Saldo: row.total_saldo || 0
       })))
       const colWidths = [
@@ -569,7 +602,7 @@ export default function LaporanKeuangan() {
         { wch: 30 },
         { wch: 15 },
         { wch: 15 },
-        { wch: 15 }, // MODIFIED: Tambah lebar untuk hyperlink
+        { wch: 15 },
         { wch: 15 }
       ]
       ws['!cols'] = colWidths
@@ -1110,21 +1143,19 @@ export default function LaporanKeuangan() {
                             </TableCell>
                             <TableCell align='center' sx={{ fontWeight: 500 }}>
                               {row.nota ? (
-                                <a
-                                  href={getNotaLink(row.nota)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    color: '#1976D2',
-                                    textDecoration: 'underline',
-                                    fontWeight: 500
-                                  }}
-                                >
-                                  Lihat Nota
-                                </a>
+                                <Tooltip title="Lihat Nota">
+                                  <IconButton
+                                    href={getNotaLink(row.nota)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{ color: '#1976D2' }}
+                                  >
+                                    <VisibilityIcon />
+                                  </IconButton>
+                                </Tooltip>
                               ) : (
                                 'Tidak Ada'
-                              )} {/* MODIFIED: Tampilkan tautan */}
+                              )} {/* MODIFIED: Ganti tautan dengan ikon */}
                             </TableCell>
                             <TableCell align='right' sx={{
                               fontWeight: 600,
@@ -1186,28 +1217,26 @@ export default function LaporanKeuangan() {
                         }
                       </Typography>
                     </Box>
-                    <Box sx={{ mb: 2 }}>
+                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="caption" color="textSecondary">
                         Nota
                       </Typography>
                       {row.nota ? (
-                        <a
-                          href={getNotaLink(row.nota)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            color: '#1976D2',
-                            textDecoration: 'underline',
-                            fontWeight: 500
-                          }}
-                        >
-                          Lihat Nota
-                        </a>
+                        <Tooltip title="Lihat Nota">
+                          <IconButton
+                            href={getNotaLink(row.nota)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ color: '#1976D2' }}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
                       ) : (
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           Tidak Ada
                         </Typography>
-                      )} {/* MODIFIED: Tampilkan tautan */}
+                      )} {/* MODIFIED: Ganti tautan dengan ikon */}
                     </Box>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="caption" color="textSecondary">
