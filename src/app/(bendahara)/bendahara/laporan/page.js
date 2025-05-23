@@ -47,10 +47,13 @@ import {
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { endOfDay, isValid, startOfDay, format } from 'date-fns'
+import id from 'date-fns/locale/id' // Static import for Indonesian locale
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
+
+// ... [Styled components remain unchanged] ...
 
 const slideUp = keyframes`
   from {
@@ -484,7 +487,7 @@ export default function LaporanKeuangan() {
         const footerY = pageHeight - 15
         doc.text(`Halaman ${pageNumber} dari ${totalPages}`, pageWidth - margin, footerY, { align: 'right' })
         doc.text('Dibuat oleh Sistem Keuangan Desa', margin, footerY)
-        doc.text(`Dicetak pada: ${format(new Date(), 'dd MMMM yyyy HH:mm', { locale: require('date-fns/locale/id') })}`, margin, footerY + 5)
+        doc.text(`Dicetak pada: ${format(new Date(), 'dd MMMM yyyy HH:mm', { locale: id })}`, margin, footerY + 5)
       }
 
       // Initial header
@@ -554,7 +557,7 @@ export default function LaporanKeuangan() {
         doc.text('Tidak ada transaksi untuk periode ini', margin, currentY)
       } else {
         const imagePromises = filteredData
-          .slice(0, 50) // Increased limit for more rows
+          .slice(0, 50)
           .map((row, index) => row.nota ? ({ index, url: getNotaLink(row.nota) }) : null)
           .filter(Boolean)
           .map(async ({ index, url }) => ({
