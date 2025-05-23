@@ -48,6 +48,13 @@ import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 
+// Konstanta untuk base URL file nota
+const API_ENDPOINTS = {
+  BENDAHARA: {
+    UPLOAD_URL: process.env.NEXT_PUBLIC_UPLOAD_URL || 'http://your-server.com/uploads/' // Ganti dengan URL server Anda
+  }
+}
+
 // Animasi dan styled components
 const slideUp = keyframes`
   from {
@@ -288,6 +295,10 @@ export default function LaporanKeuangan() {
     return nota && nota.trim() !== '' ? 'Ada' : 'Tidak Ada'
   }
 
+  const getNotaLink = (nota) => {
+    return nota && nota.trim() !== '' ? `${API_ENDPOINTS.BENDAHARA.UPLOAD_URL}${nota}` : null
+  } // MODIFIED: Fungsi untuk membentuk URL nota
+
   const getDateRange = (range) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -484,7 +495,7 @@ export default function LaporanKeuangan() {
           row.keterangan,
           formatRupiah(row.pemasukan || 0),
           formatRupiah(row.pengeluaran || 0),
-          formatNota(row.nota),
+          formatNota(row.nota), // MODIFIED: Tetap gunakan teks untuk PDF
           formatRupiah(row.total_saldo || 0)
         ])
 
@@ -556,7 +567,7 @@ export default function LaporanKeuangan() {
         Keterangan: row.keterangan,
         Pemasukan: row.pemasukan || 0,
         Pengeluaran: row.pengeluaran || 0,
-        Nota: formatNota(row.nota),
+        Nota: row.nota ? { t: 's', v: 'Lihat Nota', l: { Target: getNotaLink(row.nota) } } : 'Tidak Ada', // MODIFIED: Tambahkan hyperlink
         Saldo: row.total_saldo || 0
       })))
       const colWidths = [
@@ -564,7 +575,7 @@ export default function LaporanKeuangan() {
         { wch: 30 },
         { wch: 15 },
         { wch: 15 },
-        { wch: 10 },
+        { wch: 15 }, // MODIFIED: Tambah lebar untuk hyperlink
         { wch: 15 }
       ]
       ws['!cols'] = colWidths
@@ -1104,7 +1115,22 @@ export default function LaporanKeuangan() {
                               }
                             </TableCell>
                             <TableCell align='center' sx={{ fontWeight: 500 }}>
-                              {formatNota(row.nota)}
+                              {row.nota ? (
+                                <a
+                                  href={getNotaLink(row.nota)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    color: '#1976D2',
+                                    textDecoration: 'underline',
+                                    fontWeight: 500
+                                  }}
+                                >
+                                  Lihat Nota
+                                </a>
+                              ) : (
+                                'Tidak Ada'
+                              )} {/* MODIFIED: Tampilkan tautan */}
                             </TableCell>
                             <TableCell align='right' sx={{
                               fontWeight: 600,
@@ -1170,9 +1196,24 @@ export default function LaporanKeuangan() {
                       <Typography variant="caption" color="textSecondary">
                         Nota
                       </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {formatNota(row.nota)}
-                      </Typography>
+                      {row.nota ? (
+                        <a
+                          href={getNotaLink(row.nota)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: '#1976D2',
+                            textDecoration: 'underline',
+                            fontWeight: 500
+                          }}
+                        >
+                          Lihat Nota
+                        </a>
+                      ) : (
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          Tidak Ada
+                        </Typography>
+                      )} {/* MODIFIED: Tampilkan tautan */}
                     </Box>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="caption" color="textSecondary">
