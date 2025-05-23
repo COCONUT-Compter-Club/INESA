@@ -51,7 +51,7 @@ import id from 'date-fns/locale/id'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
-import ExcelJS from 'exceljs' // Replaced xlsx with exceljs
+import * as XLSX from 'xlsx'
 
 const slideUp = keyframes`
   from {
@@ -675,9 +675,6 @@ export default function LaporanKeuangan() {
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(12)
       doc.setTextColor(0, 0, 0)
-      doc.text('Disetujui oleh:', pageWidth - margin - 80, currentY)
-      doc.text('___________________________', pageWidth - margin - 80, currentY + 15)
-      doc.text('Kepala Desa Bontomanai', pageWidth - margin - 80, currentY + 22)
 
       doc.save('laporan-keuangan-desa.pdf')
       handleClose()
@@ -691,132 +688,28 @@ export default function LaporanKeuangan() {
     }
   }
 
-  const exportToExcel = async () => {
+  const exportToExcel = () => {
     try {
-      const workbook = new ExcelJS.Workbook()
-      const worksheet = workbook.addWorksheet('Laporan Keuangan')
-
-      // Define columns
-      worksheet.columns = [
-        { header: 'Tanggal', key: 'tanggal', width: 20 },
-        { header: 'Keterangan', key: 'keterangan', width: 30 },
-        { header: 'Pemasukan', key: 'pemasukan', width: 15, style: { numFmt: '"Rp"#,##0' } },
-        { header: 'Pengeluaran', key: 'pengeluaran', width: 15, style: { numFmt: '"Rp"#,##0' } },
-        { header: 'Nota', key: 'nota', width: 15 },
-        { header: 'Saldo', key: 'saldo', width: 15, style: { numFmt: '"Rp"#,##0' } }
+      const ws = XLSX.utils.json_to_sheet(filteredData.map(row => ({
+        Tanggal: formatDateTime(row.tanggal),
+        Keterangan: row.keterangan,
+        Pemasukan: row.pemasukan || 0,
+        Pengeluaran: row.pengeluaran || 0,
+        Nota: row.nota ? { t: 's', v: 'Buka Gambar Nota', l: { Target: getNotaLink(row.nota) } } : 'Tidak Ada',
+        Saldo: row.total_saldo || 0
+      })))
+      const colWidths = [
+        { wch: 20 },
+        { wch: 30 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 }
       ]
-
-      // Style header row
-      worksheet.getRow(1).eachCell((cell) => {
-        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1976D2' } }
-        cell.alignment = { vertical: 'middle', horizontal: 'center' }
-        cell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' }
-        }
-      })
-
-      // Fetch images for rows with nota
-      const imagePromises = filteredData
-        .map((row, index) => row.nota ? ({ index, url: getNotaLink(row.nota) }) : null)
-        .filter(Boolean)
-        .map(async ({ index, url }) => ({
-          index,
-          data: await loadImageAsBase64(url)
-        }))
-      const images = await Promise.all(imagePromises)
-      const imageMap = images.reduce((acc, { index, data }) => ({ ...acc, [index]: data }), {})
-
-      // Add data rows
-      filteredData.forEach((row, index) => {
-        const rowData = {
-          tanggal: formatDateTime(row.tanggal),
-          keterangan: row.keterangan,
-          pemasukan: row.pemasukan || 0,
-          pengeluaran: row.pengeluaran || 0,
-          nota: row.nota ? 'Ada' : 'Tidak Ada',
-          saldo: row.total_saldo || 0
-        }
-        const excelRow = worksheet.addRow(rowData)
-
-        // Style cells
-        excelRow.eachCell((cell, colNumber) => {
-          cell.border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
-          }
-          cell.alignment = {
-            vertical: 'middle',
-            horizontal: colNumber === 1 ? 'left' : colNumber === 2 ? 'left' : 'right'
-          }
-          if (colNumber === 3 && row.pemasukan > 0) {
-            cell.font = { color: { argb: 'FF2E7D32' } }
-          }
-          if (colNumber === 4 && row.pengeluaran > 0) {
-            cell.font = { color: { argb: 'FFD32F2F' } }
-          }
-        })
-
-        // Add image to Nota column
-        if (row.nota && imageMap[index] && isImage(getNotaLink(row.nota))) {
-          const imageData = imageMap[index]
-          if (imageData) {
-            const imageId = workbook.addImage({
-              base64: imageData,
-              extension: getImageFormat(getNotaLink(row.nota)).toLowerCase()
-            })
-            excelRow.height = 60 // Adjust row height for image
-            worksheet.addImage(imageId, {
-              tl: { col: 4, row: index + 1 },
-              ext: { width: 80, height: 60 },
-              editAs: 'oneCell'
-            })
-            excelRow.getCell(5).value = '' // Clear text in Nota column
-          } else {
-            excelRow.getCell(5).value = 'Gagal memuat'
-          }
-        }
-      })
-
-      // Add header information
-      const { startDateObj, endDateObj } = getDateRange(timeRange)
-      const periodLabel = startDateObj && endDateObj
-        ? `${format(startDateObj, 'dd MMMM yyyy', { locale: id })} - ${format(endDateObj, 'dd MMMM yyyy', { locale: id })}`
-        : 'Periode Tidak Diketahui'
-      worksheet.spliceRows(1, 0, [], [], [], []) // Add empty rows for header
-      worksheet.mergeCells('A1:F1')
-      worksheet.getCell('A1').value = 'Laporan Keuangan Desa'
-      worksheet.getCell('A1').font = { size: 16, bold: true }
-      worksheet.getCell('A1').alignment = { horizontal: 'center' }
-      worksheet.mergeCells('A2:F2')
-      worksheet.getCell('A2').value = 'Desa Bontomanai, Kec. Rumbia, Kab. Jeneponto'
-      worksheet.getCell('A2').font = { size: 12 }
-      worksheet.getCell('A2').alignment = { horizontal: 'center' }
-      worksheet.mergeCells('A3:F3')
-      worksheet.getCell('A3').value = `Periode: ${periodLabel}`
-      worksheet.getCell('A3').font = { size: 10, italic: true }
-      worksheet.getCell('A3').alignment = { horizontal: 'center' }
-
-      // Adjust column widths and row heights
-      worksheet.getRow(1).height = 30
-      worksheet.getRow(2).height = 20
-      worksheet.getRow(3).height = 20
-      worksheet.getRow(4).height = 20
-
-      // Generate and download the file
-      const buffer = await workbook.xlsx.writeBuffer()
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.download = 'laporan-keuangan.xlsx'
-      link.click()
-      URL.revokeObjectURL(link.href)
-
+      ws['!cols'] = colWidths
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Laporan Keuangan')
+      XLSX.writeFile(wb, 'laporan-keuangan.xlsx')
       handleClose()
     } catch (error) {
       console.error('Excel generation error:', error)
@@ -1144,7 +1037,7 @@ export default function LaporanKeuangan() {
                     zIndex: 1,
                     fontSize: { xs: '1.5rem', sm: '2rem' }
                   }}>
-                   649                    {isLoadingSummary ? 'Memuat...' : formatRupiah(totalPengeluaran)}
+                    {isLoadingSummary ? 'Memuat...' : formatRupiah(totalPengeluaran)}
                   </Typography>
                 </StyledCard>
               </Grid>
