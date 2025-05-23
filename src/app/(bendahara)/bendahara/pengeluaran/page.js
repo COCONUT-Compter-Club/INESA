@@ -341,7 +341,7 @@ export default function Pengeluaran() {
       setTotalPages(response.data.total_pages)
     } catch (error) {
       if(error.message == "Cannot read properties of null (reading 'map')") {
-        showSnackbar('Belum ada datang', 'error')
+        showSnackbar('Belum ada transaksi', 'error')
       } else {
         showSnackbar('Gagal mengambil data: ' + error.message, 'error')
       }

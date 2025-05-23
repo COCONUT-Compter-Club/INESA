@@ -53,6 +53,20 @@ import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 
+// Fungsi untuk menerjemahkan pesan error dari backend atau pustaka eksternal
+const translateErrorMessage = (message) => {
+  const translations = {
+    'Failed to fetch data': 'Gagal mengambil data',
+    'Failed to load image': 'Gagal memuat gambar',
+    'Network Error': 'Kesalahan jaringan',
+    'Invalid date format': 'Format tanggal tidak valid',
+    'Failed to generate PDF': 'Gagal membuat PDF',
+    'Failed to generate Excel': 'Gagal membuat Excel',
+    'Unsupported format': 'Format tidak didukung',
+  }
+  return translations[message] || message
+}
+
 const slideUp = keyframes`
   from {
     transform: translateY(50px);
@@ -114,13 +128,13 @@ const StyledCard = styled(Card)(({ theme, variant, delay = 0 }) => ({
     ? variant === 'income'
       ? 'linear-gradient(135deg, #2196F3 30%, #64B5F6 100%)'
       : variant === 'expense'
-        ? 'linear-gradient(135deg, #1E88E5 30%, #42A5F5 100%)'
-        : 'linear-gradient(135deg, #1976D2 30%, #2196F3 100%)'
+      ? 'linear-gradient(135deg, #1E88E5 30%, #42A5F5 100%)'
+      : 'linear-gradient(135deg, #1976D2 30%, #2196F3 100%)'
     : variant === 'income'
-      ? 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)'
-      : variant === 'expense'
-        ? 'linear-gradient(135deg, #1565C0 0%, #1976D2 100%)'
-        : 'linear-gradient(135deg, #0D47A1 0%, #1565C0 100%)',
+    ? 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)'
+    : variant === 'expense'
+    ? 'linear-gradient(135deg, #1565C0 0%, #1976D2 100%)'
+    : 'linear-gradient(135deg, #0D47A1 0%, #1565C0 100%)',
   color: '#ffffff',
   borderRadius: '16px',
   boxShadow: theme.palette.mode === 'dark'
@@ -237,10 +251,10 @@ export default function LaporanKeuangan() {
 
   const loadImageAsBase64 = async (url) => {
     try {
-      console.log('Fetching image:', url)
+      console.log('Mengambil gambar:', url)
       const response = await fetch(url, { mode: 'cors' })
-      console.log('Response status:', response.status)
-      if (!response.ok) throw new Error(`Gagal memuat gambar: ${response.statusText}`)
+      console.log('Status respons:', response.status)
+      if (!response.ok) throw new Error(`Gagal memuat gambar: ${translateErrorMessage(response.statusText)}`)
       const blob = await response.blob()
       return new Promise((resolve) => {
         const reader = new FileReader()
@@ -248,7 +262,7 @@ export default function LaporanKeuangan() {
         reader.readAsDataURL(blob)
       })
     } catch (error) {
-      console.error('Error loading image:', error)
+      console.error('Kesalahan saat memuat gambar:', error)
       return null
     }
   }
@@ -286,7 +300,7 @@ export default function LaporanKeuangan() {
       } catch (error) {
         setAlert({
           open: true,
-          message: 'Gagal memuat ringkasan keuangan',
+          message: translateErrorMessage('Gagal memuat ringkasan keuangan'),
           severity: 'error'
         })
         setTotalPemasukan(0)
@@ -404,16 +418,16 @@ export default function LaporanKeuangan() {
         const endDate = formatDate(end)
         rangeData = await laporanService.getLaporanByDateRange(startDate, endDate)
       }
-      console.log('Fetched data:', rangeData)
+      console.log('Data berhasil diambil:', rangeData)
       setData(rangeData)
       setFilteredData(rangeData)
     } catch (error) {
-      setError('Gagal mengambil data laporan: ' + error.message)
+      setError(translateErrorMessage('Gagal mengambil data laporan: ' + error.message))
       setData([])
       setFilteredData([])
       setAlert({
         open: true,
-        message: 'Gagal memuat data laporan',
+        message: translateErrorMessage('Gagal memuat data laporan'),
         severity: 'error'
       })
     } finally {
@@ -451,7 +465,6 @@ export default function LaporanKeuangan() {
       const margin = 15
       let currentY = margin
 
-      // Helper function to add header
       const addHeader = (isNewPage = false) => {
         const headerY = isNewPage ? margin : currentY
         doc.setFont('helvetica', 'bold')
@@ -481,7 +494,6 @@ export default function LaporanKeuangan() {
         }
       }
 
-      // Helper function to add footer
       const addFooter = (pageNumber, totalPages) => {
         const footerY = pageHeight - 20
         doc.setFont('helvetica', 'normal')
@@ -496,10 +508,8 @@ export default function LaporanKeuangan() {
         )
       }
 
-      // Initial header
       addHeader()
 
-      // Ringkasan Keuangan
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(14)
       doc.setTextColor(25, 118, 210)
@@ -549,7 +559,6 @@ export default function LaporanKeuangan() {
 
       currentY = doc.lastAutoTable.finalY + 15
 
-      // Detail Transaksi
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(14)
       doc.setTextColor(25, 118, 210)
@@ -667,7 +676,6 @@ export default function LaporanKeuangan() {
         currentY = doc.lastAutoTable.finalY + 15
       }
 
-      // Add signature section on a new page to avoid overlap
       doc.addPage()
       currentY = margin
       addHeader(true)
@@ -679,10 +687,10 @@ export default function LaporanKeuangan() {
       doc.save('laporan-keuangan-desa.pdf')
       handleClose()
     } catch (error) {
-      console.error('PDF generation error:', error)
+      console.error('Kesalahan saat membuat PDF:', error)
       setAlert({
         open: true,
-        message: `Terjadi kesalahan saat membuat PDF: ${error.message}`,
+        message: translateErrorMessage(`Terjadi kesalahan saat membuat PDF: ${error.message}`),
         severity: 'error'
       })
     }
@@ -712,10 +720,10 @@ export default function LaporanKeuangan() {
       XLSX.writeFile(wb, 'laporan-keuangan.xlsx')
       handleClose()
     } catch (error) {
-      console.error('Excel generation error:', error)
+      console.error('Kesalahan saat membuat Excel:', error)
       setAlert({
         open: true,
-        message: 'Terjadi kesalahan saat membuat Excel',
+        message: translateErrorMessage('Terjadi kesalahan saat membuat Excel'),
         severity: 'error'
       })
     }
