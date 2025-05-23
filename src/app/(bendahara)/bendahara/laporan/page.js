@@ -452,27 +452,33 @@ export default function LaporanKeuangan() {
       let currentY = margin
 
       // Helper function to add header
-      const addHeader = () => {
-        // Logo placeholder (uncomment and update path if logo is available)
-        // doc.addImage('/logo.png', 'PNG', margin, currentY, 25, 25)
+      const addHeader = (isNewPage = false) => {
+        // Reset currentY for new pages to avoid overlap
+        const headerY = isNewPage ? margin : currentY
+        // doc.addImage('/logo.png', 'PNG', margin, headerY, 25, 25)
         doc.setFont('helvetica', 'bold')
         doc.setFontSize(20)
         doc.setTextColor(25, 118, 210)
-        doc.text('Laporan Keuangan Desa', pageWidth / 2, currentY + 8, { align: 'center' })
+        doc.text('Laporan Keuangan Desa', pageWidth / 2, headerY + 8, { align: 'center' })
 
         doc.setFont('helvetica', 'normal')
         doc.setFontSize(12)
         doc.setTextColor(0, 0, 0)
-        doc.text('Desa Bontomanai, Kec. Rumbia, Kab. Jeneponto', pageWidth / 2, currentY + 15, { align: 'center' })
+        doc.text('Desa Bontomanai, Kec. Rumbia, Kab. Jeneponto', pageWidth / 2, headerY + 15, { align: 'center' })
 
         const periodLabel = timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 Hari Terakhir'
         doc.setFontSize(10)
         doc.setFont('helvetica', 'italic')
-        doc.text(`Periode: ${periodLabel}`, pageWidth / 2, currentY + 20, { align: 'center' })
+        doc.text(`Periode: ${periodLabel}`, pageWidth / 2, headerY + 20, { align: 'center' })
 
         doc.setLineWidth(0.5)
         doc.setDrawColor(200, 200, 200)
-        doc.line(margin, currentY + 25, pageWidth - margin, currentY + 25)
+        doc.line(margin, headerY + 25, pageWidth - margin, headerY + 25)
+
+        // Update currentY only for initial call, not in didDrawPage
+        if (!isNewPage) {
+          currentY = headerY + 30
+        }
       }
 
       // Helper function to add footer
@@ -492,7 +498,7 @@ export default function LaporanKeuangan() {
 
       // Initial header
       addHeader()
-      currentY += 30
+      // currentY += 30 (moved inside addHeader)
 
       // Ringkasan Keuangan
       doc.setFont('helvetica', 'bold')
@@ -650,8 +656,12 @@ export default function LaporanKeuangan() {
           didDrawPage: (data) => {
             const pageCount = doc.internal.getNumberOfPages()
             const currentPage = doc.internal.getCurrentPageInfo().pageNumber
-            addHeader()
+            addHeader(true) // Pass true to indicate new page
             addFooter(currentPage, pageCount)
+            // Ensure table continues below header
+            if (data.cursor) {
+              data.cursor.y = margin + 30
+            }
           },
           pageBreak: 'auto'
         })
@@ -663,7 +673,7 @@ export default function LaporanKeuangan() {
       if (currentY > pageHeight - 50) {
         doc.addPage()
         currentY = margin
-        addHeader()
+        addHeader(true)
       }
 
       doc.setFont('helvetica', 'normal')
@@ -1464,19 +1474,6 @@ export default function LaporanKeuangan() {
                   </Typography>
                 </Box>
               )}
-            </Box>
-
-            <Box sx={{
-              display: { xs: 'block', md: 'none' },
-              mt: 2,
-              p: 2,
-              bgcolor: 'background.paper',
-              borderRadius: '16px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-            }}>
-              <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                * Tampilan mobile menampilkan data dalam bentuk kartu untuk kemudahan membaca.
-              </Typography>
             </Box>
           </div>
         )}
