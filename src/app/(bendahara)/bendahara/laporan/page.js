@@ -1,5 +1,6 @@
 'use client'
 
+import { API_ENDPOINTS } from '@/config/api'
 import { laporanService } from '@/services/laporanService'
 import {
   AccountBalance as AccountBalanceIcon,
@@ -51,7 +52,7 @@ import * as XLSX from 'xlsx'
 // Konstanta untuk base URL file nota
 const API_ENDPOINTS = {
   BENDAHARA: {
-    UPLOAD_URL: process.env.NEXT_PUBLIC_UPLOAD_URL || 'http://your-server.com/uploads/' // Ganti dengan URL server Anda
+    UPLOAD_URL: API_ENDPOINTS.BENDAHARA.UPLOAD_URL
   }
 }
 
