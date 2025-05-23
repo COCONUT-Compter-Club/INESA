@@ -340,6 +340,9 @@ export default function Pengeluaran() {
       setTotalItems(response.data.total_items)
       setTotalPages(response.data.total_pages)
     } catch (error) {
+      if(error.message == "Cannot read properties of null (reading 'map')") {
+        showSnackbar('Belum ada datang', 'error')
+      }
       showSnackbar('Gagal mengambil data: ' + error.message, 'error')
       console.log(error.message)
       setRows([])
