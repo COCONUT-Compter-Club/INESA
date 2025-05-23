@@ -342,9 +342,9 @@ export default function Pengeluaran() {
     } catch (error) {
       if(error.message == "Cannot read properties of null (reading 'map')") {
         showSnackbar('Belum ada datang', 'error')
+      } else {
+        showSnackbar('Gagal mengambil data: ' + error.message, 'error')
       }
-      showSnackbar('Gagal mengambil data: ' + error.message, 'error')
-      console.log(error.message)
       setRows([])
     } finally {
       setLoading(false)
