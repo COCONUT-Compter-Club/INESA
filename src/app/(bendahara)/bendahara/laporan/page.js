@@ -51,7 +51,7 @@ import id from 'date-fns/locale/id'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
-import ExcelJS from 'exceljs' // Replaced xlsx with exceljs
+import ExcelJS from 'exceljs'
 
 const slideUp = keyframes`
   from {
@@ -573,6 +573,7 @@ export default function LaporanKeuangan() {
           }))
         const images = await Promise.all(imagePromises)
         const imageMap = images.reduce((acc, { index, data }) => ({ ...acc, [index]: data }), {})
+        console.log('Image map:', imageMap)
 
         const tableData = filteredData.map(row => [
           formatDateTime(row.tanggal),
@@ -594,7 +595,7 @@ export default function LaporanKeuangan() {
             fontSize: 8,
             cellPadding: 3,
             overflow: 'linebreak',
-            minCellHeight: 10
+            minCellHeight: 12
           },
           headStyles: {
             fillColor: [25, 118, 210],
@@ -612,10 +613,10 @@ export default function LaporanKeuangan() {
           },
           columnStyles: {
             0: { cellWidth: 40, halign: 'center' },
-            1: { cellWidth: 100, halign: 'left', overflow: 'linebreak' },
+            1: { cellWidth: 90, halign: 'left', overflow: 'linebreak' },
             2: { cellWidth: 35, halign: 'right' },
             3: { cellWidth: 35, halign: 'right' },
-            4: { cellWidth: 30, halign: 'center' },
+            4: { cellWidth: 40, halign: 'center' },
             5: { cellWidth: 35, halign: 'right' }
           },
           margin: { left: margin, right: margin },
@@ -630,11 +631,15 @@ export default function LaporanKeuangan() {
                 if (imgData) {
                   const format = getImageFormat(notaUrl)
                   if (format) {
-                    const imgWidth = 12
-                    const imgHeight = 6
-                    const x = data.cell.x + (data.cell.width - imgWidth) / 2
-                    const y = data.cell.y + (data.cell.height - imgHeight) / 2
+                    const imgWidth = 10
+                    const imgHeight = 5
+                    const x = data.cell.x + 3 + (data.cell.width - imgWidth - 6) / 2
+                    const y = data.cell.y + 3 + (data.cell.height - imgHeight - 6) / 2
+                    console.log(`Image position: x=${x}, y=${y}, cell: x=${data.cell.x}, y=${data.cell.y}, width=${data.cell.width}, height=${data.cell.height}`)
+                    doc.saveGraphicsState()
+                    doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'clip')
                     doc.addImage(imgData, format, x, y, imgWidth, imgHeight)
+                    doc.restoreGraphicsState()
                   } else {
                     doc.setFont('helvetica', 'normal')
                     doc.setFontSize(7)
@@ -702,7 +707,7 @@ export default function LaporanKeuangan() {
         { header: 'Keterangan', key: 'keterangan', width: 30 },
         { header: 'Pemasukan', key: 'pemasukan', width: 15, style: { numFmt: '"Rp"#,##0' } },
         { header: 'Pengeluaran', key: 'pengeluaran', width: 15, style: { numFmt: '"Rp"#,##0' } },
-        { header: 'Nota', key: 'nota', width: 15 },
+        { header: 'Nota', key: 'nota', width: 20 },
         { header: 'Saldo', key: 'saldo', width: 15, style: { numFmt: '"Rp"#,##0' } }
       ]
 
@@ -729,6 +734,7 @@ export default function LaporanKeuangan() {
         }))
       const images = await Promise.all(imagePromises)
       const imageMap = images.reduce((acc, { index, data }) => ({ ...acc, [index]: data }), {})
+      console.log('Excel image map:', imageMap)
 
       // Add data rows
       filteredData.forEach((row, index) => {
@@ -770,13 +776,14 @@ export default function LaporanKeuangan() {
               base64: imageData,
               extension: getImageFormat(getNotaLink(row.nota)).toLowerCase()
             })
-            excelRow.height = 60 // Adjust row height for image
+            excelRow.height = 60
             worksheet.addImage(imageId, {
               tl: { col: 4, row: index + 1 },
-              ext: { width: 80, height: 60 },
+              ext: { width: 60, height: 45 },
               editAs: 'oneCell'
             })
-            excelRow.getCell(5).value = '' // Clear text in Nota column
+            excelRow.getCell(5).value = ''
+            console.log(`Excel image: col=4, row=${index + 1}`)
           } else {
             excelRow.getCell(5).value = 'Gagal memuat'
           }
@@ -788,7 +795,7 @@ export default function LaporanKeuangan() {
       const periodLabel = startDateObj && endDateObj
         ? `${format(startDateObj, 'dd MMMM yyyy', { locale: id })} - ${format(endDateObj, 'dd MMMM yyyy', { locale: id })}`
         : 'Periode Tidak Diketahui'
-      worksheet.spliceRows(1, 0, [], [], [], []) // Add empty rows for header
+      worksheet.spliceRows(1, 0, [], [], [], [])
       worksheet.mergeCells('A1:F1')
       worksheet.getCell('A1').value = 'Laporan Keuangan Desa'
       worksheet.getCell('A1').font = { size: 16, bold: true }
@@ -1144,7 +1151,7 @@ export default function LaporanKeuangan() {
                     zIndex: 1,
                     fontSize: { xs: '1.5rem', sm: '2rem' }
                   }}>
-                   649                    {isLoadingSummary ? 'Memuat...' : formatRupiah(totalPengeluaran)}
+                    {isLoadingSummary ? 'Memuat...' : formatRupiah(totalPengeluaran)}
                   </Typography>
                 </StyledCard>
               </Grid>
