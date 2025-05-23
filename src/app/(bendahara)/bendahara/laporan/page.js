@@ -230,6 +230,8 @@ export default function LaporanKeuangan() {
   const [confirmedStartDate, setConfirmedStartDate] = useState(null)
   const [confirmedEndDate, setConfirmedEndDate] = useState(null)
   const [previousTimeRange, setPreviousTimeRange] = useState('7days')
+  const [showNotaPopup, setShowNotaPopup] = useState(false)
+  const [notaUrl, setNotaUrl] = useState(null)
   const open = Boolean(anchorEl)
 
   const loadImageAsBase64 = async (url) => {
@@ -257,6 +259,16 @@ export default function LaporanKeuangan() {
   }
 
   const isImage = (url) => /\.(jpg|jpeg|png)$/i.test(url)
+
+  const handleOpenNotaPopup = (url) => {
+    setNotaUrl(url)
+    setShowNotaPopup(true)
+  }
+
+  const handleCloseNotaPopup = () => {
+    setShowNotaPopup(false)
+    setNotaUrl(null)
+  }
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -737,6 +749,110 @@ export default function LaporanKeuangan() {
           </Alert>
         </Fade>
 
+        <Dialog
+          open={showNotaPopup}
+          onClose={handleCloseNotaPopup}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: '16px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+              background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
+              margin: '16px',
+              width: 'calc(100% - 32px)',
+              maxHeight: 'calc(100vh - 32px)',
+            }
+          }}
+        >
+          <DialogTitle sx={{
+            pb: 2,
+            pt: 3,
+            px: 3,
+            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+            background: 'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            '& .MuiTypography-root': {
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+            }
+          }}>
+            <VisibilityIcon sx={{ fontSize: 28 }} />
+            Lihat Nota
+          </DialogTitle>
+          <DialogContent sx={{
+            py: 4,
+            px: { xs: 3, sm: 4 },
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '200px'
+          }}>
+            {notaUrl && isImage(notaUrl) ? (
+              <Box
+                component="img"
+                src={notaUrl}
+                alt="Nota"
+                sx={{
+                  maxWidth: '100%',
+                  maxHeight: '60vh',
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}
+              />
+            ) : (
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
+                  File bukan gambar (misalnya, PDF). Silakan unduh untuk melihat.
+                </Typography>
+                <Button
+                  variant="contained"
+                  href={notaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    borderRadius: '10px',
+                    bgcolor: '#1976D2',
+                    '&:hover': {
+                      bgcolor: '#1565C0'
+                    }
+                  }}
+                >
+                  Unduh File
+                </Button>
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions sx={{
+            px: 4,
+            py: 3,
+            borderTop: '1px solid rgba(0, 0, 0, 0.1)',
+            bgcolor: 'rgba(0, 0, 0, 0.02)',
+          }}>
+            <Button
+              onClick={handleCloseNotaPopup}
+              variant="outlined"
+              sx={{
+                borderRadius: '10px',
+                borderColor: '#666',
+                color: '#666',
+                '&:hover': {
+                  borderColor: '#1976D2',
+                  color: '#1976D2',
+                  bgcolor: 'rgba(25, 118, 210, 0.04)'
+                }
+              }}
+            >
+              Tutup
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         {loading && isLoadingSummary ? (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
             <CircularProgress />
@@ -1178,9 +1294,7 @@ export default function LaporanKeuangan() {
                               {row.nota ? (
                                 <Tooltip title="Lihat Nota">
                                   <IconButton
-                                    href={getNotaLink(row.nota)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    onClick={() => handleOpenNotaPopup(getNotaLink(row.nota))}
                                     sx={{ color: '#1976D2' }}
                                   >
                                     <VisibilityIcon />
@@ -1257,9 +1371,7 @@ export default function LaporanKeuangan() {
                       {row.nota ? (
                         <Tooltip title="Lihat Nota">
                           <IconButton
-                            href={getNotaLink(row.nota)}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            onClick={() => handleOpenNotaPopup(getNotaLink(row.nota))}
                             sx={{ color: '#1976D2' }}
                           >
                             <VisibilityIcon />
