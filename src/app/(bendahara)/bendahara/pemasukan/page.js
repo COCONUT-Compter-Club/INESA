@@ -217,7 +217,7 @@ export default function Pemasukan() {
     { value: '3months', label: '3 Bulan Terakhir' },
     { value: '6months', label: '6 Bulan Terakhir' },
     { value: '1year', label: '1 Tahun Terakhir' },
-    { value: 'custom', label: 'Custom' }
+    { value: 'custom', label: 'Kustom' }
   ]
 
   const predefinedCategories = ['Pajak', 'Retribusi', 'Dana Desa', 'Bantuan', 'Lainnya']
@@ -225,6 +225,18 @@ export default function Pemasukan() {
   const formatDate = (date) => {
     if (!date || !isValid(date)) return null
     return format(date, 'yyyy-MM-dd')
+  }
+
+  // Translate error messages to Indonesian, consistent with Dashboard
+  const translateErrorMessage = (message) => {
+    const errorTranslations = {
+      'Network Error': 'Kesalahan Jaringan',
+      'Failed to fetch': 'Gagal Mengambil Data',
+      'Internal Server Error': 'Kesalahan Server Internal',
+      'Unauthorized': 'Tidak Berwenang',
+      'Bad Request': 'Permintaan Tidak Valid',
+    }
+    return errorTranslations[message] || message || 'Terjadi Kesalahan'
   }
 
   const getDateRange = (range) => {
@@ -286,7 +298,7 @@ export default function Pemasukan() {
         setTotalPemasukan(Number.isFinite(total) ? total : 0)
       } catch (error) {
         setTotalPemasukan(0)
-        showSnackbar('Gagal memuat total pemasukan', 'error')
+        showSnackbar(translateErrorMessage(error.message), 'error')
       } finally {
         setIsLoadingTotal(false)
       }
@@ -324,7 +336,7 @@ export default function Pemasukan() {
       setTotalItems(response?.data?.total_items || 0)
       setTotalPages(response?.data?.total_pages || 0)
     } catch (error) {
-      showSnackbar('Gagal mengambil data: ' + error.message, 'error')
+      showSnackbar(translateErrorMessage(error.message), 'error')
       setRows([])
     } finally {
       setLoading(false)
@@ -397,7 +409,7 @@ export default function Pemasukan() {
     } else if (name === 'nominal') {
       const numericValue = value.replace(/\D/g, '')
       if (numericValue.length > 11) {
-        showSnackbar('Nominal terlalu besar (maksimal puluhan milyar)', 'error')
+        showSnackbar('Nominal terlalu besar (maksimal puluhan miliar)', 'error')
         return
       }
       setFormData(prev => ({
@@ -475,7 +487,7 @@ export default function Pemasukan() {
       setTotalPemasukan(Number.isFinite(total) ? total : 0)
       showSnackbar(`Pemasukan berhasil dihapus`, 'success')
     } catch (error) {
-      showSnackbar(`Gagal menghapus pemasukan: ${error.message}`, 'error')
+      showSnackbar(`Gagal menghapus pemasukan: ${translateErrorMessage(error.message)}`, 'error')
     } finally {
       setLoading(false)
       setDeleteDialog({ open: false, id: null })
@@ -556,7 +568,7 @@ export default function Pemasukan() {
       const total = await laporanService.getTotalPemasukan()
       setTotalPemasukan(Number.isFinite(total) ? total : 0)
     } catch (error) {
-      showSnackbar(error.message || 'Gagal menyimpan data', 'error')
+      showSnackbar(translateErrorMessage(error.message), 'error')
     } finally {
       setLoading(false)
     }
@@ -631,7 +643,7 @@ export default function Pemasukan() {
             action={
               <IconButton
                 size="small"
-                aria-label="close"
+                aria-label="tutup"
                 color="inherit"
                 onClick={handleCloseSnackbar}
               >
@@ -798,7 +810,7 @@ export default function Pemasukan() {
                               gap: 1
                             }}
                           >
-                            <Tooltip title="Edit">
+                            <Tooltip title="Ubah">
                               <IconButton
                                 size="small"
                                 onClick={() => handleEdit(row)}
@@ -1058,7 +1070,7 @@ export default function Pemasukan() {
             {editingId ? (
               <>
                 <EditIcon sx={{ fontSize: 28 }} />
-                Edit Pemasukan
+                Ubah Pemasukan
               </>
             ) : (
               <>
@@ -1134,7 +1146,7 @@ export default function Pemasukan() {
                 )
               }}
               placeholder="Contoh: 1.000.000"
-              inputProps={{ 'aria-label': 'Jumlah pemasukan' }}
+              inputProps={{ 'aria-label': 'Nominal pemasukan' }}
             />
             <TextField
               label="Kategori"
@@ -1226,7 +1238,7 @@ export default function Pemasukan() {
                 }}
               >
                 <ReceiptIcon sx={{ fontSize: 20 }} />
-                Upload Nota (Opsional)
+                Unggah Nota (Opsional)
               </Typography>
               <Box
                 sx={{
@@ -1250,14 +1262,14 @@ export default function Pemasukan() {
                   onChange={handleInputChange}
                   style={{ display: 'none' }}
                   id="nota-upload"
-                  aria-label="Upload nota pemasukan"
+                  aria-label="Unggah nota pemasukan"
                 />
                 <label htmlFor="nota-upload" style={{ cursor: 'pointer' }}>
                   {previewUrl ? (
                     <Box sx={{ position: 'relative' }}>
                       <img
                         src={previewUrl}
-                        alt="Preview Nota"
+                        alt="Pratinjau Nota"
                         style={{
                           maxWidth: '100%',
                           maxHeight: '200px',
@@ -1272,7 +1284,7 @@ export default function Pemasukan() {
                           color: 'text.secondary'
                         }}
                       >
-                        Klik untuk mengganti gambar
+                        Klik untuk mengganti nota
                       </Typography>
                     </Box>
                   ) : (
