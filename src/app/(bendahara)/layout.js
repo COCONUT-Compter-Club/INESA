@@ -55,6 +55,8 @@ export default function BendaharaLayout({ children }) {
   });
   const open = Boolean(anchorEl);
 
+  const router = useRouter();
+
   const handleDrawerToggle = () => {
     setMiniSidenav(dispatch, !miniSidenav);
   };
