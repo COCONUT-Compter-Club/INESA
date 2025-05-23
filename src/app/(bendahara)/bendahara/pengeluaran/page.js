@@ -341,6 +341,7 @@ export default function Pengeluaran() {
       setTotalPages(response.data.total_pages)
     } catch (error) {
       showSnackbar('Gagal mengambil data: ' + error.message, 'error')
+      console.log(error.message)
       setRows([])
     } finally {
       setLoading(false)
