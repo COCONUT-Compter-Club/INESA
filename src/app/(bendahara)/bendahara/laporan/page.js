@@ -51,9 +51,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
-// import ExcelJS from 'exceljs' // Uncomment jika ingin menyisipkan gambar di Excel
 
-// Animasi dan styled components
 const slideUp = keyframes`
   from {
     transform: translateY(50px);
@@ -234,12 +232,11 @@ export default function LaporanKeuangan() {
   const [previousTimeRange, setPreviousTimeRange] = useState('7days')
   const open = Boolean(anchorEl)
 
-  // Fungsi untuk memuat gambar sebagai base64
   const loadImageAsBase64 = async (url) => {
     try {
-      console.log('Fetching image:', url) // Debugging
+      console.log('Fetching image:', url)
       const response = await fetch(url, { mode: 'cors' })
-      console.log('Response status:', response.status) // Debugging
+      console.log('Response status:', response.status)
       if (!response.ok) throw new Error(`Gagal memuat gambar: ${response.statusText}`)
       const blob = await response.blob()
       return new Promise((resolve) => {
@@ -253,14 +250,12 @@ export default function LaporanKeuangan() {
     }
   }
 
-  // Deteksi format gambar
   const getImageFormat = (url) => {
     if (/\.png$/i.test(url)) return 'PNG'
     if (/\.jpe?g$/i.test(url)) return 'JPEG'
     return null
   }
 
-  // Cek apakah file adalah gambar
   const isImage = (url) => /\.(jpg|jpeg|png)$/i.test(url)
 
   useEffect(() => {
@@ -396,7 +391,7 @@ export default function LaporanKeuangan() {
         const endDate = formatDate(end)
         rangeData = await laporanService.getLaporanByDateRange(startDate, endDate)
       }
-      console.log('Fetched data:', rangeData) // Debugging
+      console.log('Fetched data:', rangeData)
       setData(rangeData)
       setFilteredData(rangeData)
     } catch (error) {
@@ -457,7 +452,8 @@ export default function LaporanKeuangan() {
       currentY += 8
 
       const periodLabel = timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 Hari Terakhir'
-      doc.text(`Periode: ${periodLabel}`, pageWidth / neonates)
+      doc.text(`Periode: ${periodLabel}`, pageWidth / 2, currentY, { align: 'center' })
+      currentY += 10
 
       doc.setLineWidth(0.5)
       doc.setDrawColor(200, 200, 200)
@@ -517,9 +513,8 @@ export default function LaporanKeuangan() {
         doc.setTextColor(100, 100, 100)
         doc.text('Tidak ada transaksi untuk periode ini', margin, currentY)
       } else {
-        // Preload gambar
         const imagePromises = filteredData
-          .slice(0, 10) // Batasi ke 10 gambar untuk performa
+          .slice(0, 10)
           .map((row, index) => row.nota ? ({ index, url: getNotaLink(row.nota) }) : null)
           .filter(Boolean)
           .map(async ({ index, url }) => ({
@@ -656,66 +651,6 @@ export default function LaporanKeuangan() {
       })
     }
   }
-
-  // Opsi untuk menyisipkan gambar di Excel menggunakan exceljs (uncomment jika diperlukan)
-  /*
-  const exportToExcel = async () => {
-    try {
-      const workbook = new ExcelJS.Workbook()
-      const worksheet = workbook.addWorksheet('Laporan Keuangan')
-      worksheet.columns = [
-        { header: 'Tanggal', key: 'tanggal', width: 20 },
-        { header: 'Keterangan', key: 'keterangan', width: 30 },
-        { header: 'Pemasukan', key: 'pemasukan', width: 15 },
-        { header: 'Pengeluaran', key: 'pengeluaran', width: 15 },
-        { header: 'Nota', key: 'nota', width: 15 },
-        { header: 'Saldo', key: 'saldo', width: 15 }
-      ]
-      for (const row of filteredData) {
-        const rowData = {
-          tanggal: formatDateTime(row.tanggal),
-          keterangan: row.keterangan,
-          pemasukan: row.pemasukan || 0,
-          pengeluaran: row.pengeluaran || 0,
-          nota: row.nota ? 'Buka Gambar Nota' : 'Tidak Ada',
-          saldo: row.total_saldo || 0
-        }
-        const excelRow = worksheet.addRow(rowData)
-        if (row.nota && isImage(row.nota)) {
-          const notaUrl = getNotaLink(row.nota)
-          excelRow.getCell('nota').value = { text: 'Buka Gambar Nota', hyperlink: notaUrl }
-          const imgData = await loadImageAsBase64(notaUrl)
-          if (imgData) {
-            const imageId = workbook.addImage({
-              base64: imgData,
-              extension: getImageFormat(notaUrl)?.toLowerCase() || 'jpeg'
-            })
-            worksheet.addImage(imageId, {
-              tl: { col: 4, row: excelRow.number - 1 },
-              ext: { width: 50, height: 25 }
-            })
-          }
-        }
-      }
-      const buffer = await workbook.xlsx.writeBuffer()
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'laporan-keuangan.xlsx'
-      a.click()
-      window.URL.revokeObjectURL(url)
-      handleClose()
-    } catch (error) {
-      console.error('Excel generation error:', error)
-      setAlert({
-        open: true,
-        message: 'Terjadi kesalahan saat membuat Excel',
-        severity: 'error'
-      })
-    }
-  }
-  */
 
   const timeRangeOptions = [
     { value: 'today', label: 'Hari Ini' },
