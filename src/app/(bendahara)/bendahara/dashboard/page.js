@@ -125,17 +125,17 @@ export default function Dashboard() {
 
         // Fetch transaction history
         const transaksiData = await transaksiService.getLastTransaksi()
-        if (Array.isArray(transaksiData)) {
-          setTransactions(transaksiData)
-          setFilteredTransactions(transaksiData)
-        } else {
-          showSnackbar('Format data transaksi tidak valid', 'error')
-          setError('Format data transaksi tidak valid')
-        }
+        // Set transactions to empty array if response is not an array
+        const validTransaksiData = Array.isArray(transaksiData) ? transaksiData : []
+        setTransactions(validTransaksiData)
+        setFilteredTransactions(validTransaksiData)
       } catch (error) {
-        const errorMessage = translateErrorMessage(error.message);
+        const errorMessage = translateErrorMessage(error.message)
         showSnackbar(errorMessage, 'error')
         setError(errorMessage)
+        // Set transactions to empty array on error to show "Belum ada transaksi"
+        setTransactions([])
+        setFilteredTransactions([])
       } finally {
         setLoading(false)
       }
