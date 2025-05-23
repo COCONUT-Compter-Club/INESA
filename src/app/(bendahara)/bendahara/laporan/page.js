@@ -701,13 +701,13 @@ export default function LaporanKeuangan() {
       const workbook = new ExcelJS.Workbook()
       const worksheet = workbook.addWorksheet('Laporan Keuangan')
 
-      // Define columns with increased width for Nota
+      // Define columns with consistent width for Nota
       worksheet.columns = [
         { header: 'Tanggal', key: 'tanggal', width: 20 },
         { header: 'Keterangan', key: 'keterangan', width: 30 },
         { header: 'Pemasukan', key: 'pemasukan', width: 15, style: { numFmt: '"Rp"#,##0' } },
         { header: 'Pengeluaran', key: 'pengeluaran', width: 15, style: { numFmt: '"Rp"#,##0' } },
-        { header: 'Nota', key: 'nota', width: 25 }, // Increased from 20 to 25
+        { header: 'Nota', key: 'nota', width: 25 }, // 25 units ≈ 175 pixels
         { header: 'Saldo', key: 'saldo', width: 15, style: { numFmt: '"Rp"#,##0' } }
       ]
 
@@ -743,10 +743,13 @@ export default function LaporanKeuangan() {
           keterangan: row.keterangan,
           pemasukan: row.pemasukan || 0,
           pengeluaran: row.pengeluaran || 0,
-          nota: row.nota ? 'Ada' : 'Tidak Ada',
+          nota: row.nota ? (isImage(getNotaLink(row.nota)) ? 'Ada' : 'File Eksternal') : 'Tidak Ada',
           saldo: row.total_saldo || 0
         }
         const excelRow = worksheet.addRow(rowData)
+
+        // Set minimum row height for consistency
+        excelRow.height = 70 // Default height for all rows (pixels)
 
         // Style cells
         excelRow.eachCell((cell, colNumber) => {
@@ -758,7 +761,7 @@ export default function LaporanKeuangan() {
           }
           cell.alignment = {
             vertical: 'middle',
-            horizontal: colNumber === 1 ? 'left' : colNumber === 2 ? 'left' : 'right'
+            horizontal: colNumber === 1 ? 'left' : colNumber === 2 ? 'left' : 'center' // Center Nota column
           }
           if (colNumber === 3 && row.pemasukan > 0) {
             cell.font = { color: { argb: 'FF2E7D32' } }
@@ -766,10 +769,13 @@ export default function LaporanKeuangan() {
           if (colNumber === 4 && row.pengeluaran > 0) {
             cell.font = { color: { argb: 'FFD32F2F' } }
           }
+          if (colNumber === 5 && row.nota && isImage(getNotaLink(row.nota))) {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F5F5' } } // Subtle background for image cells
+          }
         })
 
         // Add image to Nota column
-        if (row.nota && imageMap[index] && isImage(getNotaLink(row.nota))) {
+        if (row.nota && isImage(getNotaLink(row.nota))) {
           const imageData = imageMap[index]
           if (imageData) {
             const imageId = workbook.addImage({
@@ -778,19 +784,36 @@ export default function LaporanKeuangan() {
             })
             const columnWidthUnits = worksheet.columns[4].width || 25 // 25 units
             const columnWidthPixels = columnWidthUnits * 7 // Approximate: 1 unit ≈ 7 pixels
-            const imageWidth = Math.min(140, columnWidthPixels - 10) // Fit within column, with 10px margin
+            const maxImageWidth = 120 // Fixed max width for uniformity
+            const padding = 15 // Increased padding
+            const imageWidth = Math.min(maxImageWidth, columnWidthPixels - padding * 2) // Fit within column with padding
             const imageHeight = (imageWidth / 140) * 45 // Maintain aspect ratio (original: 140x45)
-            excelRow.height = Math.max(60, imageHeight + 10) // Ensure row height fits image
+            const rowHeight = imageHeight + padding * 2 // Row height includes padding
+            excelRow.height = Math.max(excelRow.height, rowHeight) // Ensure row height fits image
+
+            // Calculate offsets for centering
+            const colOffset = (columnWidthPixels - imageWidth) / 2 / 7 // Convert pixels to column units
+            const rowOffset = (excelRow.height - imageHeight) / 2 / 15 // Approximate: 1 pixel ≈ 1/15 row unit
+
             worksheet.addImage(imageId, {
-              tl: { col: 4, row: index + 1 },
+              tl: { col: 4 + colOffset, row: index + 1 + rowOffset }, // Center image
               ext: { width: imageWidth, height: imageHeight },
-              editAs: 'absolute' // Use absolute positioning to prevent resizing
+              editAs: 'absolute' // Fixed positioning
             })
             excelRow.getCell(5).value = '' // Clear text to avoid overlap
-            console.log(`Excel image: col=4, row=${index + 1}, width=${imageWidth}, height=${imageHeight}, columnWidth=${columnWidthPixels}`)
+            console.log(
+              `Excel image: col=${4 + colOffset}, row=${index + 1 + rowOffset}, ` +
+              `width=${imageWidth}, height=${imageHeight}, ` +
+              `columnWidth=${columnWidthPixels}, rowHeight=${excelRow.height}`
+            )
           } else {
-            excelRow.getCell(5).value = 'Gagal memuat'
+            excelRow.getCell(5).value = 'Gagal Memuat'
+            excelRow.getCell(5).font = { color: { argb: 'FFD32F2F' }, size: 10 } // Red text for failed loads
+            excelRow.getCell(5).alignment = { vertical: 'middle', horizontal: 'center' }
           }
+        } else if (row.nota && !isImage(getNotaLink(row.nota))) {
+          excelRow.getCell(5).font = { color: { argb: 'FF1976D2' }, size: 10 } // Blue text for external files
+          excelRow.getCell(5).alignment = { vertical: 'middle', horizontal: 'center' }
         }
       })
 
