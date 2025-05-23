@@ -49,13 +49,6 @@ import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 
-// Konstanta untuk base URL file nota
-const API_ENDPOINTS = {
-  BENDAHARA: {
-    UPLOAD_URL: API_ENDPOINTS.BENDAHARA.UPLOAD_URL
-  }
-}
-
 // Animasi dan styled components
 const slideUp = keyframes`
   from {
