@@ -351,39 +351,39 @@ export default function LaporanKeuangan() {
         })
         return { start: null, end: null }
       }
-      return { start: formatDate(start), end: formatDate(end) }
+      return { start: formatDate(start), end: formatDate(end), startDateObj: start, endDateObj: end }
     }
 
     switch (range) {
       case 'today':
-        return { start: formatDate(today), end: formatDate(today.setHours(24, 0, 0, 0)) }
+        return { start: formatDate(today), end: formatDate(today.setHours(24, 0, 0, 0)), startDateObj: today, endDateObj: today }
       case 'yesterday':
         startDate.setDate(today.getDate() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
       case '7days':
         today.setHours(24, 0, 0, 0)
         startDate.setDate(today.getDate() - 7)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
       case '1month':
         today.setHours(24, 0, 0, 0)
         startDate.setMonth(today.getMonth() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
       case '3months':
         today.setHours(24, 0, 0, 0)
         startDate.setMonth(today.getMonth() - 3)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
       case '6months':
         today.setHours(24, 0, 0, 0)
         startDate.setMonth(today.getMonth() - 6)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
       case '1year':
         today.setHours(24, 0, 0, 0)
         startDate.setFullYear(today.getFullYear() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
       default:
         today.setHours(24, 0, 0, 0)
         startDate.setDate(today.getDate() - 7)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
     }
   }
 
@@ -464,7 +464,10 @@ export default function LaporanKeuangan() {
         doc.setTextColor(0, 0, 0)
         doc.text('Desa Bontomanai, Kec. Rumbia, Kab. Jeneponto', pageWidth / 2, headerY + 15, { align: 'center' })
 
-        const periodLabel = timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 Hari Terakhir'
+        const { startDateObj, endDateObj } = getDateRange(timeRange)
+        const periodLabel = startDateObj && endDateObj
+          ? `dari ${format(startDateObj, 'dd MMMM yyyy', { locale: id })} ke ${format(endDateObj, 'dd MMMM yyyy', { locale: id })}`
+          : 'Periode Tidak Diketahui'
         doc.setFontSize(10)
         doc.setFont('helvetica', 'italic')
         doc.text(`Periode: ${periodLabel}`, pageWidth / 2, headerY + 20, { align: 'center' })
