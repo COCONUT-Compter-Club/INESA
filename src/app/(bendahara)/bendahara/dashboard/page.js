@@ -83,12 +83,23 @@ export default function Dashboard() {
   const [totalPengeluaran, setTotalPengeluaran] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  // State baru untuk Snackbar
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'error'
   })
+
+  // Fungsi untuk menerjemahkan pesan error ke dalam bahasa Indonesia
+  const translateErrorMessage = (message) => {
+    const errorTranslations = {
+      'Network Error': 'Kesalahan Jaringan',
+      'Failed to fetch': 'Gagal Mengambil Data',
+      'Internal Server Error': 'Kesalahan Server Internal',
+      'Unauthorized': 'Tidak Berwenang',
+      'Bad Request': 'Permintaan Tidak Valid',
+    };
+    return errorTranslations[message] || message || 'Terjadi Kesalahan';
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -122,7 +133,7 @@ export default function Dashboard() {
           setError('Format data transaksi tidak valid')
         }
       } catch (error) {
-        const errorMessage = error.message || 'Gagal mengambil data';
+        const errorMessage = translateErrorMessage(error.message);
         showSnackbar(errorMessage, 'error')
         setError(errorMessage)
       } finally {
@@ -428,13 +439,13 @@ export default function Dashboard() {
               Alamat: Jl. Raya No.123, Jeneponto, Sulawesi Selatan
             </Typography>
             <Typography variant="body1" sx={{ textAlign: 'center', color: colors.text.secondary }}>
-              Tempat Tgl Lahir : yyy , yyy,yyy
+              Tempat Tgl Lahir: yyy, yyy, yyy
             </Typography>
             <Typography variant="body1" sx={{ textAlign: 'center', color: colors.text.secondary }}>
-              Status : bendahara@desa.jeneponto
+              Status: Bendahara Desa
             </Typography>
             <Typography variant="body1" sx={{ textAlign: 'center', color: colors.text.secondary }}>
-              Pengalaman: bendahara@desa.jeneponto
+              Pengalaman: Bendahara Desa Bontomanai
             </Typography>
           </DialogContent>
 
@@ -452,7 +463,7 @@ export default function Dashboard() {
                 backgroundColor: colors.primary.dark,
               },
             }}>
-              Close
+              Tutup
             </Button>
           </DialogActions>
         </Dialog>
