@@ -46,7 +46,7 @@ import {
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { endOfDay, isValid, startOfDay } from 'date-fns'
+import { endOfDay, isValid, startOfDay, format } from 'date-fns'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
@@ -450,30 +450,51 @@ export default function LaporanKeuangan() {
       const margin = 15
       let currentY = margin
 
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(20)
+      // Helper function to add header
+      const addHeader = () => {
+        // Placeholder for logo (replace with actual logo URL if available)
+        // doc.addImage('path/to/logo.png', 'PNG', margin, currentY, 30, 30)
+        doc.setFont('times', 'bold')
+        doc.setFontSize(24)
+        doc.setTextColor(25, 118, 210)
+        doc.text('Laporan Keuangan Desa', pageWidth / 2, currentY + 10, { align: 'center' })
+        
+        doc.setFont('times', 'normal')
+        doc.setFontSize(14)
+        doc.setTextColor(0, 0, 0)
+        doc.text('Desa Bontomanai', pageWidth / 2, currentY + 20, { align: 'center' })
+        doc.text('Kec. Rumbia, Kab. Jeneponto', pageWidth / 2, currentY + 27, { align: 'center' })
+
+        const periodLabel = timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 Hari Terakhir'
+        doc.setFontSize(12)
+        doc.setFont('times', 'italic')
+        doc.text(`Periode: ${periodLabel}`, pageWidth / 2, currentY + 34, { align: 'center' })
+
+        // Add horizontal line
+        doc.setLineWidth(0.5)
+        doc.setDrawColor(200, 200, 200)
+        doc.line(margin, currentY + 40, pageWidth - margin, currentY + 40)
+      }
+
+      // Helper function to add footer
+      const addFooter = (pageNumber, totalPages) => {
+        doc.setFont('times', 'normal')
+        doc.setFontSize(8)
+        doc.setTextColor(100, 100, 100)
+        const footerY = pageHeight - 15
+        doc.text(`Halaman ${pageNumber} dari ${totalPages}`, pageWidth - margin, footerY, { align: 'right' })
+        doc.text('Dibuat oleh Sistem Keuangan Desa', margin, footerY)
+        doc.text(`Dicetak pada: ${format(new Date(), 'dd MMMM yyyy HH:mm', { locale: require('date-fns/locale/id') })}`, margin, footerY + 5)
+      }
+
+      // Initial header
+      addHeader()
+      currentY += 45
+
+      // Ringkasan Keuangan
+      doc.setFont('times', 'bold')
+      doc.setFontSize(16)
       doc.setTextColor(25, 118, 210)
-      doc.setFont('helvetica', 'bold')
-      doc.text('Laporan Keuangan Desa', pageWidth / 2, currentY, { align: 'center' })
-      currentY += 10
-
-      doc.setFontSize(12)
-      doc.setTextColor(0, 0, 0)
-      doc.setFont('helvetica', 'normal')
-      doc.text('Desa Bontomanai, Kec. Rumbia, Kab. Jeneponto', pageWidth / 2, currentY, { align: 'center' })
-      currentY += 8
-
-      const periodLabel = timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 Hari Terakhir'
-      doc.text(`Periode: ${periodLabel}`, pageWidth / 2, currentY, { align: 'center' })
-      currentY += 10
-
-      doc.setLineWidth(0.5)
-      doc.setDrawColor(200, 200, 200)
-      doc.line(margin, currentY, pageWidth - margin, currentY)
-      currentY += 10
-
-      doc.setFontSize(14)
-      doc.setFont('helvetica', 'bold')
       doc.text('Ringkasan Keuangan', margin, currentY)
       currentY += 8
 
@@ -488,21 +509,26 @@ export default function LaporanKeuangan() {
         head: [['Kategori', 'Jumlah']],
         body: summaryData,
         styles: {
-          font: 'helvetica',
+          font: 'times',
           fontSize: 10,
-          cellPadding: 3,
-          overflow: 'linebreak'
+          cellPadding: 4,
+          overflow: 'linebreak',
+          textColor: [0, 0, 0]
         },
         headStyles: {
           fillColor: [25, 118, 210],
           textColor: [255, 255, 255],
           fontStyle: 'bold',
-          halign: 'center'
+          halign: 'center',
+          fontSize: 11
         },
         bodyStyles: {
-          textColor: [0, 0, 0],
           halign: 'right',
-          valign: 'middle'
+          valign: 'middle',
+          fillColor: [245, 245, 245]
+        },
+        alternateRowStyles: {
+          fillColor: [255, 255, 255]
         },
         columnStyles: {
           0: { halign: 'left', cellWidth: 100 },
@@ -512,21 +538,23 @@ export default function LaporanKeuangan() {
         theme: 'grid'
       })
 
-      currentY = doc.lastAutoTable.finalY + 10
+      currentY = doc.lastAutoTable.finalY + 15
 
-      doc.setFontSize(14)
-      doc.setFont('helvetica', 'bold')
+      // Detail Transaksi
+      doc.setFont('times', 'bold')
+      doc.setFontSize(16)
+      doc.setTextColor(25, 118, 210)
       doc.text('Detail Transaksi', margin, currentY)
       currentY += 8
 
       if (filteredData.length === 0) {
+        doc.setFont('times', 'italic')
         doc.setFontSize(10)
-        doc.setFont('helvetica', 'italic')
         doc.setTextColor(100, 100, 100)
         doc.text('Tidak ada transaksi untuk periode ini', margin, currentY)
       } else {
         const imagePromises = filteredData
-          .slice(0, 10)
+          .slice(0, 50) // Increased limit for more rows
           .map((row, index) => row.nota ? ({ index, url: getNotaLink(row.nota) }) : null)
           .filter(Boolean)
           .map(async ({ index, url }) => ({
@@ -541,7 +569,7 @@ export default function LaporanKeuangan() {
           row.keterangan,
           formatRupiah(row.pemasukan || 0),
           formatRupiah(row.pengeluaran || 0),
-          row.nota ? '' : 'Tidak Ada',
+          row.nota ? 'Lihat Nota' : 'Tidak Ada',
           formatRupiah(row.total_saldo || 0)
         ])
 
@@ -552,16 +580,17 @@ export default function LaporanKeuangan() {
           head: [tableColumns],
           body: tableData,
           styles: {
-            font: 'helvetica',
+            font: 'times',
             fontSize: 9,
-            cellPadding: 3,
+            cellPadding: 4,
             overflow: 'linebreak'
           },
           headStyles: {
             fillColor: [25, 118, 210],
             textColor: [255, 255, 255],
             fontStyle: 'bold',
-            halign: 'center'
+            halign: 'center',
+            fontSize: 10
           },
           bodyStyles: {
             textColor: [0, 0, 0],
@@ -571,11 +600,11 @@ export default function LaporanKeuangan() {
             fillColor: [245, 245, 245]
           },
           columnStyles: {
-            0: { cellWidth: 50, halign: 'center' },
-            1: { cellWidth: 80, halign: 'left' },
+            0: { cellWidth: 45, halign: 'center' },
+            1: { cellWidth: 90, halign: 'left' },
             2: { cellWidth: 40, halign: 'right' },
             3: { cellWidth: 40, halign: 'right' },
-            4: { cellWidth: 40, halign: 'center' },
+            4: { cellWidth: 35, halign: 'center' },
             5: { cellWidth: 40, halign: 'right' }
           },
           margin: { left: margin, right: margin },
@@ -588,35 +617,46 @@ export default function LaporanKeuangan() {
                 if (imgData) {
                   const format = getImageFormat(notaUrl)
                   if (format) {
-                    const imgWidth = 20
-                    const imgHeight = 10
+                    const imgWidth = 15
+                    const imgHeight = 8
                     const x = data.cell.x + (data.cell.width - imgWidth) / 2
                     const y = data.cell.y + (data.cell.height - imgHeight) / 2
                     doc.addImage(imgData, format, x, y, imgWidth, imgHeight)
                   } else {
+                    doc.setFont('times', 'normal')
+                    doc.setFontSize(8)
                     doc.text('Format tidak didukung', data.cell.x + 2, data.cell.y + data.cell.height / 2 + 2)
                   }
                 } else {
+                  doc.setFont('times', 'normal')
+                  doc.setFontSize(8)
                   doc.text('Gagal memuat', data.cell.x + 2, data.cell.y + data.cell.height / 2 + 2)
                 }
               } else {
-                doc.text('Lihat PDF', data.cell.x + 2, data.cell.y + data.cell.height / 2 + 2)
+                doc.setFont('times', 'normal')
+                doc.setFontSize(8)
+                doc.text('Lihat File Eksternal', data.cell.x + 2, data.cell.y + data.cell.height / 2 + 2)
               }
             }
           },
           didDrawPage: (data) => {
             const pageCount = doc.internal.getNumberOfPages()
-            for (let i = 1; i <= pageCount; i++) {
-              doc.setPage(i)
-              const str = `Halaman ${i} dari ${pageCount}`
-              doc.setFontSize(8)
-              doc.setFont('helvetica', 'normal')
-              doc.setTextColor(100, 100, 100)
-              doc.text(str, pageWidth - margin, pageHeight - 10, { align: 'right' })
-              doc.text('Dibuat oleh Sistem Keuangan Desa', margin, pageHeight - 10)
-            }
+            const currentPage = doc.internal.getCurrentPageInfo().pageNumber
+            addHeader()
+            addFooter(currentPage, pageCount)
           }
         })
+
+        // Add signature section
+        const finalY = doc.lastAutoTable.finalY + 20
+        if (finalY < pageHeight - 50) {
+          doc.setFont('times', 'normal')
+          doc.setFontSize(12)
+          doc.setTextColor(0, 0, 0)
+          doc.text('Disetujui oleh:', pageWidth - margin - 100, finalY)
+          doc.text('___________________________', pageWidth - margin - 100, finalY + 15)
+          doc.text('Kepala Desa Bontomanai', pageWidth - margin - 100, finalY + 20)
+        }
       }
 
       doc.save('laporan-keuangan-desa.pdf')
