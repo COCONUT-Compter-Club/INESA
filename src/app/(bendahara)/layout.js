@@ -27,6 +27,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import Cookies from 'js-cookie';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

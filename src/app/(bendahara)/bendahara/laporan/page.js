@@ -212,7 +212,7 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
 export default function LaporanKeuangan() {
   const [data, setData] = useState([])
   const [filteredData, setFilteredData] = useState([])
-  const [timeRange, setTimeRange] = useState('7days') // Default to '7days'
+  const [timeRange, setTimeRange] = useState('7days')
   const [loading, setLoading] = useState(true)
   const [isLoadingSummary, setIsLoadingSummary] = useState(true)
   const [error, setError] = useState(null)
@@ -226,7 +226,7 @@ export default function LaporanKeuangan() {
   const [tempEndDate, setTempEndDate] = useState(null)
   const [confirmedStartDate, setConfirmedStartDate] = useState(null)
   const [confirmedEndDate, setConfirmedEndDate] = useState(null)
-  const [previousTimeRange, setPreviousTimeRange] = useState('7days') // Default to '7days'
+  const [previousTimeRange, setPreviousTimeRange] = useState('7days')
   const open = Boolean(anchorEl)
 
   useEffect(() => {
@@ -282,6 +282,10 @@ export default function LaporanKeuangan() {
     } catch (e) {
       return backendDateString
     }
+  }
+
+  const formatNota = (nota) => {
+    return nota && nota.trim() !== '' ? 'Ada' : 'Tidak Ada'
   }
 
   const getDateRange = (range) => {
@@ -343,7 +347,6 @@ export default function LaporanKeuangan() {
       const { start, end } = getDateRange(range)
       let rangeData
       if (!start || !end) {
-        // For invalid cases, fetch last 7 days by default
         const defaultStart = new Date()
         defaultStart.setDate(defaultStart.getDate() - 7)
         rangeData = await laporanService.getLaporanByDateRange(
@@ -481,10 +484,11 @@ export default function LaporanKeuangan() {
           row.keterangan,
           formatRupiah(row.pemasukan || 0),
           formatRupiah(row.pengeluaran || 0),
+          formatNota(row.nota),
           formatRupiah(row.total_saldo || 0)
         ])
 
-        const tableColumns = ['Tanggal', 'Keterangan', 'Pemasukan', 'Pengeluaran', 'Saldo']
+        const tableColumns = ['Tanggal', 'Keterangan', 'Pemasukan', 'Pengeluaran', 'Nota', 'Saldo']
 
         autoTable(doc, {
           startY: currentY,
@@ -511,10 +515,11 @@ export default function LaporanKeuangan() {
           },
           columnStyles: {
             0: { cellWidth: 50, halign: 'center' },
-            1: { cellWidth: 100, halign: 'left' },
+            1: { cellWidth: 80, halign: 'left' },
             2: { cellWidth: 40, halign: 'right' },
             3: { cellWidth: 40, halign: 'right' },
-            4: { cellWidth: 40, halign: 'right' }
+            4: { cellWidth: 30, halign: 'center' },
+            5: { cellWidth: 40, halign: 'right' }
           },
           margin: { left: margin, right: margin },
           theme: 'grid',
@@ -551,13 +556,15 @@ export default function LaporanKeuangan() {
         Keterangan: row.keterangan,
         Pemasukan: row.pemasukan || 0,
         Pengeluaran: row.pengeluaran || 0,
+        Nota: formatNota(row.nota),
         Saldo: row.total_saldo || 0
       })))
       const colWidths = [
-        { wch: 12 },
+        { wch: 20 },
         { wch: 30 },
         { wch: 15 },
         { wch: 15 },
+        { wch: 10 },
         { wch: 15 }
       ]
       ws['!cols'] = colWidths
@@ -566,7 +573,6 @@ export default function LaporanKeuangan() {
       XLSX.writeFile(wb, 'laporan-keuangan.xlsx')
       handleClose()
     } catch (error) {
-
       setAlert({
         open: true,
         message: 'Terjadi kesalahan saat membuat Excel',
@@ -1044,19 +1050,20 @@ export default function LaporanKeuangan() {
                         <TableCell>Tanggal</TableCell>
                         <TableCell>Keterangan</TableCell>
                         <TableCell align='right'>Nominal</TableCell>
+                        <TableCell align='center'>Nota</TableCell>
                         <TableCell align='right'>Saldo</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {loading ? (
                         <TableRow>
-                          <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                          <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
                             <CircularProgress />
                           </TableCell>
                         </TableRow>
                       ) : filteredData.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                          <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
                             <AccountBalanceIcon sx={{ fontSize: 48, color: '#ccc', mb: 2 }} />
                             <Typography variant="body1" color="textSecondary">
                               Tidak ada data untuk periode ini
@@ -1095,6 +1102,9 @@ export default function LaporanKeuangan() {
                                 ? `+ ${formatRupiah(row.pemasukan)}`
                                 : `- ${formatRupiah(row.pengeluaran)}`
                               }
+                            </TableCell>
+                            <TableCell align='center' sx={{ fontWeight: 500 }}>
+                              {formatNota(row.nota)}
                             </TableCell>
                             <TableCell align='right' sx={{
                               fontWeight: 600,
@@ -1154,6 +1164,14 @@ export default function LaporanKeuangan() {
                           ? `+ ${formatRupiah(row.pemasukan)}`
                           : `- ${formatRupiah(row.pengeluaran)}`
                         }
+                      </Typography>
+                    </Box>
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="caption" color="textSecondary">
+                        Nota
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {formatNota(row.nota)}
                       </Typography>
                     </Box>
                     <Box sx={{ mb: 2 }}>
