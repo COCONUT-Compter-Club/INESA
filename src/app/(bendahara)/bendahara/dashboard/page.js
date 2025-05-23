@@ -353,7 +353,7 @@ export default function Dashboard() {
                       <td colSpan={4} style={{ textAlign: 'center', padding: '32px' }}>
                         <AccountBalanceIcon style={{ fontSize: 48, color: '#ccc', marginBottom: 16 }} />
                         <Typography variant="body1" color="textSecondary">
-                          {searchQuery ? 'Tidak ada data yang sesuai dengan pencarian' : 'Belum ada data transaksi'}
+                          Belum ada transaksi
                         </Typography>
                       </td>
                     </tr>
