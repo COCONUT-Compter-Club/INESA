@@ -51,7 +51,7 @@ import id from 'date-fns/locale/id'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
-import ExcelJS from 'exceljs'
+import ExcelJS from 'exceljs' // Replaced xlsx with exceljs
 
 const slideUp = keyframes`
   from {
@@ -573,7 +573,6 @@ export default function LaporanKeuangan() {
           }))
         const images = await Promise.all(imagePromises)
         const imageMap = images.reduce((acc, { index, data }) => ({ ...acc, [index]: data }), {})
-        console.log('Image map:', imageMap)
 
         const tableData = filteredData.map(row => [
           formatDateTime(row.tanggal),
@@ -595,7 +594,7 @@ export default function LaporanKeuangan() {
             fontSize: 8,
             cellPadding: 3,
             overflow: 'linebreak',
-            minCellHeight: 12
+            minCellHeight: 10
           },
           headStyles: {
             fillColor: [25, 118, 210],
@@ -613,10 +612,10 @@ export default function LaporanKeuangan() {
           },
           columnStyles: {
             0: { cellWidth: 40, halign: 'center' },
-            1: { cellWidth: 90, halign: 'left', overflow: 'linebreak' },
+            1: { cellWidth: 100, halign: 'left', overflow: 'linebreak' },
             2: { cellWidth: 35, halign: 'right' },
             3: { cellWidth: 35, halign: 'right' },
-            4: { cellWidth: 40, halign: 'center' },
+            4: { cellWidth: 30, halign: 'center' },
             5: { cellWidth: 35, halign: 'right' }
           },
           margin: { left: margin, right: margin },
@@ -631,15 +630,11 @@ export default function LaporanKeuangan() {
                 if (imgData) {
                   const format = getImageFormat(notaUrl)
                   if (format) {
-                    const imgWidth = 10
-                    const imgHeight = 5
-                    const x = data.cell.x + 3 + (data.cell.width - imgWidth - 6) / 2
-                    const y = data.cell.y + 3 + (data.cell.height - imgHeight - 6) / 2
-                    console.log(`Image position: x=${x}, y=${y}, cell: x=${data.cell.x}, y=${data.cell.y}, width=${data.cell.width}, height=${data.cell.height}`)
-                    doc.saveGraphicsState()
-                    doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'clip')
+                    const imgWidth = 12
+                    const imgHeight = 6
+                    const x = data.cell.x + (data.cell.width - imgWidth) / 2
+                    const y = data.cell.y + (data.cell.height - imgHeight) / 2
                     doc.addImage(imgData, format, x, y, imgWidth, imgHeight)
-                    doc.restoreGraphicsState()
                   } else {
                     doc.setFont('helvetica', 'normal')
                     doc.setFontSize(7)
@@ -701,13 +696,13 @@ export default function LaporanKeuangan() {
       const workbook = new ExcelJS.Workbook()
       const worksheet = workbook.addWorksheet('Laporan Keuangan')
 
-      // Define columns with consistent width for Nota
+      // Define columns
       worksheet.columns = [
         { header: 'Tanggal', key: 'tanggal', width: 20 },
         { header: 'Keterangan', key: 'keterangan', width: 30 },
         { header: 'Pemasukan', key: 'pemasukan', width: 15, style: { numFmt: '"Rp"#,##0' } },
         { header: 'Pengeluaran', key: 'pengeluaran', width: 15, style: { numFmt: '"Rp"#,##0' } },
-        { header: 'Nota', key: 'nota', width: 25 }, // 25 units ≈ 175 pixels
+        { header: 'Nota', key: 'nota', width: 15 },
         { header: 'Saldo', key: 'saldo', width: 15, style: { numFmt: '"Rp"#,##0' } }
       ]
 
@@ -734,7 +729,6 @@ export default function LaporanKeuangan() {
         }))
       const images = await Promise.all(imagePromises)
       const imageMap = images.reduce((acc, { index, data }) => ({ ...acc, [index]: data }), {})
-      console.log('Excel image map:', imageMap)
 
       // Add data rows
       filteredData.forEach((row, index) => {
@@ -743,13 +737,10 @@ export default function LaporanKeuangan() {
           keterangan: row.keterangan,
           pemasukan: row.pemasukan || 0,
           pengeluaran: row.pengeluaran || 0,
-          nota: row.nota ? (isImage(getNotaLink(row.nota)) ? 'Ada' : 'File Eksternal') : 'Tidak Ada',
+          nota: row.nota ? 'Ada' : 'Tidak Ada',
           saldo: row.total_saldo || 0
         }
         const excelRow = worksheet.addRow(rowData)
-
-        // Set minimum row height for consistency
-        excelRow.height = 70 // Default height for all rows (pixels)
 
         // Style cells
         excelRow.eachCell((cell, colNumber) => {
@@ -761,7 +752,7 @@ export default function LaporanKeuangan() {
           }
           cell.alignment = {
             vertical: 'middle',
-            horizontal: colNumber === 1 ? 'left' : colNumber === 2 ? 'left' : 'center' // Center Nota column
+            horizontal: colNumber === 1 ? 'left' : colNumber === 2 ? 'left' : 'right'
           }
           if (colNumber === 3 && row.pemasukan > 0) {
             cell.font = { color: { argb: 'FF2E7D32' } }
@@ -769,51 +760,26 @@ export default function LaporanKeuangan() {
           if (colNumber === 4 && row.pengeluaran > 0) {
             cell.font = { color: { argb: 'FFD32F2F' } }
           }
-          if (colNumber === 5 && row.nota && isImage(getNotaLink(row.nota))) {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F5F5' } } // Subtle background for image cells
-          }
         })
 
         // Add image to Nota column
-        if (row.nota && isImage(getNotaLink(row.nota))) {
+        if (row.nota && imageMap[index] && isImage(getNotaLink(row.nota))) {
           const imageData = imageMap[index]
           if (imageData) {
             const imageId = workbook.addImage({
               base64: imageData,
               extension: getImageFormat(getNotaLink(row.nota)).toLowerCase()
             })
-            const columnWidthUnits = worksheet.columns[4].width || 25 // 25 units
-            const columnWidthPixels = columnWidthUnits * 7 // Approximate: 1 unit ≈ 7 pixels
-            const maxImageWidth = 120 // Fixed max width for uniformity
-            const padding = 15 // Increased padding
-            const imageWidth = Math.min(maxImageWidth, columnWidthPixels - padding * 2) // Fit within column with padding
-            const imageHeight = (imageWidth / 140) * 45 // Maintain aspect ratio (original: 140x45)
-            const rowHeight = imageHeight + padding * 2 // Row height includes padding
-            excelRow.height = Math.max(excelRow.height, rowHeight) // Ensure row height fits image
-
-            // Calculate offsets for centering
-            const colOffset = (columnWidthPixels - imageWidth) / 2 / 7 // Convert pixels to column units
-            const rowOffset = (excelRow.height - imageHeight) / 2 / 15 // Approximate: 1 pixel ≈ 1/15 row unit
-
+            excelRow.height = 60 // Adjust row height for image
             worksheet.addImage(imageId, {
-              tl: { col: 4 + colOffset, row: index + 1 + rowOffset }, // Center image
-              ext: { width: imageWidth, height: imageHeight },
-              editAs: 'absolute' // Fixed positioning
+              tl: { col: 4, row: index + 1 },
+              ext: { width: 80, height: 60 },
+              editAs: 'oneCell'
             })
-            excelRow.getCell(5).value = '' // Clear text to avoid overlap
-            console.log(
-              `Excel image: col=${4 + colOffset}, row=${index + 1 + rowOffset}, ` +
-              `width=${imageWidth}, height=${imageHeight}, ` +
-              `columnWidth=${columnWidthPixels}, rowHeight=${excelRow.height}`
-            )
+            excelRow.getCell(5).value = '' // Clear text in Nota column
           } else {
-            excelRow.getCell(5).value = 'Gagal Memuat'
-            excelRow.getCell(5).font = { color: { argb: 'FFD32F2F' }, size: 10 } // Red text for failed loads
-            excelRow.getCell(5).alignment = { vertical: 'middle', horizontal: 'center' }
+            excelRow.getCell(5).value = 'Gagal memuat'
           }
-        } else if (row.nota && !isImage(getNotaLink(row.nota))) {
-          excelRow.getCell(5).font = { color: { argb: 'FF1976D2' }, size: 10 } // Blue text for external files
-          excelRow.getCell(5).alignment = { vertical: 'middle', horizontal: 'center' }
         }
       })
 
@@ -822,7 +788,7 @@ export default function LaporanKeuangan() {
       const periodLabel = startDateObj && endDateObj
         ? `${format(startDateObj, 'dd MMMM yyyy', { locale: id })} - ${format(endDateObj, 'dd MMMM yyyy', { locale: id })}`
         : 'Periode Tidak Diketahui'
-      worksheet.spliceRows(1, 0, [], [], [], [])
+      worksheet.spliceRows(1, 0, [], [], [], []) // Add empty rows for header
       worksheet.mergeCells('A1:F1')
       worksheet.getCell('A1').value = 'Laporan Keuangan Desa'
       worksheet.getCell('A1').font = { size: 16, bold: true }
@@ -1178,7 +1144,7 @@ export default function LaporanKeuangan() {
                     zIndex: 1,
                     fontSize: { xs: '1.5rem', sm: '2rem' }
                   }}>
-                    {isLoadingSummary ? 'Memuat...' : formatRupiah(totalPengeluaran)}
+                   649                    {isLoadingSummary ? 'Memuat...' : formatRupiah(totalPengeluaran)}
                   </Typography>
                 </StyledCard>
               </Grid>
