@@ -10,7 +10,7 @@ import {
   PictureAsPdf as PdfIcon,
   TrendingDown as TrendingDownIcon,
   TrendingUp as TrendingUpIcon,
-  Visibility as VisibilityIcon // NEW: Ikon untuk pratinjau nota
+  Visibility as VisibilityIcon
 } from '@mui/icons-material'
 import {
   Alert,
@@ -27,7 +27,7 @@ import {
   Fade,
   FormControl,
   Grid,
-  IconButton, // NEW: Untuk ikon klik
+  IconButton,
   InputLabel,
   Menu,
   MenuItem,
@@ -39,7 +39,7 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Tooltip, // NEW: Untuk tooltip ikon
+  Tooltip,
   Typography,
   keyframes,
   styled
@@ -51,6 +51,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
+// import ExcelJS from 'exceljs' // Uncomment jika ingin menyisipkan gambar di Excel
 
 // Animasi dan styled components
 const slideUp = keyframes`
@@ -233,11 +234,13 @@ export default function LaporanKeuangan() {
   const [previousTimeRange, setPreviousTimeRange] = useState('7days')
   const open = Boolean(anchorEl)
 
-  // NEW: Fungsi untuk memuat gambar sebagai base64
+  // Fungsi untuk memuat gambar sebagai base64
   const loadImageAsBase64 = async (url) => {
     try {
+      console.log('Fetching image:', url) // Debugging
       const response = await fetch(url, { mode: 'cors' })
-      if (!response.ok) throw new Error('Gagal memuat gambar')
+      console.log('Response status:', response.status) // Debugging
+      if (!response.ok) throw new Error(`Gagal memuat gambar: ${response.statusText}`)
       const blob = await response.blob()
       return new Promise((resolve) => {
         const reader = new FileReader()
@@ -249,6 +252,16 @@ export default function LaporanKeuangan() {
       return null
     }
   }
+
+  // Deteksi format gambar
+  const getImageFormat = (url) => {
+    if (/\.png$/i.test(url)) return 'PNG'
+    if (/\.jpe?g$/i.test(url)) return 'JPEG'
+    return null
+  }
+
+  // Cek apakah file adalah gambar
+  const isImage = (url) => /\.(jpg|jpeg|png)$/i.test(url)
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -383,6 +396,7 @@ export default function LaporanKeuangan() {
         const endDate = formatDate(end)
         rangeData = await laporanService.getLaporanByDateRange(startDate, endDate)
       }
+      console.log('Fetched data:', rangeData) // Debugging
       setData(rangeData)
       setFilteredData(rangeData)
     } catch (error) {
@@ -421,7 +435,7 @@ export default function LaporanKeuangan() {
     }).format(validNumber)
   }
 
-  const generatePDF = async () => { // MODIFIED: Tambahkan async untuk memuat gambar
+  const generatePDF = async () => {
     try {
       const doc = new jsPDF('l', 'mm', 'a4')
       const pageWidth = doc.internal.pageSize.width
@@ -443,8 +457,7 @@ export default function LaporanKeuangan() {
       currentY += 8
 
       const periodLabel = timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 Hari Terakhir'
-      doc.text(`Periode: ${periodLabel}`, pageWidth / 2, currentY, { align: 'center' })
-      currentY += 10
+      doc.text(`Periode: ${periodLabel}`, pageWidth / neonates)
 
       doc.setLineWidth(0.5)
       doc.setDrawColor(200, 200, 200)
@@ -504,12 +517,24 @@ export default function LaporanKeuangan() {
         doc.setTextColor(100, 100, 100)
         doc.text('Tidak ada transaksi untuk periode ini', margin, currentY)
       } else {
+        // Preload gambar
+        const imagePromises = filteredData
+          .slice(0, 10) // Batasi ke 10 gambar untuk performa
+          .map((row, index) => row.nota ? ({ index, url: getNotaLink(row.nota) }) : null)
+          .filter(Boolean)
+          .map(async ({ index, url }) => ({
+            index,
+            data: await loadImageAsBase64(url)
+          }))
+        const images = await Promise.all(imagePromises)
+        const imageMap = images.reduce((acc, { index, data }) => ({ ...acc, [index]: data }), {})
+
         const tableData = filteredData.map(row => [
           formatDateTime(row.tanggal),
           row.keterangan,
           formatRupiah(row.pemasukan || 0),
           formatRupiah(row.pengeluaran || 0),
-          row.nota ? '' : 'Tidak Ada', // MODIFIED: Kosongkan untuk gambar, teks untuk tidak ada nota
+          row.nota ? '' : 'Tidak Ada',
           formatRupiah(row.total_saldo || 0)
         ])
 
@@ -543,24 +568,35 @@ export default function LaporanKeuangan() {
             1: { cellWidth: 80, halign: 'left' },
             2: { cellWidth: 40, halign: 'right' },
             3: { cellWidth: 40, halign: 'right' },
-            4: { cellWidth: 30, halign: 'center' }, // MODIFIED: Pastikan lebar cukup untuk gambar
+            4: { cellWidth: 40, halign: 'center' },
             5: { cellWidth: 40, halign: 'right' }
           },
           margin: { left: margin, right: margin },
           theme: 'grid',
-          didDrawCell: async (data) => {
+          didDrawCell: (data) => {
             if (data.column.index === 4 && data.cell.section === 'body' && filteredData[data.row.index]?.nota) {
               const notaUrl = getNotaLink(filteredData[data.row.index].nota)
-              const imgData = await loadImageAsBase64(notaUrl)
-              if (imgData) {
-                const imgWidth = 20 // Lebar gambar dalam mm
-                const imgHeight = 10 // Tinggi gambar dalam mm
-                const x = data.cell.x + (data.cell.width - imgWidth) / 2
-                const y = data.cell.y + (data.cell.height - imgHeight) / 2
-                doc.addImage(imgData, 'JPEG', x, y, imgWidth, imgHeight)
+              if (isImage(notaUrl)) {
+                const imgData = imageMap[data.row.index]
+                if (imgData) {
+                  const format = getImageFormat(notaUrl)
+                  if (format) {
+                    const imgWidth = 20
+                    const imgHeight = 10
+                    const x = data.cell.x + (data.cell.width - imgWidth) / 2
+                    const y = data.cell.y + (data.cell.height - imgHeight) / 2
+                    doc.addImage(imgData, format, x, y, imgWidth, imgHeight)
+                  } else {
+                    doc.text('Format tidak didukung', data.cell.x + 2, data.cell.y + data.cell.height / 2 + 2)
+                  }
+                } else {
+                  doc.text('Gagal memuat', data.cell.x + 2, data.cell.y + data.cell.height / 2 + 2)
+                }
+              } else {
+                doc.text('Lihat PDF', data.cell.x + 2, data.cell.y + data.cell.height / 2 + 2)
               }
             }
-          }, // NEW: Tambahkan gambar di kolom Nota
+          },
           didDrawPage: (data) => {
             const pageCount = doc.internal.getNumberOfPages()
             for (let i = 1; i <= pageCount; i++) {
@@ -579,9 +615,10 @@ export default function LaporanKeuangan() {
       doc.save('laporan-keuangan-desa.pdf')
       handleClose()
     } catch (error) {
+      console.error('PDF generation error:', error)
       setAlert({
         open: true,
-        message: 'Terjadi kesalahan saat membuat PDF',
+        message: `Terjadi kesalahan saat membuat PDF: ${error.message}`,
         severity: 'error'
       })
     }
@@ -594,7 +631,7 @@ export default function LaporanKeuangan() {
         Keterangan: row.keterangan,
         Pemasukan: row.pemasukan || 0,
         Pengeluaran: row.pengeluaran || 0,
-        Nota: row.nota ? { t: 's', v: 'Lihat Nota', l: { Target: getNotaLink(row.nota) } } : 'Tidak Ada',
+        Nota: row.nota ? { t: 's', v: 'Buka Gambar Nota', l: { Target: getNotaLink(row.nota) } } : 'Tidak Ada',
         Saldo: row.total_saldo || 0
       })))
       const colWidths = [
@@ -611,6 +648,7 @@ export default function LaporanKeuangan() {
       XLSX.writeFile(wb, 'laporan-keuangan.xlsx')
       handleClose()
     } catch (error) {
+      console.error('Excel generation error:', error)
       setAlert({
         open: true,
         message: 'Terjadi kesalahan saat membuat Excel',
@@ -618,6 +656,66 @@ export default function LaporanKeuangan() {
       })
     }
   }
+
+  // Opsi untuk menyisipkan gambar di Excel menggunakan exceljs (uncomment jika diperlukan)
+  /*
+  const exportToExcel = async () => {
+    try {
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Laporan Keuangan')
+      worksheet.columns = [
+        { header: 'Tanggal', key: 'tanggal', width: 20 },
+        { header: 'Keterangan', key: 'keterangan', width: 30 },
+        { header: 'Pemasukan', key: 'pemasukan', width: 15 },
+        { header: 'Pengeluaran', key: 'pengeluaran', width: 15 },
+        { header: 'Nota', key: 'nota', width: 15 },
+        { header: 'Saldo', key: 'saldo', width: 15 }
+      ]
+      for (const row of filteredData) {
+        const rowData = {
+          tanggal: formatDateTime(row.tanggal),
+          keterangan: row.keterangan,
+          pemasukan: row.pemasukan || 0,
+          pengeluaran: row.pengeluaran || 0,
+          nota: row.nota ? 'Buka Gambar Nota' : 'Tidak Ada',
+          saldo: row.total_saldo || 0
+        }
+        const excelRow = worksheet.addRow(rowData)
+        if (row.nota && isImage(row.nota)) {
+          const notaUrl = getNotaLink(row.nota)
+          excelRow.getCell('nota').value = { text: 'Buka Gambar Nota', hyperlink: notaUrl }
+          const imgData = await loadImageAsBase64(notaUrl)
+          if (imgData) {
+            const imageId = workbook.addImage({
+              base64: imgData,
+              extension: getImageFormat(notaUrl)?.toLowerCase() || 'jpeg'
+            })
+            worksheet.addImage(imageId, {
+              tl: { col: 4, row: excelRow.number - 1 },
+              ext: { width: 50, height: 25 }
+            })
+          }
+        }
+      }
+      const buffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'laporan-keuangan.xlsx'
+      a.click()
+      window.URL.revokeObjectURL(url)
+      handleClose()
+    } catch (error) {
+      console.error('Excel generation error:', error)
+      setAlert({
+        open: true,
+        message: 'Terjadi kesalahan saat membuat Excel',
+        severity: 'error'
+      })
+    }
+  }
+  */
 
   const timeRangeOptions = [
     { value: 'today', label: 'Hari Ini' },
@@ -1155,7 +1253,7 @@ export default function LaporanKeuangan() {
                                 </Tooltip>
                               ) : (
                                 'Tidak Ada'
-                              )} {/* MODIFIED: Ganti tautan dengan ikon */}
+                              )}
                             </TableCell>
                             <TableCell align='right' sx={{
                               fontWeight: 600,
@@ -1236,7 +1334,7 @@ export default function LaporanKeuangan() {
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           Tidak Ada
                         </Typography>
-                      )} {/* MODIFIED: Ganti tautan dengan ikon */}
+                      )}
                     </Box>
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="caption" color="textSecondary">
