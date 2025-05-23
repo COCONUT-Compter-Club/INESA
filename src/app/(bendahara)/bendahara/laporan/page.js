@@ -466,7 +466,7 @@ export default function LaporanKeuangan() {
 
         const { startDateObj, endDateObj } = getDateRange(timeRange)
         const periodLabel = startDateObj && endDateObj
-          ? `dari ${format(startDateObj, 'dd MMMM yyyy', { locale: id })} ke ${format(endDateObj, 'dd MMMM yyyy', { locale: id })}`
+          ? `${format(startDateObj, 'dd MMMM yyyy', { locale: id })} - ${format(endDateObj, 'dd MMMM yyyy', { locale: id })}`
           : 'Periode Tidak Diketahui'
         doc.setFontSize(10)
         doc.setFont('helvetica', 'italic')
@@ -675,9 +675,6 @@ export default function LaporanKeuangan() {
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(12)
       doc.setTextColor(0, 0, 0)
-      doc.text('Disetujui oleh:', pageWidth - margin - 80, currentY)
-      doc.text('___________________________', pageWidth - margin - 80, currentY + 15)
-      doc.text('Kepala Desa Bontomanai', pageWidth - margin - 80, currentY + 22)
 
       doc.save('laporan-keuangan-desa.pdf')
       handleClose()
