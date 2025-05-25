@@ -33,7 +33,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useState } from 'react';
 
-// Fungsi untuk memformat tanggal ke format Indonesia
+// Debug dayjs
+console.log('dayjs:', dayjs);
+
 const formatTanggalIndonesia = (tanggal) => {
   if (!tanggal) return '-';
   const date = new Date(tanggal);
@@ -45,7 +47,6 @@ const formatTanggalIndonesia = (tanggal) => {
   return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
 };
 
-// Styled components
 const StyledCard = styled(Card)({
   backgroundColor: '#ffffff',
   borderRadius: '16px',
@@ -123,11 +124,12 @@ export default function SuratMasuk() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      console.log('getHeaders:', getHeaders);
+      console.log('API Endpoint:', API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_GET_ALL);
       const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_GET_ALL, {
         method: 'GET',
         headers: getHeaders(),
       });
-      console.log('Fetching from:', API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_GET_ALL);
       console.log('Response Status:', response.status);
       if (!response.ok) {
         const errorData = await response.json();
@@ -327,7 +329,7 @@ export default function SuratMasuk() {
               setEditingId(null);
               setFormData({
                 nomor: '',
-                tanggal: dayjs(), // Default ke tanggal saat ini
+                tanggal: dayjs(),
                 perihal: '',
                 asal: '',
                 file: null,
