@@ -35,12 +35,17 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 // Debug dayjs
 console.log('dayjs:', dayjs);
+console.log('dayjs() instance:', dayjs());
 
+// Fungsi untuk memformat tanggal ke format Indonesia
 const formatTanggalIndonesia = (tanggal) => {
-  if (!tanggal) return '-';
+  if (!tanggal) {
+    console.log('Tanggal kosong:', tanggal);
+    return '-';
+  }
   const date = new Date(tanggal);
   if (isNaN(date.getTime())) {
-    console.log('Invalid date:', tanggal);
+    console.log('Tanggal tidak valid:', tanggal);
     return '-';
   }
   const bulan = [
@@ -50,6 +55,7 @@ const formatTanggalIndonesia = (tanggal) => {
   return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
 };
 
+// Styled components
 const StyledCard = styled(Card)({
   backgroundColor: '#ffffff',
   borderRadius: '16px',
@@ -90,6 +96,7 @@ const FilePreviewBox = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(1),
 }));
 
+// Error Boundary untuk menangkap error rendering
 class ErrorBoundary extends React.Component {
   state = { hasError: false, error: null };
 
@@ -259,7 +266,7 @@ export default function SuratMasuk() {
 
     if (row.file) {
       setExistingFile(row.file);
-      const backendBaseUrl = "http://localhost:8088"; // Sesuaikan dengan URL produksi jika diperlukan
+      const backendBaseUrl = "http://localhost:8088";
       const filePath = row.file.startsWith(".") ? row.file.replace(".", "") : row.file;
       const previewUrl = `${backendBaseUrl}${filePath}`;
       setPreviewFile(previewUrl);
@@ -346,11 +353,12 @@ export default function SuratMasuk() {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => {
+                console.log('Tombol Tambah Surat ditekan');
                 setShowModal(true);
                 setEditingId(null);
                 setFormData({
                   nomor: '',
-                  tanggal: dayjs(),
+                  tanggal: dayjs(), // Selalu gunakan instance dayjs yang valid
                   perihal: '',
                   asal: '',
                   file: null,
@@ -394,7 +402,7 @@ export default function SuratMasuk() {
                           <Tooltip title="Lihat File">
                             <IconButton
                               component="a"
-                              href={`https://bontomanai.inesa.id/${row.file.replace(/^\./, '')}`} // Sesuaikan URL untuk produksi
+                              href={`http://localhost:8088/${row.file.replace(/^\./, '')}`}
                               target="_blank"
                             >
                               <DescriptionIcon />
@@ -429,6 +437,7 @@ export default function SuratMasuk() {
             </TableContainer>
           </CardContent>
 
+          {/* Dialog Form */}
           <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
             <DialogTitle>{editingId ? 'Edit Surat Masuk' : 'Tambah Surat Masuk'}</DialogTitle>
             <DialogContent>
@@ -464,7 +473,7 @@ export default function SuratMasuk() {
                   </Typography>
                   {(previewFile || existingFile) && (
                     <a
-                      href={previewFile || (typeof existingFile === 'string' ? `https://bontomanai.inesa.id${existingFile.replace(/^\./, '')}` : '')}
+                      href={previewFile || `http://localhost:8088${existingFile.replace(/^\./, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -486,6 +495,7 @@ export default function SuratMasuk() {
             </DialogActions>
           </Dialog>
 
+          {/* Snackbar for notifications */}
           <Snackbar
             open={snackbar.open}
             autoHideDuration={6000}
@@ -497,6 +507,7 @@ export default function SuratMasuk() {
             </Alert>
           </Snackbar>
 
+          {/* Delete confirmation dialog */}
           <Dialog
             open={deleteDialog.open}
             onClose={handleDeleteDialogClose}
