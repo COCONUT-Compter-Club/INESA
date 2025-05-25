@@ -31,7 +31,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 // Debug dayjs
 console.log('dayjs:', dayjs);
@@ -39,7 +39,10 @@ console.log('dayjs:', dayjs);
 const formatTanggalIndonesia = (tanggal) => {
   if (!tanggal) return '-';
   const date = new Date(tanggal);
-  if (isNaN(date.getTime())) return '-';
+  if (isNaN(date.getTime())) {
+    console.log('Invalid date:', tanggal);
+    return '-';
+  }
   const bulan = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -87,6 +90,21 @@ const FilePreviewBox = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(1),
 }));
 
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <Typography color="error">Terjadi kesalahan: {this.state.error.message}</Typography>;
+    }
+    return this.props.children;
+  }
+}
+
 export default function SuratMasuk() {
   const [rows, setRows] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -125,10 +143,12 @@ export default function SuratMasuk() {
     setLoading(true);
     try {
       console.log('getHeaders:', getHeaders);
+      const headers = getHeaders();
+      console.log('Headers:', headers);
       console.log('API Endpoint:', API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_GET_ALL);
       const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_GET_ALL, {
         method: 'GET',
-        headers: getHeaders(),
+        headers,
       });
       console.log('Response Status:', response.status);
       if (!response.ok) {
@@ -239,7 +259,7 @@ export default function SuratMasuk() {
 
     if (row.file) {
       setExistingFile(row.file);
-      const backendBaseUrl = "http://localhost:8088";
+      const backendBaseUrl = "http://localhost:8088"; // Sesuaikan dengan URL produksi jika diperlukan
       const filePath = row.file.startsWith(".") ? row.file.replace(".", "") : row.file;
       const previewUrl = `${backendBaseUrl}${filePath}`;
       setPreviewFile(previewUrl);
@@ -315,187 +335,189 @@ export default function SuratMasuk() {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <StyledCard>
-        <HeaderBox>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-            Pengelolaan Surat Masuk
-          </Typography>
-          <AddButton
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => {
-              setShowModal(true);
-              setEditingId(null);
-              setFormData({
-                nomor: '',
-                tanggal: dayjs(),
-                perihal: '',
-                asal: '',
-                file: null,
-                existingFile: '',
-                existingTitle: ''
-              });
-              setPreviewFile(null);
-              setExistingFile(null);
-              setError(null);
-            }}
-          >
-            Tambah Surat
-          </AddButton>
-        </HeaderBox>
+    <ErrorBoundary>
+      <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <StyledCard>
+          <HeaderBox>
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+              Pengelolaan Surat Masuk
+            </Typography>
+            <AddButton
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => {
+                setShowModal(true);
+                setEditingId(null);
+                setFormData({
+                  nomor: '',
+                  tanggal: dayjs(),
+                  perihal: '',
+                  asal: '',
+                  file: null,
+                  existingFile: '',
+                  existingTitle: ''
+                });
+                setPreviewFile(null);
+                setExistingFile(null);
+                setError(null);
+              }}
+            >
+              Tambah Surat
+            </AddButton>
+          </HeaderBox>
 
-        <CardContent>
-          {loading && <CircularProgress />}
-          {error && <Alert severity="error">{error}</Alert>}
+          <CardContent>
+            {loading && <CircularProgress />}
+            {error && <Alert severity="error">{error}</Alert>}
 
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>Nomor Surat</strong></TableCell>
-                  <TableCell><strong>Tanggal</strong></TableCell>
-                  <TableCell><strong>Perihal</strong></TableCell>
-                  <TableCell><strong>Asal</strong></TableCell>
-                  <TableCell><strong>File</strong></TableCell>
-                  <TableCell><strong>Aksi</strong></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell>{row.nomor || '-'}</TableCell>
-                    <TableCell>{formatTanggalIndonesia(row.tanggal)}</TableCell>
-                    <TableCell>{row.perihal || '-'}</TableCell>
-                    <TableCell>{row.asal || '-'}</TableCell>
-                    <TableCell>
-                      {row.file && (
-                        <Tooltip title="Lihat File">
-                          <IconButton
-                            component="a"
-                            href={`http://localhost:8088/${row.file.replace(/^\./, '')}`}
-                            target="_blank"
-                          >
-                            <DescriptionIcon />
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Nomor Surat</strong></TableCell>
+                    <TableCell><strong>Tanggal</strong></TableCell>
+                    <TableCell><strong>Perihal</strong></TableCell>
+                    <TableCell><strong>Asal</strong></TableCell>
+                    <TableCell><strong>File</strong></TableCell>
+                    <TableCell><strong>Aksi</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.nomor || '-'}</TableCell>
+                      <TableCell>{formatTanggalIndonesia(row.tanggal)}</TableCell>
+                      <TableCell>{row.perihal || '-'}</TableCell>
+                      <TableCell>{row.asal || '-'}</TableCell>
+                      <TableCell>
+                        {row.file && (
+                          <Tooltip title="Lihat File">
+                            <IconButton
+                              component="a"
+                              href={`https://bontomanai.inesa.id/${row.file.replace(/^\./, '')}`} // Sesuaikan URL untuk produksi
+                              target="_blank"
+                            >
+                              <DescriptionIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title="Edit">
+                          <IconButton onClick={() => handleEdit(row)}>
+                            <EditIcon />
                           </IconButton>
                         </Tooltip>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Tooltip title="Edit">
-                        <IconButton onClick={() => handleEdit(row)}>
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Hapus">
-                        <IconButton onClick={() => handleDeleteClick(row.id)}>
-                          <DeleteIcon color="error" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <TablePagination
-              component="div"
-              count={rows.length}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </TableContainer>
-        </CardContent>
-
-        <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>{editingId ? 'Edit Surat Masuk' : 'Tambah Surat Masuk'}</DialogTitle>
-          <DialogContent>
-            <TextField
-              fullWidth margin="dense" label="Nomor Surat" name="nomor"
-              value={formData.nomor} onChange={handleInputChange}
-            />
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Tanggal"
-                value={formData.tanggal}
-                onChange={handleDateChange}
-                slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+                        <Tooltip title="Hapus">
+                          <IconButton onClick={() => handleDeleteClick(row.id)}>
+                            <DeleteIcon color="error" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <TablePagination
+                component="div"
+                count={rows.length}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
               />
-            </LocalizationProvider>
-            <TextField
-              fullWidth margin="dense" label="Perihal" name="perihal"
-              value={formData.perihal} onChange={handleInputChange}
-            />
-            <TextField
-              fullWidth margin="dense" label="Asal Surat" name="asal"
-              value={formData.asal} onChange={handleInputChange}
-            />
-            <Button variant="outlined" component="label" sx={{ mt: 2 }}>
-              Pilih File
-              <input type="file" name="file" hidden onChange={handleInputChange} />
-            </Button>
-            {(previewFile || existingFile) && (
-              <FilePreviewBox>
-                <Avatar><DescriptionIcon /></Avatar>
-                <Typography variant="body2">
-                  {formData.file?.name || (typeof existingFile === 'string' ? existingFile.split('/').pop() : '')}
-                </Typography>
-                {(previewFile || existingFile) && (
-                  <a
-                    href={previewFile || (typeof existingFile === 'string' ? `http://localhost:8088${existingFile.replace(/^\./, '')}` : '')}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button size="small">Lihat</Button>
-                  </a>
-                )}
-              </FilePreviewBox>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setShowModal(false)}>Batal</Button>
-            <Button
-              onClick={handleSave}
-              variant="contained"
-              disabled={loading || (editingId && !isFormChanged())}
-            >
-              {editingId ? 'Update' : 'Simpan'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+            </TableContainer>
+          </CardContent>
 
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
+          <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
+            <DialogTitle>{editingId ? 'Edit Surat Masuk' : 'Tambah Surat Masuk'}</DialogTitle>
+            <DialogContent>
+              <TextField
+                fullWidth margin="dense" label="Nomor Surat" name="nomor"
+                value={formData.nomor} onChange={handleInputChange}
+              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Tanggal"
+                  value={formData.tanggal}
+                  onChange={handleDateChange}
+                  slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+                />
+              </LocalizationProvider>
+              <TextField
+                fullWidth margin="dense" label="Perihal" name="perihal"
+                value={formData.perihal} onChange={handleInputChange}
+              />
+              <TextField
+                fullWidth margin="dense" label="Asal Surat" name="asal"
+                value={formData.asal} onChange={handleInputChange}
+              />
+              <Button variant="outlined" component="label" sx={{ mt: 2 }}>
+                Pilih File
+                <input type="file" name="file" hidden onChange={handleInputChange} />
+              </Button>
+              {(previewFile || existingFile) && (
+                <FilePreviewBox>
+                  <Avatar><DescriptionIcon /></Avatar>
+                  <Typography variant="body2">
+                    {formData.file?.name || (typeof existingFile === 'string' ? existingFile.split('/').pop() : '')}
+                  </Typography>
+                  {(previewFile || existingFile) && (
+                    <a
+                      href={previewFile || (typeof existingFile === 'string' ? `https://bontomanai.inesa.id${existingFile.replace(/^\./, '')}` : '')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button size="small">Lihat</Button>
+                    </a>
+                  )}
+                </FilePreviewBox>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowModal(false)}>Batal</Button>
+              <Button
+                onClick={handleSave}
+                variant="contained"
+                disabled={loading || (editingId && !isFormChanged())}
+              >
+                {editingId ? 'Update' : 'Simpan'}
+              </Button>
+            </DialogActions>
+          </Dialog>
 
-        <Dialog
-          open={deleteDialog.open}
-          onClose={handleDeleteDialogClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">Apakah Anda yakin?</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Data yang dihapus tidak dapat dikembalikan.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDeleteDialogClose}>Batal</Button>
-            <Button onClick={handleDeleteConfirm} color="error" autoFocus>
-              Ya, Hapus
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </StyledCard>
-    </Box>
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
+
+          <Dialog
+            open={deleteDialog.open}
+            onClose={handleDeleteDialogClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">Apakah Anda yakin?</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Data yang dihapus tidak dapat dikembalikan.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDeleteDialogClose}>Batal</Button>
+              <Button onClick={handleDeleteConfirm} color="error" autoFocus>
+                Ya, Hapus
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </StyledCard>
+      </Box>
+    </ErrorBoundary>
   );
 }
