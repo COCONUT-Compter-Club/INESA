@@ -233,7 +233,7 @@ export default function SuratMasuk() {
 
     if (row.file) {
       setExistingFile(row.file);
-      const backendBaseUrl = "http://localhost:8088";
+      const backendBaseUrl = "https://bontomanai.inesa.id";
       const filePath = row.file.startsWith(".") ? row.file.replace(".", "") : row.file;
       const previewUrl = `${backendBaseUrl}${filePath}`;
       setPreviewFile(previewUrl);
@@ -369,7 +369,7 @@ export default function SuratMasuk() {
                         <Tooltip title="Lihat File">
                           <IconButton
                             component="a"
-                            href={`http://localhost:8088/${row.file.replace(/^\./, '')}`}
+                            href={`https://bontomanai.inesa.id/${row.file.replace(/^\./, '')}`}
                             target="_blank"
                           >
                             <DescriptionIcon />
@@ -440,7 +440,7 @@ export default function SuratMasuk() {
                 </Typography>
                 {(previewFile || existingFile) && (
                   <a
-                    href={previewFile || `http://localhost:8088${existingFile.replace(/^\./, '')}`}
+                    href={previewFile || `https://bontomanai.inesa.id${existingFile.replace(/^\./, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
