@@ -127,12 +127,18 @@ export default function SuratMasuk() {
         method: 'GET',
         headers: getHeaders(),
       });
-      if (!response.ok) throw new Error('Gagal mengambil data surat masuk');
-
+      console.log('Fetching from:', API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_GET_ALL);
+      console.log('Response Status:', response.status);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal mengambil data surat masuk');
+      }
       const data = await response.json();
-      setRows(data);
+      console.log('API Data:', data);
+      setRows(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
+      console.error('Fetch Error:', err);
       setError('Gagal mengambil data surat masuk');
     } finally {
       setLoading(false);
@@ -156,13 +162,12 @@ export default function SuratMasuk() {
   };
 
   const handleSave = async () => {
-    // Tambahkan di bagian atas fungsi handleSave
     if (!formData.tanggal) {
       setError('Tanggal harus diisi');
       return;
     }
 
-    if (!formData.nomor || !formData.tanggal || !formData.perihal || !formData.asal) {
+    if (!formData.nomor || !formData.perihal || !formData.asal) {
       setError('Semua field harus diisi');
       return;
     }
@@ -171,7 +176,6 @@ export default function SuratMasuk() {
     try {
       const data = new FormData();
       data.append('nomor', formData.nomor);
-      // Tetap gunakan format YYYY-MM-DD untuk data yang dikirim ke server
       data.append('tanggal', dayjs(formData.tanggal).format('YYYY-MM-DD'));
       data.append('perihal', formData.perihal);
       data.append('asal', formData.asal);
@@ -218,13 +222,13 @@ export default function SuratMasuk() {
 
   const handleEdit = (row) => {
     const formattedData = {
-      nomor: row.nomor,
-      tanggal: dayjs(row.tanggal),
-      perihal: row.perihal,
-      asal: row.asal,
-      file: row.file,
-      existingFile: row.file,
-      existingTitle: row.title,
+      nomor: row.nomor || '',
+      tanggal: row.tanggal ? dayjs(row.tanggal) : null,
+      perihal: row.perihal || '',
+      asal: row.asal || '',
+      file: row.file || null,
+      existingFile: row.file || '',
+      existingTitle: row.title || '',
     };
 
     setFormData(formattedData);
@@ -248,13 +252,9 @@ export default function SuratMasuk() {
   const isFormChanged = () => {
     if (!initialFormData) return false;
 
-    // Pengecekan tanggal yang aman
     const compareDates = () => {
-      // Jika keduanya null/undefined, dianggap sama
       if (!formData.tanggal && !initialFormData.tanggal) return true;
-      // Jika salah satu null/undefined, berarti berbeda
       if (!formData.tanggal || !initialFormData.tanggal) return false;
-      // Baru bandingkan jika keduanya ada
       return formData.tanggal.format("YYYY-MM-DD") === dayjs(initialFormData.tanggal).format("YYYY-MM-DD");
     };
 
@@ -327,10 +327,12 @@ export default function SuratMasuk() {
               setEditingId(null);
               setFormData({
                 nomor: '',
-                tanggal: null,
+                tanggal: dayjs(), // Default ke tanggal saat ini
                 perihal: '',
                 asal: '',
-                file: null
+                file: null,
+                existingFile: '',
+                existingTitle: ''
               });
               setPreviewFile(null);
               setExistingFile(null);
@@ -360,10 +362,10 @@ export default function SuratMasuk() {
               <TableBody>
                 {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.nomor}</TableCell>
+                    <TableCell>{row.nomor || '-'}</TableCell>
                     <TableCell>{formatTanggalIndonesia(row.tanggal)}</TableCell>
-                    <TableCell>{row.perihal}</TableCell>
-                    <TableCell>{row.asal}</TableCell>
+                    <TableCell>{row.perihal || '-'}</TableCell>
+                    <TableCell>{row.asal || '-'}</TableCell>
                     <TableCell>
                       {row.file && (
                         <Tooltip title="Lihat File">
@@ -404,7 +406,6 @@ export default function SuratMasuk() {
           </TableContainer>
         </CardContent>
 
-        {/* Dialog Form */}
         <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
           <DialogTitle>{editingId ? 'Edit Surat Masuk' : 'Tambah Surat Masuk'}</DialogTitle>
           <DialogContent>
@@ -436,11 +437,11 @@ export default function SuratMasuk() {
               <FilePreviewBox>
                 <Avatar><DescriptionIcon /></Avatar>
                 <Typography variant="body2">
-                  {formData.file?.name || existingFile?.split('/').pop()}
+                  {formData.file?.name || (typeof existingFile === 'string' ? existingFile.split('/').pop() : '')}
                 </Typography>
                 {(previewFile || existingFile) && (
                   <a
-                    href={previewFile || `http://localhost:8088${existingFile.replace(/^\./, '')}`}
+                    href={previewFile || (typeof existingFile === 'string' ? `http://localhost:8088${existingFile.replace(/^\./, '')}` : '')}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -462,7 +463,6 @@ export default function SuratMasuk() {
           </DialogActions>
         </Dialog>
 
-        {/* Snackbar for notifications */}
         <Snackbar
           open={snackbar.open}
           autoHideDuration={6000}
@@ -474,7 +474,6 @@ export default function SuratMasuk() {
           </Alert>
         </Snackbar>
 
-        {/* Delete confirmation dialog */}
         <Dialog
           open={deleteDialog.open}
           onClose={handleDeleteDialogClose}
