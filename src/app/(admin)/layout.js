@@ -210,7 +210,8 @@ export default function AdminLayout({ children }) {
             cursor: 'pointer',
             '&:hover': {
               backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : `${colors.primary.light}20`
-            }}
+            }
+          }
           }
         >
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
