@@ -5,8 +5,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: NGROK_URL.replace('http://', ''),
+        protocol: 'https',
+        hostname: NGROK_URL.replace('https://', ''),
         port: '',
         pathname: '/**',
       },
