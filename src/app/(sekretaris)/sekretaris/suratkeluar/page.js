@@ -317,7 +317,7 @@ export default function SuratKeluar() {
         headers: getHeaders(),
       });
       if (!response.ok) throw new Error('Gagal menghapus data');
-      
+
       setSnackbar({
         open: true,
         message: 'Data surat keluar telah dihapus.',
@@ -414,19 +414,19 @@ export default function SuratKeluar() {
                     <TableCell>{dayjs(row.tanggal).format('DD-MM-YYYY')}</TableCell>
                     <TableCell>{row.perihal}</TableCell>
                     <TableCell>
-  {row.file && (
-    <Tooltip title="Lihat File">
-      <IconButton
-  component="a"
-  href={`https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
-  target="_blank"
-  rel="noopener noreferrer"
->
-        <DescriptionIcon />
-      </IconButton>
-    </Tooltip>
-  )}
-</TableCell>
+                      {row.file && (
+                        <Tooltip title="Lihat File">
+                          <IconButton
+                            component="a"
+                            href={`https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <DescriptionIcon />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Tooltip title="Edit">
                         <IconButton onClick={() => handleEdit(row)}>
@@ -482,21 +482,21 @@ export default function SuratKeluar() {
               <input type="file" name="file" hidden onChange={handleInputChange} />
             </Button>
             {(previewFile || existingFile) && (
-             <FilePreviewBox>
-             <Avatar><DescriptionIcon /></Avatar>
-             <Typography variant="body2">
-               {formData.file?.name || existingFile?.split('/').pop()}
-             </Typography>
-             {(previewFile || existingFile) && (
-  <a
-    href={previewFile || `https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <Button size="small">Lihat</Button>
-  </a>
-)}
-           </FilePreviewBox>
+              <FilePreviewBox>
+                <Avatar><DescriptionIcon /></Avatar>
+                <Typography variant="body2">
+                  {formData.file?.name || existingFile?.split('/').pop()}
+                </Typography>
+                {(previewFile || existingFile) && (
+                  <a
+                    href={previewFile || `https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button size="small">Lihat</Button>
+                  </a>
+                )}
+              </FilePreviewBox>
             )}
           </DialogContent>
           <DialogActions>
