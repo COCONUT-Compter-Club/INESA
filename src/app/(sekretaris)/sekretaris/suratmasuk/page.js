@@ -219,7 +219,7 @@ export default function SuratMasuk() {
   const handleEdit = (row) => {
     const formattedData = {
       nomor: row.nomor,
-      tanggal: dayjs(row.tanggal),
+      tanggal: row.tanggal ? dayjs(row.tanggal) : null,
       perihal: row.perihal,
       asal: row.asal,
       file: row.file,
