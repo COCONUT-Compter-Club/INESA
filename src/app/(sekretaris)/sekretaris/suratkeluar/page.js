@@ -261,15 +261,14 @@ export default function SuratKeluar() {
   };
 
   const handleEdit = (row) => {
-    const formatDate = (value) => dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DD') : null;
-
-return (
-  formData.nomor !== initialFormData.nomor ||
-  formatDate(formData.tanggal) !== formatDate(initialFormData.tanggal) ||
-  formData.perihal !== initialFormData.perihal ||
-  formData.ditujukan !== initialFormData.ditujukan ||
-  (formData.file instanceof File)
-)
+    const formattedData = {
+      nomor: row.nomor,
+      tanggal: dayjs(row.tanggal),
+      perihal: row.perihal,
+      ditujukan: row.ditujukan,
+      file: null,
+      existingFile: row.file,
+      existingTitle: row.title,
     };
 
     setFormData(formattedData);
@@ -292,18 +291,15 @@ return (
 
   const isFormChanged = () => {
     if (!initialFormData) return true;
-  
-    const formatSafe = (val) => dayjs(val).isValid() ? dayjs(val).format('YYYY-MM-DD') : '';
-  
+
     return (
       formData.nomor !== initialFormData.nomor ||
-      formatSafe(formData.tanggal) !== formatSafe(initialFormData.tanggal) ||
+      formData.tanggal?.format("YYYY-MM-DD") !== dayjs(initialFormData.tanggal).format("YYYY-MM-DD") ||
       formData.perihal !== initialFormData.perihal ||
       formData.ditujukan !== initialFormData.ditujukan ||
       (formData.file instanceof File)
     );
   };
-  
 
   const handleDeleteClick = (id) => {
     setDeleteDialog({ open: true, id });
@@ -548,3 +544,4 @@ return (
       </StyledCard>
     </Box>
   );
+}
