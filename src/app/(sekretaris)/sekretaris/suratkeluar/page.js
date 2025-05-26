@@ -9,8 +9,7 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
+  Card, CardContent,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -20,15 +19,12 @@ import {
   IconButton,
   Paper,
   Snackbar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
+  Table, TableBody, TableCell, TableContainer, TableHead,
+  TablePagination,
   TableRow,
   TextField,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -42,7 +38,7 @@ const StyledCard = styled(Card)({
   backgroundColor: '#ffffff',
   borderRadius: '16px',
   boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)',
-  overflow: 'hidden',
+  overflow: 'hidden'
 });
 
 const HeaderBox = styled(Box)({
@@ -52,7 +48,7 @@ const HeaderBox = styled(Box)({
   borderRadius: '16px 16px 0 0',
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'center',
+  alignItems: 'center'
 });
 
 const AddButton = styled(Button)({
@@ -90,7 +86,7 @@ export default function SuratKeluar() {
     ditujukan: '',
     file: null,
     existingFile: '',
-    existingTitle: '',
+    existingTitle: ''
   });
   const [previewFile, setPreviewFile] = useState(null);
   const [existingFile, setExistingFile] = useState(null);
@@ -101,11 +97,11 @@ export default function SuratKeluar() {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'success',
+    severity: 'success'
   });
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
-    id: null,
+    id: null
   });
 
   useEffect(() => {
@@ -120,16 +116,12 @@ export default function SuratKeluar() {
         headers: getHeaders(),
       });
       if (!response.ok) throw new Error('Gagal mengambil data surat keluar');
+
       const data = await response.json();
-      setRows(Array.isArray(data) ? data : []);
+      setRows(data);
       setError(null);
     } catch (err) {
       setError('Gagal mengambil data surat keluar');
-      setSnackbar({
-        open: true,
-        message: err.message || 'Gagal mengambil data surat keluar',
-        severity: 'error',
-      });
     } finally {
       setLoading(false);
     }
@@ -139,24 +131,25 @@ export default function SuratKeluar() {
     const { name, value, files } = e.target;
     if (name === 'file' && files[0]) {
       const file = files[0];
-      setFormData((prev) => ({ ...prev, file }));
+      setFormData(prev => ({ ...prev, file }));
       setPreviewFile(URL.createObjectURL(file));
       setExistingFile(null);
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const handleDateChange = (date) => {
-    setFormData((prev) => ({ ...prev, tanggal: date }));
+    setFormData(prev => ({ ...prev, tanggal: date }));
   };
 
   const mapFormDataToSurat = (template, formData, content) => {
-    let nomor = formData.nomor || '';
+    let nomor = formData.no_surat || '';
     let perihal = template;
-    let ditujukan = formData.ditujukan || '';
+    let ditujukan = formData.tujuan || '';
     let fileContent = content;
 
+    // Map specific fields based on template type
     switch (template) {
       case 'Surat Keterangan Domisili':
         perihal = 'Keterangan Domisili';
@@ -181,6 +174,7 @@ export default function SuratKeluar() {
     let dataToSave;
 
     if (isFromPrint && printData) {
+      // Handle data from CetakLayananSurat.jsx print action
       const { template, formData: printFormData, content } = printData;
       const { nomor, perihal, ditujukan, fileContent } = mapFormDataToSurat(template, printFormData, content);
 
@@ -189,11 +183,12 @@ export default function SuratKeluar() {
         setSnackbar({
           open: true,
           message: 'Data dari print tidak lengkap',
-          severity: 'error',
+          severity: 'error'
         });
         return;
       }
 
+      // Convert HTML content to a Blob for file upload
       const blob = new Blob([fileContent], { type: 'text/html' });
       const file = new File([blob], `${nomor}_${template.replace(/\s/g, '_')}.html`, { type: 'text/html' });
 
@@ -204,22 +199,13 @@ export default function SuratKeluar() {
       dataToSave.append('ditujukan', ditujukan);
       dataToSave.append('file', file);
     } else {
+      // Handle manual form submission
       if (!formData.nomor || !formData.tanggal || !formData.perihal || !formData.ditujukan) {
         setError('Semua field harus diisi');
         setSnackbar({
           open: true,
           message: 'Semua field harus diisi',
-          severity: 'error',
-        });
-        return;
-      }
-
-      if (!dayjs(formData.tanggal).isValid()) {
-        setError('Tanggal tidak valid');
-        setSnackbar({
-          open: true,
-          message: 'Tanggal tidak valid',
-          severity: 'error',
+          severity: 'error'
         });
         return;
       }
@@ -232,7 +218,7 @@ export default function SuratKeluar() {
 
       if (formData.file && typeof formData.file === 'object') {
         dataToSave.append('file', formData.file);
-      } else if (formData.existingFile) {
+      } else {
         dataToSave.append('existing_file', formData.existingFile);
         dataToSave.append('existing_title', formData.existingTitle);
       }
@@ -246,7 +232,7 @@ export default function SuratKeluar() {
 
       const response = await fetch(endpoint, {
         method: editingId ? 'PUT' : 'POST',
-        headers: isFromPrint ? getHeaders() : {},
+        headers: isFromPrint ? getHeaders() : {}, // Use headers only for print data if needed
         body: dataToSave,
       });
 
@@ -256,31 +242,18 @@ export default function SuratKeluar() {
       }
 
       setShowModal(false);
-      setFormData({
-        nomor: '',
-        tanggal: null,
-        perihal: '',
-        ditujukan: '',
-        file: null,
-        existingFile: '',
-        existingTitle: '',
-      });
-      setPreviewFile(null);
-      setExistingFile(null);
-      setEditingId(null);
-      setInitialFormData(null);
       fetchData();
       setSnackbar({
         open: true,
         message: editingId ? 'Data berhasil diupdate!' : 'Data berhasil ditambahkan!',
-        severity: 'success',
+        severity: 'success'
       });
     } catch (err) {
       setError(err.message);
       setSnackbar({
         open: true,
         message: err.message,
-        severity: 'error',
+        severity: 'error'
       });
     } finally {
       setLoading(false);
@@ -288,69 +261,29 @@ export default function SuratKeluar() {
   };
 
   const handleEdit = (row) => {
-    if (!row || !row.id) {
-      console.error('Invalid row data:', row);
-      setSnackbar({
-        open: true,
-        message: 'Data surat tidak valid',
-        severity: 'error',
-      });
-      return;
-    }
-
-    console.log('Editing row:', row);
     const formattedData = {
-      nomor: row.nomor || '',
-      tanggal: row.tanggal && dayjs(row.tanggal).isValid() ? dayjs(row.tanggal) : null,
-      perihal: row.perihal || '',
-      ditujukan: row.ditujukan || '',
+      nomor: row.nomor,
+      tanggal: dayjs(row.tanggal),
+      perihal: row.perihal,
+      ditujukan: row.ditujukan,
       file: null,
-      existingFile: row.file || '',
-      existingTitle: row.title || '',
+      existingFile: row.file,
+      existingTitle: row.title,
     };
 
     setFormData(formattedData);
     setInitialFormData(formattedData);
     setEditingId(row.id);
 
-    if (row.file && typeof row.file === 'string') {
-      try {
-        const backendBaseUrl = 'https://bontomanai.inesa.id';
-        const filePath = row.file.startsWith('.') ? row.file.replace('.', '') : row.file;
-        const previewUrl = `${backendBaseUrl}${filePath}`;
-        console.log('Preview URL:', previewUrl);
-        fetch(previewUrl, { method: 'HEAD' })
-          .then((res) => {
-            if (res.ok) {
-              setPreviewFile(previewUrl);
-              setExistingFile(row.file);
-            } else {
-              throw new Error('File tidak dapat diakses');
-            }
-          })
-          .catch((err) => {
-            console.error('Gagal memuat file:', err);
-            setPreviewFile(null);
-            setExistingFile(null);
-            setSnackbar({
-              open: true,
-              message: 'Gagal memuat file surat',
-              severity: 'warning',
-            });
-          });
-      } catch (err) {
-        console.error('Error processing file:', err);
-        setPreviewFile(null);
-        setExistingFile(null);
-        setSnackbar({
-          open: true,
-          message: 'Gagal memuat file surat',
-          severity: 'warning',
-        });
-      }
+    if (row.file) {
+      setExistingFile(row.file);
+      const backendBaseUrl = "https://bontomanai.inesa.id";
+      const filePath = row.file.startsWith(".") ? row.file.replace(".", "") : row.file;
+      const previewUrl = `${backendBaseUrl}${filePath}`;
+      setPreviewFile(previewUrl);
     } else {
-      setPreviewFile(null);
       setExistingFile(null);
+      setPreviewFile(null);
     }
 
     setShowModal(true);
@@ -359,15 +292,9 @@ export default function SuratKeluar() {
   const isFormChanged = () => {
     if (!initialFormData) return true;
 
-    const compareDates = () => {
-      if (!formData.tanggal && !initialFormData.tanggal) return true;
-      if (!formData.tanggal || !initialFormData.tanggal) return false;
-      return formData.tanggal.format('YYYY-MM-DD') === initialFormData.tanggal.format('YYYY-MM-DD');
-    };
-
     return (
       formData.nomor !== initialFormData.nomor ||
-      !compareDates() ||
+      formData.tanggal?.format("YYYY-MM-DD") !== dayjs(initialFormData.tanggal).format("YYYY-MM-DD") ||
       formData.perihal !== initialFormData.perihal ||
       formData.ditujukan !== initialFormData.ditujukan ||
       (formData.file instanceof File)
@@ -390,18 +317,18 @@ export default function SuratKeluar() {
         headers: getHeaders(),
       });
       if (!response.ok) throw new Error('Gagal menghapus data');
-
+      
       setSnackbar({
         open: true,
         message: 'Data surat keluar telah dihapus.',
-        severity: 'success',
+        severity: 'success'
       });
       fetchData();
     } catch (err) {
       setSnackbar({
         open: true,
-        message: err.message || 'Terjadi kesalahan saat menghapus',
-        severity: 'error',
+        message: 'Terjadi kesalahan saat menghapus.',
+        severity: 'error'
       });
     } finally {
       setLoading(false);
@@ -410,7 +337,7 @@ export default function SuratKeluar() {
   };
 
   const handleSnackbarClose = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   const handleChangePage = (event, newPage) => setPage(newPage);
@@ -419,11 +346,16 @@ export default function SuratKeluar() {
     setPage(0);
   };
 
+  // Expose handleSave for external calls (e.g., from CetakLayananSurat.jsx)
   useEffect(() => {
+    // Simulate API handler for /api/suratkeluar
     const handlePostRequest = async (data) => {
       await handleSave(true, data);
     };
-    window.__handleSuratKeluarPost = handlePostRequest;
+
+    // This is a placeholder for actual API integration
+    // In a real setup, the backend would call handleSave with the POST data
+    window.__handleSuratKeluarPost = handlePostRequest; // For testing purposes
     return () => {
       delete window.__handleSuratKeluarPost;
     };
@@ -449,12 +381,11 @@ export default function SuratKeluar() {
                 ditujukan: '',
                 file: null,
                 existingFile: '',
-                existingTitle: '',
+                existingTitle: ''
               });
               setPreviewFile(null);
               setExistingFile(null);
               setError(null);
-              setInitialFormData(null);
             }}
           >
             Tambah Surat
@@ -472,7 +403,6 @@ export default function SuratKeluar() {
                   <TableCell><strong>Nomor Surat</strong></TableCell>
                   <TableCell><strong>Tanggal</strong></TableCell>
                   <TableCell><strong>Perihal</strong></TableCell>
-                  <TableCell><strong>Ditujukan</strong></TableCell>
                   <TableCell><strong>File</strong></TableCell>
                   <TableCell><strong>Aksi</strong></TableCell>
                 </TableRow>
@@ -480,24 +410,23 @@ export default function SuratKeluar() {
               <TableBody>
                 {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.nomor || '-'}</TableCell>
-                    <TableCell>{row.tanggal ? dayjs(row.tanggal).format('DD-MM-YYYY') : '-'}</TableCell>
-                    <TableCell>{row.perihal || '-'}</TableCell>
-                    <TableCell>{row.ditujukan || '-'}</TableCell>
+                    <TableCell>{row.nomor}</TableCell>
+                    <TableCell>{dayjs(row.tanggal).format('DD-MM-YYYY')}</TableCell>
+                    <TableCell>{row.perihal}</TableCell>
                     <TableCell>
-                      {row.file && (
-                        <Tooltip title="Lihat File">
-                          <IconButton
-                            component="a"
-                            href={`https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <DescriptionIcon />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </TableCell>
+  {row.file && (
+    <Tooltip title="Lihat File">
+      <IconButton
+  component="a"
+  href={`https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+        <DescriptionIcon />
+      </IconButton>
+    </Tooltip>
+  )}
+</TableCell>
                     <TableCell>
                       <Tooltip title="Edit">
                         <IconButton onClick={() => handleEdit(row)}>
@@ -529,70 +458,45 @@ export default function SuratKeluar() {
           <DialogTitle>{editingId ? 'Edit Surat Keluar' : 'Tambah Surat Keluar'}</DialogTitle>
           <DialogContent>
             <TextField
-              fullWidth
-              margin="dense"
-              label="Nomor Surat"
-              name="nomor"
-              value={formData.nomor}
-              onChange={handleInputChange}
-              error={!formData.nomor && error}
-              helperText={!formData.nomor && error ? 'Nomor surat harus diisi' : ''}
+              fullWidth margin="dense" label="Nomor Surat" name="nomor"
+              value={formData.nomor} onChange={handleInputChange}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="Tanggal"
                 value={formData.tanggal}
                 onChange={handleDateChange}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    margin: 'dense',
-                    error: !formData.tanggal && error,
-                    helperText: !formData.tanggal && error ? 'Tanggal harus diisi' : '',
-                  },
-                }}
+                slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
               />
             </LocalizationProvider>
             <TextField
-              fullWidth
-              margin="dense"
-              label="Perihal"
-              name="perihal"
-              value={formData.perihal}
-              onChange={handleInputChange}
-              error={!formData.perihal && error}
-              helperText={!formData.perihal && error ? 'Perihal harus diisi' : ''}
+              fullWidth margin="dense" label="Perihal" name="perihal"
+              value={formData.perihal} onChange={handleInputChange}
             />
             <TextField
-              fullWidth
-              margin="dense"
-              label="Ditujukan"
-              name="ditujukan"
-              value={formData.ditujukan}
-              onChange={handleInputChange}
-              error={!formData.ditujukan && error}
-              helperText={!formData.ditujukan && error ? 'Ditujukan harus diisi' : ''}
+              fullWidth margin="dense" label="Ditujukan" name="ditujukan"
+              value={formData.ditujukan} onChange={handleInputChange}
             />
             <Button variant="outlined" component="label" sx={{ mt: 2 }}>
               Pilih File
               <input type="file" name="file" hidden onChange={handleInputChange} />
             </Button>
             {(previewFile || existingFile) && (
-              <FilePreviewBox>
-                <Avatar><DescriptionIcon /></Avatar>
-                <Typography variant="body2">
-                  {formData.file?.name || existingFile?.split('/').pop() || 'File tidak tersedia'}
-                </Typography>
-                {(previewFile || existingFile) && (
-                  <a
-                    href={previewFile || `https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button size="small">Lihat</Button>
-                  </a>
-                )}
-              </FilePreviewBox>
+             <FilePreviewBox>
+             <Avatar><DescriptionIcon /></Avatar>
+             <Typography variant="body2">
+               {formData.file?.name || existingFile?.split('/').pop()}
+             </Typography>
+             {(previewFile || existingFile) && (
+  <a
+    href={previewFile || `https://bontomanai.inesa.id/api/sekretaris/suratkeluar/file/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Button size="small">Lihat</Button>
+  </a>
+)}
+           </FilePreviewBox>
             )}
           </DialogContent>
           <DialogActions>
@@ -602,7 +506,7 @@ export default function SuratKeluar() {
               variant="contained"
               disabled={loading || (editingId && !isFormChanged())}
             >
-              {loading ? <CircularProgress size={24} /> : editingId ? 'Update' : 'Simpan'}
+              {editingId ? 'Update' : 'Simpan'}
             </Button>
           </DialogActions>
         </Dialog>
@@ -627,7 +531,7 @@ export default function SuratKeluar() {
           <DialogTitle id="alert-dialog-title">Apakah Anda yakin?</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              Data yang dihapus tidak dapat dikembalian.
+              Data yang dihapus tidak dapat dikembalikan.
             </DialogContentText>
           </DialogContent>
           <DialogActions>

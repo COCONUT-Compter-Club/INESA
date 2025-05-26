@@ -119,7 +119,7 @@ export default function SuratMasuk() {
     id: null,
   });
 
-  
+  // Fetch data dari API
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -151,7 +151,7 @@ export default function SuratMasuk() {
     fetchData();
   }, [fetchData]);
 
-
+  // Handler untuk perubahan input
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'file' && files[0]) {
@@ -164,12 +164,12 @@ export default function SuratMasuk() {
     }
   };
 
-
+  // Handler untuk perubahan tanggal
   const handleDateChange = (date) => {
     setFormData((prev) => ({ ...prev, tanggal: date }));
   };
 
-
+  // Handler untuk menyimpan atau mengupdate data
   const handleSave = async () => {
     if (!formData.nomor || !formData.tanggal || !formData.perihal || !formData.asal) {
       setError('Semua field harus diisi');
@@ -253,7 +253,7 @@ export default function SuratMasuk() {
     }
   };
 
-
+  // Handler untuk mengedit data
   const handleEdit = (row) => {
     if (!row || !row.id) {
       console.error('Invalid row data:', row);
@@ -271,7 +271,7 @@ export default function SuratMasuk() {
       tanggal: row.tanggal && dayjs(row.tanggal).isValid() ? dayjs(row.tanggal) : null,
       perihal: row.perihal || '',
       asal: row.asal || '',
-      file: null,
+      file: null, // Reset file untuk edit, gunakan existingFile jika ada
       existingFile: row.file || '',
       existingTitle: row.title || '',
     };
@@ -286,7 +286,7 @@ export default function SuratMasuk() {
         const filePath = row.file.startsWith('.') ? row.file.replace('.', '') : row.file;
         const previewUrl = `${backendBaseUrl}${filePath}`;
         console.log('Preview URL:', previewUrl);
-
+        // Verifikasi akses file secara asinkronus
         fetch(previewUrl, { method: 'HEAD' })
           .then((res) => {
             if (res.ok) {
@@ -324,7 +324,7 @@ export default function SuratMasuk() {
     setShowModal(true);
   };
 
-
+  // Handler untuk memeriksa perubahan formulir
   const isFormChanged = () => {
     if (!initialFormData) return true;
 
@@ -343,7 +343,7 @@ export default function SuratMasuk() {
     );
   };
 
-
+  // Handler untuk menghapus data
   const handleDeleteClick = (id) => {
     setDeleteDialog({ open: true, id });
   };
@@ -383,12 +383,12 @@ export default function SuratMasuk() {
     }
   };
 
-
+  // Handler untuk menutup snackbar
   const handleSnackbarClose = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-
+  // Handler untuk pagination
   const handleChangePage = (event, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -491,7 +491,7 @@ export default function SuratMasuk() {
           </TableContainer>
         </CardContent>
 
-
+        {/* Dialog Form */}
         <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
           <DialogTitle>{editingId ? 'Edit Surat Masuk' : 'Tambah Surat Masuk'}</DialogTitle>
           <DialogContent>
@@ -574,7 +574,7 @@ export default function SuratMasuk() {
           </DialogActions>
         </Dialog>
 
-
+        {/* Snackbar untuk notifikasi */}
         <Snackbar
           open={snackbar.open}
           autoHideDuration={6000}
@@ -586,7 +586,7 @@ export default function SuratMasuk() {
           </Alert>
         </Snackbar>
 
-
+        {/* Dialog konfirmasi hapus */}
         <Dialog
           open={deleteDialog.open}
           onClose={handleDeleteDialogClose}
@@ -596,7 +596,7 @@ export default function SuratMasuk() {
           <DialogTitle id="alert-dialog-title">Apakah Anda yakin?</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              Data yang dihapus tidak dapat dikembalian.
+              Data yang dihapus tidak dapat dikembalikan.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
