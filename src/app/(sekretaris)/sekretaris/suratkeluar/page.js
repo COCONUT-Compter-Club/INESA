@@ -292,15 +292,18 @@ return (
 
   const isFormChanged = () => {
     if (!initialFormData) return true;
-
+  
+    const formatSafe = (val) => dayjs(val).isValid() ? dayjs(val).format('YYYY-MM-DD') : '';
+  
     return (
       formData.nomor !== initialFormData.nomor ||
-      formData.tanggal?.format("YYYY-MM-DD") !== dayjs(initialFormData.tanggal).format("YYYY-MM-DD") ||
+      formatSafe(formData.tanggal) !== formatSafe(initialFormData.tanggal) ||
       formData.perihal !== initialFormData.perihal ||
       formData.ditujukan !== initialFormData.ditujukan ||
       (formData.file instanceof File)
     );
   };
+  
 
   const handleDeleteClick = (id) => {
     setDeleteDialog({ open: true, id });
