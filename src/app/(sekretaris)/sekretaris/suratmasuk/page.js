@@ -132,7 +132,7 @@ export default function SuratMasuk() {
         throw new Error(errorData.message || 'Gagal mengambil data surat masuk');
       }
       const data = await response.json();
-      setRows(data || []);
+      setRows(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -265,28 +265,57 @@ export default function SuratMasuk() {
       return;
     }
 
+    console.log('Editing row:', row);
     const formattedData = {
       nomor: row.nomor || '',
       tanggal: row.tanggal && dayjs(row.tanggal).isValid() ? dayjs(row.tanggal) : null,
       perihal: row.perihal || '',
       asal: row.asal || '',
-      file: row.file || null,
+      file: null, // Reset file untuk edit, gunakan existingFile jika ada
       existingFile: row.file || '',
       existingTitle: row.title || '',
     };
 
-    console.log('Editing row:', row);
     setFormData(formattedData);
     setInitialFormData(formattedData);
     setEditingId(row.id);
 
-    if (row.file) {
-      const backendBaseUrl = 'https://bontomanai.inesa.id';
-      const filePath = row.file.startsWith('.') ? row.file.replace('.', '') : row.file;
-      const previewUrl = `${backendBaseUrl}${filePath}`;
-      console.log('Preview URL:', previewUrl);
-      setPreviewFile(previewUrl);
-      setExistingFile(row.file);
+    if (row.file && typeof row.file === 'string') {
+      try {
+        const backendBaseUrl = 'https://bontomanai.inesa.id';
+        const filePath = row.file.startsWith('.') ? row.file.replace('.', '') : row.file;
+        const previewUrl = `${backendBaseUrl}${filePath}`;
+        console.log('Preview URL:', previewUrl);
+        // Verifikasi akses file secara asinkronus
+        fetch(previewUrl, { method: 'HEAD' })
+          .then((res) => {
+            if (res.ok) {
+              setPreviewFile(previewUrl);
+              setExistingFile(row.file);
+            } else {
+              throw new Error('File tidak dapat diakses');
+            }
+          })
+          .catch((err) => {
+            console.error('Gagal memuat file:', err);
+            setPreviewFile(null);
+            setExistingFile(null);
+            setSnackbar({
+              open: true,
+              message: 'Gagal memuat file surat',
+              severity: 'warning',
+            });
+          });
+      } catch (err) {
+        console.error('Error processing file:', err);
+        setPreviewFile(null);
+        setExistingFile(null);
+        setSnackbar({
+          open: true,
+          message: 'Gagal memuat file surat',
+          severity: 'warning',
+        });
+      }
     } else {
       setPreviewFile(null);
       setExistingFile(null);
@@ -310,7 +339,7 @@ export default function SuratMasuk() {
       !compareDates() ||
       formData.perihal !== initialFormData.perihal ||
       formData.asal !== initialFormData.asal ||
-      formData.file !== initialFormData.file
+      (formData.file instanceof File)
     );
   };
 
