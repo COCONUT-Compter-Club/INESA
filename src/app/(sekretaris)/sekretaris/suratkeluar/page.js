@@ -261,14 +261,15 @@ export default function SuratKeluar() {
   };
 
   const handleEdit = (row) => {
-    const formattedData = {
-      nomor: row.nomor,
-      tanggal: dayjs(row.tanggal),
-      perihal: row.perihal,
-      ditujukan: row.ditujukan,
-      file: null,
-      existingFile: row.file,
-      existingTitle: row.title,
+    const formatDate = (value) => dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DD') : null;
+
+return (
+  formData.nomor !== initialFormData.nomor ||
+  formatDate(formData.tanggal) !== formatDate(initialFormData.tanggal) ||
+  formData.perihal !== initialFormData.perihal ||
+  formData.ditujukan !== initialFormData.ditujukan ||
+  (formData.file instanceof File)
+)
     };
 
     setFormData(formattedData);
@@ -544,4 +545,3 @@ export default function SuratKeluar() {
       </StyledCard>
     </Box>
   );
-}
