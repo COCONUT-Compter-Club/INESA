@@ -72,8 +72,8 @@ const statusColors = {
 
 // Daftar opsi penandatangan
 const penandatanganOptions = {
-  'Kepala Desa': { nip: '19651231 200001 1 001', namaLengkap: 'H. Abd. Rasyid' },
-  'Sekretaris Desa': { nip: '19701231 200112 2 002', namaLengkap: 'Dra. Hj. Sitti Rahma' }
+  'Kepala Desa': { namaLengkap: 'H. ABD. RASYID' },
+  'Sekretaris Desa': { namaLengkap: 'SYAPARUDDIN' }
 };
 
 // Fungsi untuk memformat tanggal ke format Indonesia
@@ -212,7 +212,7 @@ const suratTemplates = {
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+
     ]
   },
   'Surat Keterangan Tidak Mampu': {
@@ -332,7 +332,7 @@ const suratTemplates = {
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+      // { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
     ]
   },
   'Surat Keterangan Usaha': {
@@ -463,7 +463,7 @@ const suratTemplates = {
       { name: 'alamat_usaha', label: 'Alamat Usaha', type: 'text', placeholder: 'Masukkan Alamat Usaha' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+      // { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
     ]
   },
   'Surat Pengantar SKCK': {
@@ -591,7 +591,7 @@ const suratTemplates = {
       { name: 'tujuan', label: 'Tujuan', type: 'text', placeholder: 'Masukkan Tujuan' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+      // { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
     ]
   }
 };
