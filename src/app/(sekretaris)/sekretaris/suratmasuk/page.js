@@ -127,13 +127,16 @@ export default function SuratMasuk() {
         method: 'GET',
         headers: getHeaders(),
       });
-      if (!response.ok) throw new Error('Gagal mengambil data surat masuk');
-
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal mengambil data surat masuk');
+      }
       const data = await response.json();
       setRows(data);
       setError(null);
     } catch (err) {
-      setError('Gagal mengambil data surat masuk');
+      console.error("Error fetching data:", err);
+      setError(err.message || 'Terjadi kesalahan saat mengambil data');
     } finally {
       setLoading(false);
     }
@@ -156,13 +159,7 @@ export default function SuratMasuk() {
   };
 
   const handleSave = async () => {
-    // Tambahkan di bagian atas fungsi handleSave
-    if (!formData.tanggal) {
-      setError('Tanggal harus diisi');
-      return;
-    }
-
-    if (!formData.nomor || !formData.tanggal || !formData.perihal || !formData.asal) {
+    if (!formData.tanggal || !formData.nomor || !formData.perihal || !formData.asal) {
       setError('Semua field harus diisi');
       return;
     }
@@ -171,14 +168,13 @@ export default function SuratMasuk() {
     try {
       const data = new FormData();
       data.append('nomor', formData.nomor);
-      // Tetap gunakan format YYYY-MM-DD untuk data yang dikirim ke server
+
       data.append('tanggal', dayjs(formData.tanggal).format('YYYY-MM-DD'));
       data.append('perihal', formData.perihal);
       data.append('asal', formData.asal);
-
-      if (formData.file && typeof formData.file === 'object') {
+      if (formData.file instanceof File) {
         data.append('file', formData.file);
-      } else {
+      } else if (formData.existingFile) {
         data.append('existing_file', formData.existingFile);
         data.append('existing_title', formData.existingTitle);
       }
@@ -218,13 +214,13 @@ export default function SuratMasuk() {
 
   const handleEdit = (row) => {
     const formattedData = {
-      nomor: row.nomor,
-      tanggal: dayjs(row.tanggal),
-      perihal: row.perihal,
-      asal: row.asal,
-      file: row.file,
-      existingFile: row.file,
-      existingTitle: row.title,
+      nomor: row.nomor || '',
+      tanggal: row.tanggal && dayjs(row.tanggal).isValid() ? dayjs(row.tanggal) : null,
+      perihal: row.perihal || '',
+      asal: row.asal || '',
+      file: row.file || null,
+      existingFile: row.file || '',
+      existingTitle: row.title || '',
     };
 
     setFormData(formattedData);
@@ -232,14 +228,21 @@ export default function SuratMasuk() {
     setEditingId(row.id);
 
     if (row.file) {
-      setExistingFile(row.file);
-      const backendBaseUrl = "https://bontomanai.inesa.id";
-      const filePath = row.file.startsWith(".") ? row.file.replace(".", "") : row.file;
-      const previewUrl = `${backendBaseUrl}${filePath}`;
-      setPreviewFile(previewUrl);
+      try {
+        const backendBaseUrl = "https://bontomanai.inesa.id";
+        const filePath = row.file.startsWith(".") ? row.file.replace(".", "") : row.file;
+        const previewUrl = `${backendBaseUrl}${filePath}`;
+        setPreviewFile(previewUrl);
+        setExistingFile(row.file);
+      } catch (err) {
+        console.error("Gagal memuat file:", err);
+        setPreviewFile(null);
+        setExistingFile(null);
+      }
     } else {
-      setExistingFile(null);
       setPreviewFile(null);
+      setExistingFile(null);
+      
     }
 
     setShowModal(true);
