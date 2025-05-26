@@ -9,7 +9,8 @@ import {
   Avatar,
   Box,
   Button,
-  Card, CardContent,
+  Card,
+  CardContent,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -19,12 +20,15 @@ import {
   IconButton,
   Paper,
   Snackbar,
-  Table, TableBody, TableCell, TableContainer, TableHead,
-  TablePagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
   TableRow,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -35,12 +39,11 @@ import { useCallback, useEffect, useState } from 'react';
 
 // Fungsi untuk memformat tanggal ke format Indonesia
 const formatTanggalIndonesia = (tanggal) => {
-  if (!tanggal) return '-';
+  if (!tanggal || !dayjs(tanggal).isValid()) return '-';
   const date = new Date(tanggal);
-  if (isNaN(date.getTime())) return '-';
   const bulan = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
   ];
   return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
 };
@@ -50,7 +53,7 @@ const StyledCard = styled(Card)({
   backgroundColor: '#ffffff',
   borderRadius: '16px',
   boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)',
-  overflow: 'hidden'
+  overflow: 'hidden',
 });
 
 const HeaderBox = styled(Box)({
@@ -60,7 +63,7 @@ const HeaderBox = styled(Box)({
   borderRadius: '16px 16px 0 0',
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'center'
+  alignItems: 'center',
 });
 
 const AddButton = styled(Button)({
@@ -98,7 +101,7 @@ export default function SuratMasuk() {
     asal: '',
     file: null,
     existingFile: '',
-    existingTitle: ''
+    existingTitle: '',
   });
   const [previewFile, setPreviewFile] = useState(null);
   const [existingFile, setExistingFile] = useState(null);
@@ -109,17 +112,14 @@ export default function SuratMasuk() {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'success'
+    severity: 'success',
   });
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
-    id: null
+    id: null,
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
+  // Fetch data dari API
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -132,35 +132,62 @@ export default function SuratMasuk() {
         throw new Error(errorData.message || 'Gagal mengambil data surat masuk');
       }
       const data = await response.json();
-      setRows(data);
+      setRows(data || []);
       setError(null);
     } catch (err) {
-      console.error("Error fetching data:", err);
+      console.error('Error fetching data:', err);
       setError(err.message || 'Terjadi kesalahan saat mengambil data');
+      setSnackbar({
+        open: true,
+        message: err.message || 'Gagal mengambil data surat masuk',
+        severity: 'error',
+      });
     } finally {
       setLoading(false);
     }
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Handler untuk perubahan input
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'file' && files[0]) {
       const file = files[0];
-      setFormData(prev => ({ ...prev, file }));
+      setFormData((prev) => ({ ...prev, file }));
       setPreviewFile(URL.createObjectURL(file));
       setExistingFile(null);
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
+  // Handler untuk perubahan tanggal
   const handleDateChange = (date) => {
-    setFormData(prev => ({ ...prev, tanggal: date }));
+    setFormData((prev) => ({ ...prev, tanggal: date }));
   };
 
+  // Handler untuk menyimpan atau mengupdate data
   const handleSave = async () => {
-    if (!formData.tanggal || !formData.nomor || !formData.perihal || !formData.asal) {
+    if (!formData.nomor || !formData.tanggal || !formData.perihal || !formData.asal) {
       setError('Semua field harus diisi');
+      setSnackbar({
+        open: true,
+        message: 'Semua field harus diisi',
+        severity: 'error',
+      });
+      return;
+    }
+
+    if (!dayjs(formData.tanggal).isValid()) {
+      setError('Tanggal tidak valid');
+      setSnackbar({
+        open: true,
+        message: 'Tanggal tidak valid',
+        severity: 'error',
+      });
       return;
     }
 
@@ -168,10 +195,10 @@ export default function SuratMasuk() {
     try {
       const data = new FormData();
       data.append('nomor', formData.nomor);
-
       data.append('tanggal', dayjs(formData.tanggal).format('YYYY-MM-DD'));
       data.append('perihal', formData.perihal);
       data.append('asal', formData.asal);
+
       if (formData.file instanceof File) {
         data.append('file', formData.file);
       } else if (formData.existingFile) {
@@ -194,25 +221,50 @@ export default function SuratMasuk() {
       }
 
       setShowModal(false);
+      setFormData({
+        nomor: '',
+        tanggal: null,
+        perihal: '',
+        asal: '',
+        file: null,
+        existingFile: '',
+        existingTitle: '',
+      });
+      setPreviewFile(null);
+      setExistingFile(null);
+      setEditingId(null);
+      setInitialFormData(null);
       fetchData();
       setSnackbar({
         open: true,
         message: editingId ? 'Data berhasil diupdate!' : 'Data berhasil ditambahkan!',
-        severity: 'success'
+        severity: 'success',
       });
     } catch (err) {
-      setError(err.message);
+      console.error('Error saving data:', err);
+      setError(err.message || 'Terjadi kesalahan saat menyimpan data');
       setSnackbar({
         open: true,
-        message: err.message,
-        severity: 'error'
+        message: err.message || 'Gagal menyimpan data',
+        severity: 'error',
       });
     } finally {
       setLoading(false);
     }
   };
 
+  // Handler untuk mengedit data
   const handleEdit = (row) => {
+    if (!row || !row.id) {
+      console.error('Invalid row data:', row);
+      setSnackbar({
+        open: true,
+        message: 'Data surat tidak valid',
+        severity: 'error',
+      });
+      return;
+    }
+
     const formattedData = {
       nomor: row.nomor || '',
       tanggal: row.tanggal && dayjs(row.tanggal).isValid() ? dayjs(row.tanggal) : null,
@@ -223,42 +275,34 @@ export default function SuratMasuk() {
       existingTitle: row.title || '',
     };
 
+    console.log('Editing row:', row);
     setFormData(formattedData);
     setInitialFormData(formattedData);
     setEditingId(row.id);
 
     if (row.file) {
-      try {
-        const backendBaseUrl = "https://bontomanai.inesa.id";
-        const filePath = row.file.startsWith(".") ? row.file.replace(".", "") : row.file;
-        const previewUrl = `${backendBaseUrl}${filePath}`;
-        setPreviewFile(previewUrl);
-        setExistingFile(row.file);
-      } catch (err) {
-        console.error("Gagal memuat file:", err);
-        setPreviewFile(null);
-        setExistingFile(null);
-      }
+      const backendBaseUrl = 'https://bontomanai.inesa.id';
+      const filePath = row.file.startsWith('.') ? row.file.replace('.', '') : row.file;
+      const previewUrl = `${backendBaseUrl}${filePath}`;
+      console.log('Preview URL:', previewUrl);
+      setPreviewFile(previewUrl);
+      setExistingFile(row.file);
     } else {
       setPreviewFile(null);
       setExistingFile(null);
-      
     }
 
     setShowModal(true);
   };
 
+  // Handler untuk memeriksa perubahan formulir
   const isFormChanged = () => {
-    if (!initialFormData) return false;
+    if (!initialFormData) return true;
 
-    // Pengecekan tanggal yang aman
     const compareDates = () => {
-      // Jika keduanya null/undefined, dianggap sama
       if (!formData.tanggal && !initialFormData.tanggal) return true;
-      // Jika salah satu null/undefined, berarti berbeda
       if (!formData.tanggal || !initialFormData.tanggal) return false;
-      // Baru bandingkan jika keduanya ada
-      return formData.tanggal.format("YYYY-MM-DD") === dayjs(initialFormData.tanggal).format("YYYY-MM-DD");
+      return formData.tanggal.format('YYYY-MM-DD') === initialFormData.tanggal.format('YYYY-MM-DD');
     };
 
     return (
@@ -266,10 +310,11 @@ export default function SuratMasuk() {
       !compareDates() ||
       formData.perihal !== initialFormData.perihal ||
       formData.asal !== initialFormData.asal ||
-      (formData.file instanceof File)
+      formData.file !== initialFormData.file
     );
   };
 
+  // Handler untuk menghapus data
   const handleDeleteClick = (id) => {
     setDeleteDialog({ open: true, id });
   };
@@ -285,19 +330,23 @@ export default function SuratMasuk() {
         method: 'DELETE',
         headers: getHeaders(),
       });
-      if (!response.ok) throw new Error('Gagal menghapus data');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal menghapus data');
+      }
 
       setSnackbar({
         open: true,
         message: 'Data surat masuk telah dihapus.',
-        severity: 'success'
+        severity: 'success',
       });
       fetchData();
     } catch (err) {
+      console.error('Error deleting data:', err);
       setSnackbar({
         open: true,
-        message: 'Terjadi kesalahan saat menghapus.',
-        severity: 'error'
+        message: err.message || 'Terjadi kesalahan saat menghapus',
+        severity: 'error',
       });
     } finally {
       setLoading(false);
@@ -305,10 +354,12 @@ export default function SuratMasuk() {
     }
   };
 
+  // Handler untuk menutup snackbar
   const handleSnackbarClose = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
+  // Handler untuk pagination
   const handleChangePage = (event, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -333,11 +384,14 @@ export default function SuratMasuk() {
                 tanggal: null,
                 perihal: '',
                 asal: '',
-                file: null
+                file: null,
+                existingFile: '',
+                existingTitle: '',
               });
               setPreviewFile(null);
               setExistingFile(null);
               setError(null);
+              setInitialFormData(null);
             }}
           >
             Tambah Surat
@@ -363,17 +417,18 @@ export default function SuratMasuk() {
               <TableBody>
                 {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell>{row.nomor}</TableCell>
+                    <TableCell>{row.nomor || '-'}</TableCell>
                     <TableCell>{formatTanggalIndonesia(row.tanggal)}</TableCell>
-                    <TableCell>{row.perihal}</TableCell>
-                    <TableCell>{row.asal}</TableCell>
+                    <TableCell>{row.perihal || '-'}</TableCell>
+                    <TableCell>{row.asal || '-'}</TableCell>
                     <TableCell>
                       {row.file && (
                         <Tooltip title="Lihat File">
                           <IconButton
                             component="a"
-                            href={`https://bontomanai.inesa.id/${row.file.replace(/^\./, '')}`}
+                            href={`https://bontomanai.inesa.id${row.file.startsWith('.') ? row.file.replace('.', '') : row.file}`}
                             target="_blank"
+                            rel="noopener noreferrer"
                           >
                             <DescriptionIcon />
                           </IconButton>
@@ -412,24 +467,49 @@ export default function SuratMasuk() {
           <DialogTitle>{editingId ? 'Edit Surat Masuk' : 'Tambah Surat Masuk'}</DialogTitle>
           <DialogContent>
             <TextField
-              fullWidth margin="dense" label="Nomor Surat" name="nomor"
-              value={formData.nomor} onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+              label="Nomor Surat"
+              name="nomor"
+              value={formData.nomor}
+              onChange={handleInputChange}
+              error={!formData.nomor && error}
+              helperText={!formData.nomor && error ? 'Nomor surat harus diisi' : ''}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="Tanggal"
                 value={formData.tanggal}
                 onChange={handleDateChange}
-                slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    margin: 'dense',
+                    error: !formData.tanggal && error,
+                    helperText: !formData.tanggal && error ? 'Tanggal harus diisi' : '',
+                  },
+                }}
               />
             </LocalizationProvider>
             <TextField
-              fullWidth margin="dense" label="Perihal" name="perihal"
-              value={formData.perihal} onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+              label="Perihal"
+              name="perihal"
+              value={formData.perihal}
+              onChange={handleInputChange}
+              error={!formData.perihal && error}
+              helperText={!formData.perihal && error ? 'Perihal harus diisi' : ''}
             />
             <TextField
-              fullWidth margin="dense" label="Asal Surat" name="asal"
-              value={formData.asal} onChange={handleInputChange}
+              fullWidth
+              margin="dense"
+              label="Asal Surat"
+              name="asal"
+              value={formData.asal}
+              onChange={handleInputChange}
+              error={!formData.asal && error}
+              helperText={!formData.asal && error ? 'Asal surat harus diisi' : ''}
             />
             <Button variant="outlined" component="label" sx={{ mt: 2 }}>
               Pilih File
@@ -439,7 +519,7 @@ export default function SuratMasuk() {
               <FilePreviewBox>
                 <Avatar><DescriptionIcon /></Avatar>
                 <Typography variant="body2">
-                  {formData.file?.name || existingFile?.split('/').pop()}
+                  {formData.file?.name || existingFile?.split('/').pop() || 'File tidak tersedia'}
                 </Typography>
                 {(previewFile || existingFile) && (
                   <a
@@ -460,12 +540,12 @@ export default function SuratMasuk() {
               variant="contained"
               disabled={loading || (editingId && !isFormChanged())}
             >
-              {editingId ? 'Update' : 'Simpan'}
+              {loading ? <CircularProgress size={24} /> : editingId ? 'Update' : 'Simpan'}
             </Button>
           </DialogActions>
         </Dialog>
 
-        {/* Snackbar for notifications */}
+        {/* Snackbar untuk notifikasi */}
         <Snackbar
           open={snackbar.open}
           autoHideDuration={6000}
@@ -477,7 +557,7 @@ export default function SuratMasuk() {
           </Alert>
         </Snackbar>
 
-        {/* Delete confirmation dialog */}
+        {/* Dialog konfirmasi hapus */}
         <Dialog
           open={deleteDialog.open}
           onClose={handleDeleteDialogClose}
