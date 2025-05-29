@@ -321,7 +321,7 @@ export default function SuratKeluar() {
 
     if (row.file) {
       setExistingFile(row.file);
-      const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8088';
+      const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id';
       const filePath = row.file.startsWith('.') ? row.file.replace('.', '') : row.file;
       const previewUrl = `${backendBaseUrl}${filePath}`;
       setPreviewFile(previewUrl);
@@ -478,7 +478,7 @@ export default function SuratKeluar() {
                             <Tooltip title="Lihat File">
                               <IconButton
                                 component="a"
-                                href={`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8088'}/api/sekretaris/suratkeluar/file/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+                                href={`${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id'}/api/sekretaris/suratkeluar/file/${encodeURIComponent(row.file.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
@@ -592,7 +592,7 @@ export default function SuratKeluar() {
                   </Typography>
                   {(previewFile || existingFile) && (
                     <a
-                      href={previewFile || `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8088'}/api/sekretaris/suratkeluar/file/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+                      href={previewFile || `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id'}/api/sekretaris/suratkeluar/file/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
