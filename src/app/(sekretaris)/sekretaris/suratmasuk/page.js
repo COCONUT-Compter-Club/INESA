@@ -24,8 +24,8 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TablePagination,
+  TableHead,
   TableRow,
   TextField,
   Tooltip,
@@ -240,9 +240,8 @@ export default function SuratMasuk() {
         ? API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_UPDATE(editingId)
         : API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_ADD;
 
-      // Gunakan header tanpa 'Content-Type' untuk FormData
       const headers = getHeaders(getToken());
-      delete headers['Content-Type']; // Biarkan browser menentukan Content-Type untuk FormData
+      delete headers['Content-Type']; 
 
       const response = await fetch(endpoint, {
         method: editingId ? 'PUT' : 'POST',
@@ -509,14 +508,15 @@ export default function SuratMasuk() {
                   label="Tanggal"
                   value={formData.tanggal}
                   onChange={handleDateChange}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      margin: 'dense',
-                      error: !formData.tanggal && error,
-                      helperText: !formData.tanggal && error ? 'Tanggal wajib diisi' : '',
-                    },
-                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      margin="dense"
+                      error={!formData.tanggal && error}
+                      helperText={!formData.tanggal && error ? 'Tanggal wajib diisi' : ''}
+                    />
+                  )}
                 />
               </LocalizationProvider>
               <TextField

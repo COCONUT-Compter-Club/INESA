@@ -45,9 +45,9 @@ import {
   styled
 } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { endOfDay, isValid, startOfDay, format } from 'date-fns'
-import id from 'date-fns/locale/id'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs from 'dayjs'
+import 'dayjs/locale/id'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
@@ -314,27 +314,14 @@ export default function LaporanKeuangan() {
   }, [])
 
   const formatDate = (date) => {
-    if (!date) return null
-    const d = new Date(date)
-    const year = d.getFullYear()
-    const month = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
+    if (!date || !dayjs(date).isValid()) return null
+    return dayjs(date).format('YYYY-MM-DD')
   }
 
   const formatDateTime = (backendDateString) => {
     if (!backendDateString) return '-'
     try {
-      const [datePart, timePart] = backendDateString.split(' ')
-      const [day, month, year] = datePart.split('-')
-      const [hours, minutes] = timePart.split(':')
-      return new Date(year, month - 1, day, hours, minutes).toLocaleString('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
+      return dayjs(backendDateString, 'DD-MM-YYYY HH:mm:ss').format('DD/MM/YYYY HH:mm')
     } catch (e) {
       return backendDateString
     }
@@ -349,55 +336,39 @@ export default function LaporanKeuangan() {
   }
 
   const getDateRange = (range) => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const startDate = new Date()
-    startDate.setHours(0, 0, 0, 0)
-
+    const today = dayjs()
+    const startDate = dayjs()
     if (range === 'custom' && confirmedStartDate && confirmedEndDate) {
-      const start = startOfDay(new Date(confirmedStartDate))
-      const end = endOfDay(new Date(confirmedEndDate))
-      if (start > end) {
+      const start = dayjs(confirmedStartDate).startOf('day')
+      const end = dayjs(confirmedEndDate).endOf('day')
+      if (start.isAfter(end)) {
         setAlert({
           open: true,
           message: 'Tanggal mulai harus sebelum tanggal akhir',
           severity: 'error'
         })
-        return { start: null, end: null }
+        return { start: null, end: null, startDateObj: null, endDateObj: null }
       }
       return { start: formatDate(start), end: formatDate(end), startDateObj: start, endDateObj: end }
     }
 
     switch (range) {
       case 'today':
-        return { start: formatDate(today), end: formatDate(today.setHours(24, 0, 0, 0)), startDateObj: today, endDateObj: today }
+        return { start: formatDate(today.startOf('day')), end: formatDate(today.endOf('day')), startDateObj: today.startOf('day'), endDateObj: today.endOf('day') }
       case 'yesterday':
-        startDate.setDate(today.getDate() - 1)
-        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
+        return { start: formatDate(today.subtract(1, 'day').startOf('day')), end: formatDate(today.startOf('day')), startDateObj: today.subtract(1, 'day').startOf('day'), endDateObj: today.startOf('day') }
       case '7days':
-        today.setHours(24, 0, 0, 0)
-        startDate.setDate(today.getDate() - 7)
-        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
+        return { start: formatDate(today.subtract(7, 'day').startOf('day')), end: formatDate(today.endOf('day')), startDateObj: today.subtract(7, 'day').startOf('day'), endDateObj: today.endOf('day') }
       case '1month':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 1)
-        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
+        return { start: formatDate(today.subtract(1, 'month').startOf('day')), end: formatDate(today.endOf('day')), startDateObj: today.subtract(1, 'month').startOf('day'), endDateObj: today.endOf('day') }
       case '3months':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 3)
-        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
+        return { start: formatDate(today.subtract(3, 'month').startOf('day')), end: formatDate(today.endOf('day')), startDateObj: today.subtract(3, 'month').startOf('day'), endDateObj: today.endOf('day') }
       case '6months':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 6)
-        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
+        return { start: formatDate(today.subtract(6, 'month').startOf('day')), end: formatDate(today.endOf('day')), startDateObj: today.subtract(6, 'month').startOf('day'), endDateObj: today.endOf('day') }
       case '1year':
-        today.setHours(24, 0, 0, 0)
-        startDate.setFullYear(today.getFullYear() - 1)
-        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
+        return { start: formatDate(today.subtract(1, 'year').startOf('day')), end: formatDate(today.endOf('day')), startDateObj: today.subtract(1, 'year').startOf('day'), endDateObj: today.endOf('day') }
       default:
-        today.setHours(24, 0, 0, 0)
-        startDate.setDate(today.getDate() - 7)
-        return { start: formatDate(startDate), end: formatDate(today), startDateObj: startDate, endDateObj: today }
+        return { start: formatDate(today.subtract(7, 'day').startOf('day')), end: formatDate(today.endOf('day')), startDateObj: today.subtract(7, 'day').startOf('day'), endDateObj: today.endOf('day') }
     }
   }
 
@@ -407,16 +378,13 @@ export default function LaporanKeuangan() {
       const { start, end } = getDateRange(range)
       let rangeData
       if (!start || !end) {
-        const defaultStart = new Date()
-        defaultStart.setDate(defaultStart.getDate() - 7)
+        const defaultStart = dayjs().subtract(7, 'day')
         rangeData = await laporanService.getLaporanByDateRange(
           formatDate(defaultStart),
-          formatDate(new Date())
+          formatDate(dayjs())
         )
       } else {
-        const startDate = formatDate(start)
-        const endDate = formatDate(end)
-        rangeData = await laporanService.getLaporanByDateRange(startDate, endDate)
+        rangeData = await laporanService.getLaporanByDateRange(start, end)
       }
       console.log('Data berhasil diambil:', rangeData)
       setData(rangeData)
@@ -479,7 +447,7 @@ export default function LaporanKeuangan() {
 
         const { startDateObj, endDateObj } = getDateRange(timeRange)
         const periodLabel = startDateObj && endDateObj
-          ? `${format(startDateObj, 'dd MMMM yyyy', { locale: id })} - ${format(endDateObj, 'dd MMMM yyyy', { locale: id })}`
+          ? `${startDateObj.format('DD MMMM YYYY')} - ${endDateObj.format('DD MMMM YYYY')}`
           : 'Periode Tidak Diketahui'
         doc.setFontSize(10)
         doc.setFont('helvetica', 'italic')
@@ -502,7 +470,7 @@ export default function LaporanKeuangan() {
         doc.text(`Halaman ${pageNumber} dari ${totalPages}`, pageWidth - margin, footerY, { align: 'right' })
         doc.text('Sistem Keuangan Desa Bontomanai', margin, footerY)
         doc.text(
-          `Dicetak: ${format(new Date(), 'dd MMMM yyyy HH:mm', { locale: id })}`,
+          `Dicetak: ${dayjs().format('DD MMMM YYYY HH:mm')}`,
           margin,
           footerY + 5
         )
@@ -764,9 +732,9 @@ export default function LaporanKeuangan() {
       })
       return
     }
-    const start = startOfDay(new Date(tempStartDate))
-    const end = endOfDay(new Date(tempEndDate))
-    if (start > end) {
+    const start = dayjs(tempStartDate).startOf('day')
+    const end = dayjs(tempEndDate).endOf('day')
+    if (start.isAfter(end)) {
       setAlert({
         open: true,
         message: 'Tanggal mulai harus sebelum tanggal akhir',
@@ -789,7 +757,7 @@ export default function LaporanKeuangan() {
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
       <AnimatedContainer maxWidth="lg" sx={{
         mt: 4,
         mb: 4,
@@ -1168,8 +1136,8 @@ export default function LaporanKeuangan() {
                           variant="outlined"
                           size="small"
                           fullWidth
-                          helperText={tempStartDate && !isValid(tempStartDate) ? 'Tanggal tidak valid' : null}
-                          error={tempStartDate && !isValid(tempStartDate)}
+                          helperText={tempStartDate && !dayjs(tempStartDate).isValid() ? 'Tanggal tidak valid' : null}
+                          error={tempStartDate && !dayjs(tempStartDate).isValid()}
                           sx={{
                             '& .MuiOutlinedInput-root': {
                               borderRadius: '10px',
@@ -1197,8 +1165,8 @@ export default function LaporanKeuangan() {
                           variant="outlined"
                           size="small"
                           fullWidth
-                          helperText={tempEndDate && !isValid(tempEndDate) ? 'Tanggal tidak valid' : null}
-                          error={tempEndDate && !isValid(tempEndDate)}
+                          helperText={tempEndDate && !dayjs(tempEndDate).isValid() ? 'Tanggal tidak valid' : null}
+                          error={tempEndDate && !dayjs(tempEndDate).isValid()}
                           sx={{
                             '& .MuiOutlinedInput-root': {
                               borderRadius: '10px',
@@ -1215,7 +1183,7 @@ export default function LaporanKeuangan() {
                       )}
                     />
                   </Box>
-                  {tempStartDate && tempEndDate && startOfDay(tempStartDate) > endOfDay(tempEndDate) && (
+                  {tempStartDate && tempEndDate && dayjs(tempStartDate).startOf('day').isAfter(dayjs(tempEndDate).endOf('day')) && (
                     <Typography color="error" variant="caption" sx={{ mt: 1 }}>
                       Tanggal mulai harus sebelum tanggal akhir
                     </Typography>
@@ -1259,7 +1227,7 @@ export default function LaporanKeuangan() {
                 <Button
                   onClick={handleApplyDateRange}
                   variant="contained"
-                  disabled={!tempStartDate || !tempEndDate || !isValid(tempStartDate) || !isValid(tempEndDate) || startOfDay(tempStartDate) > endOfDay(tempEndDate)}
+                  disabled={!tempStartDate || !tempEndDate || !dayjs(tempStartDate).isValid() || !dayjs(tempEndDate).isValid() || dayjs(tempStartDate).startOf('day').isAfter(dayjs(tempEndDate).endOf('day'))}
                   sx={{
                     borderRadius: '10px',
                     bgcolor: '#1976D2',

@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { API_ENDPOINTS } from '@/config/api'
-import { laporanService } from '@/services/laporanService'
-import { pengeluaranService } from '@/services/pengeluaranService'
-import AddIcon from '@mui/icons-material/Add'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import CloseIcon from '@mui/icons-material/Close'
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
-import MoneyOffIcon from '@mui/icons-material/MoneyOff'
-import ReceiptIcon from '@mui/icons-material/Receipt'
-import WarningIcon from '@mui/icons-material/Warning'
+import { API_ENDPOINTS } from '@/config/api';
+import { laporanService } from '@/services/laporanService';
+import { pengeluaranService } from '@/services/pengeluaranService';
+import AddIcon from '@mui/icons-material/Add';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import WarningIcon from '@mui/icons-material/Warning';
 import {
   Alert,
   Box,
@@ -24,36 +24,35 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
   InputLabel,
+  IconButton,
   MenuItem,
   Select,
   Slide,
   Snackbar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
   TextField,
   Tooltip,
   Typography
-} from '@mui/material'
-import { styled } from '@mui/material/styles'
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { endOfDay, isValid, startOfDay } from 'date-fns'
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import 'dayjs/locale/id';
 import { useEffect, useState } from 'react'
 
-// Styled components
 const StyledCard = styled(Card)(({ theme }) => ({
   backgroundColor: '#ffffff',
   borderRadius: '16px',
   boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)',
   overflow: 'hidden'
-}))
+}));
 
 const HeaderBox = styled(Box)(({ theme }) => ({
   background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
@@ -65,7 +64,7 @@ const HeaderBox = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   gap: '16px',
   boxShadow: '0 4px 20px 0 rgba(0,0,0,0.1)'
-}))
+}));
 
 const AddButton = styled(Button)(({ theme }) => ({
   backgroundColor: 'white',
@@ -90,7 +89,7 @@ const AddButton = styled(Button)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     display: 'none'
   }
-}))
+}));
 
 const DesktopAddButton = styled(Button)(({ theme }) => ({
   backgroundColor: 'white',
@@ -114,9 +113,9 @@ const DesktopAddButton = styled(Button)(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     display: 'none'
   }
-}))
+}));
 
-const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
+const StyledTableContainer = styled(Table)(({ theme }) => ({
   borderRadius: '16px',
   boxShadow: 'none',
   '& .MuiTableCell-head': {
@@ -124,7 +123,7 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
     fontWeight: 600,
     color: '#1a237e'
   }
-}))
+}));
 
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
@@ -163,46 +162,46 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
   '& .MuiSvgIcon-root': {
     color: '#1a237e'
   }
-}))
+}));
 
 export default function Pengeluaran() {
-  const [rows, setRows] = useState([])
-  const [showModal, setShowModal] = useState(false)
-  const [editingId, setEditingId] = useState(null)
+  const [rows, setRows] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     tanggal: '',
     nominal: '',
     keterangan: '',
     nota: null
-  })
+  });
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
-  })
-  const [loading, setLoading] = useState(true)
-  const [previewUrl, setPreviewUrl] = useState('')
-  const [totalPengeluaran, setTotalPengeluaran] = useState(0)
-  const [isLoadingTotal, setIsLoadingTotal] = useState(true)
+  });
+  const [loading, setLoading] = useState(true);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [totalPengeluaran, setTotalPengeluaran] = useState(0);
+  const [isLoadingTotal, setIsLoadingTotal] = useState(true);
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     id: null
-  })
+  });
   const [notaDialog, setNotaDialog] = useState({
     open: false,
     imageUrl: ''
-  })
-  const [timeRange, setTimeRange] = useState('7days')
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [totalItems, setTotalItems] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [showCustomCalendar, setShowCustomCalendar] = useState(false)
-  const [tempStartDate, setTempStartDate] = useState(null)
-  const [tempEndDate, setTempEndDate] = useState(null)
-  const [confirmedStartDate, setConfirmedStartDate] = useState(null)
-  const [confirmedEndDate, setConfirmedEndDate] = useState(null)
-  const [previousTimeRange, setPreviousTimeRange] = useState('7days')
+  });
+  const [timeRange, setTimeRange] = useState('7days');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [showCustomCalendar, setShowCustomCalendar] = useState(false);
+  const [tempStartDate, setTempStartDate] = useState(null);
+  const [tempEndDate, setTempEndDate] = useState(null);
+  const [confirmedStartDate, setConfirmedStartDate] = useState(null);
+  const [confirmedEndDate, setConfirmedEndDate] = useState(null);
+  const [previousTimeRange, setPreviousTimeRange] = useState('7days');
 
   const timeRangeOptions = [
     { value: 'today', label: 'Hari Ini' },
@@ -213,121 +212,92 @@ export default function Pengeluaran() {
     { value: '6months', label: '6 Bulan Terakhir' },
     { value: '1year', label: '1 Tahun Terakhir' },
     { value: 'custom', label: 'Custom' }
-  ]
+  ];
 
   const formatDate = (date) => {
-    if (!date) return null
-    const d = new Date(date)
-    const year = d.getFullYear()
-    const month = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
+    if (!date || !dayjs(date).isValid()) return null;
+    return dayjs(date).format('YYYY-MM-DD');
+  };
 
   const formatDateTime = (backendDateString) => {
-    if (!backendDateString) return '-'
+    if (!backendDateString) return '-';
     try {
-      const [datePart, timePart] = backendDateString.split(' ')
-      const [day, month, year] = datePart.split('-')
-      const [hours, minutes] = timePart.split(':')
-      return new Date(year, month - 1, day, hours, minutes).toLocaleString('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
+      return dayjs(backendDateString, 'DD-MM-YYYY HH:mm:ss').format('DD/MM/YYYY HH:mm');
     } catch (e) {
-      return backendDateString
+      return backendDateString;
     }
-  }
+  };
 
   const getDateRange = (range) => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const startDate = new Date()
-    startDate.setHours(0, 0, 0, 0)
-
+    const today = dayjs();
+    const startDate = dayjs();
     if (range === 'custom' && confirmedStartDate && confirmedEndDate) {
-      const start = startOfDay(new Date(confirmedStartDate))
-      const end = endOfDay(new Date(confirmedEndDate))
-      if (start > end) {
-        showSnackbar('Tanggal mulai harus sebelum tanggal akhir', 'error')
-        return { start: null, end: null }
+      const start = dayjs(confirmedStartDate).startOf('day');
+      const end = dayjs(confirmedEndDate).endOf('day');
+      if (start.isAfter(end)) {
+        showSnackbar('Tanggal mulai harus sebelum tanggal akhir', 'error');
+        return { start: null, end: null };
       }
-      return { start: formatDate(start), end: formatDate(end) }
+      return { start: formatDate(start), end: formatDate(end) };
     }
 
     switch (range) {
       case 'today':
-        return { start: formatDate(today), end: formatDate(today.setHours(24, 0, 0, 0)) }
+        return { start: formatDate(today.startOf('day')), end: formatDate(today.endOf('day')) };
       case 'yesterday':
-        startDate.setDate(today.getDate() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(1, 'day').startOf('day')), end: formatDate(today.startOf('day')) };
       case '7days':
-        today.setHours(24, 0, 0, 0)
-        startDate.setDate(today.getDate() - 7)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(7, 'day').startOf('day')), end: formatDate(today.endOf('day')) };
       case '1month':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(1, 'month').startOf('day')), end: formatDate(today.endOf('day')) };
       case '3months':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 3)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(3, 'month').startOf('day')), end: formatDate(today.endOf('day')) };
       case '6months':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 6)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(6, 'month').startOf('day')), end: formatDate(today.endOf('day')) };
       case '1year':
-        today.setHours(24, 0, 0, 0)
-        startDate.setFullYear(today.getFullYear() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(1, 'year').startOf('day')), end: formatDate(today.endOf('day')) };
       default:
-        today.setHours(24, 0, 0, 0)
-        startDate.setDate(today.getDate() - 7)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(7, 'day').startOf('day')), end: formatDate(today.endOf('day')) };
     }
-  }
+  };
 
   useEffect(() => {
-    fetchData()
-  }, [page, rowsPerPage, timeRange, confirmedStartDate, confirmedEndDate])
+    fetchData();
+  }, [page, rowsPerPage, timeRange, confirmedStartDate, confirmedEndDate]);
 
   useEffect(() => {
     const fetchTotal = async () => {
       try {
-        setIsLoadingTotal(true)
-        const total = await laporanService.getTotalPengeluaran()
-        setTotalPengeluaran(Number.isFinite(total) ? total : 0)
+        setIsLoadingTotal(true);
+        const total = await laporanService.getTotalPengeluaran();
+        setTotalPengeluaran(Number.isFinite(total) ? total : 0);
       } catch (error) {
-        setTotalPengeluaran(0)
-        showSnackbar('Gagal memuat total pengeluaran', 'error')
+        setTotalPengeluaran(0);
+        showSnackbar('Gagal memuat total pengeluaran', 'error');
       } finally {
-        setIsLoadingTotal(false)
+        setIsLoadingTotal(false);
       }
-    }
-    fetchTotal()
-  }, [])
+    };
+    fetchTotal();
+  }, []);
 
   useEffect(() => {
     return () => {
       if (previewUrl) {
-        URL.revokeObjectURL(previewUrl)
+        URL.revokeObjectURL(previewUrl);
       }
-    }
-  }, [previewUrl])
+    };
+  }, [previewUrl]);
 
   const fetchData = async () => {
     try {
-      setLoading(true)
-      const { start, end } = getDateRange(timeRange)
-      let response
+      setLoading(true);
+      const { start, end } = getDateRange(timeRange);
+      let response;
       if (!start || !end) {
-        response = await pengeluaranService.getAllPengeluaran(page + 1, rowsPerPage)
+        response = await pengeluaranService.getAllPengeluaran(page + 1, rowsPerPage);
       } else {
-        response = await pengeluaranService.getPengeluaranByDateRange(start, end, page + 1, rowsPerPage)
+        response = await pengeluaranService.getPengeluaranByDateRange(start, end, page + 1, rowsPerPage);
       }
       const pengeluaranData = response.data.items.map(item => ({
         id: item.id_pengeluaran,
@@ -335,268 +305,263 @@ export default function Pengeluaran() {
         nominal: item.nominal,
         keterangan: item.keterangan,
         nota: item.nota
-      }))
-      setRows(pengeluaranData)
-      setTotalItems(response.data.total_items)
-      setTotalPages(response.data.total_pages)
+      }));
+      setRows(pengeluaranData);
+      setTotalItems(response.data.total_items);
+      setTotalPages(response.data.total_pages);
     } catch (error) {
-      if(error.message == "Cannot read properties of null (reading 'map')") {
-        showSnackbar('Belum ada transaksi', 'error')
+      if (error.message === "Cannot read properties of null (reading 'map')") {
+        showSnackbar('Belum ada transaksi', 'error');
       } else {
-        showSnackbar('Gagal mengambil data: ' + error.message, 'error')
+        showSnackbar('Gagal mengambil data: ' + error.message, 'error');
       }
-      setRows([])
+      setRows([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleTimeRangeChange = (e) => {
-    const value = e.target.value
-    setPreviousTimeRange(timeRange)
-    setTimeRange(value)
+    const value = e.target.value;
+    setPreviousTimeRange(timeRange);
+    setTimeRange(value);
     if (value === 'custom') {
-      setShowCustomCalendar(true)
+      setShowCustomCalendar(true);
     } else {
-      setShowCustomCalendar(false)
-      setTempStartDate(null)
-      setTempEndDate(null)
-      setConfirmedStartDate(null)
-      setConfirmedEndDate(null)
-      setPage(0)
+      setShowCustomCalendar(false);
+      setTempStartDate(null);
+      setTempEndDate(null);
+      setConfirmedStartDate(null);
+      setConfirmedEndDate(null);
+      setPage(0);
     }
-  }
+  };
 
   const handleApplyDateRange = () => {
     if (!tempStartDate || !tempEndDate) {
-      showSnackbar('Silakan pilih tanggal mulai dan akhir', 'error')
-      return
+      showSnackbar('Silakan pilih tanggal mulai dan akhir', 'error');
+      return;
     }
-    const start = new Date(tempStartDate)
-    const end = new Date(tempEndDate)
-    if (start > end) {
-      showSnackbar('Tanggal mulai harus sebelum tanggal akhir', 'error')
-      return
+    const start = dayjs(tempStartDate).startOf('day');
+    const end = dayjs(tempEndDate).endOf('day');
+    if (start.isAfter(end)) {
+      showSnackbar('Tanggal mulai harus sebelum tanggal akhir', 'error');
+      return;
     }
-    setConfirmedStartDate(tempStartDate)
-    setConfirmedEndDate(tempEndDate)
-    setPage(0)
-    setShowCustomCalendar(false)
-  }
+    setConfirmedStartDate(tempStartDate);
+    setConfirmedEndDate(tempEndDate);
+    setPage(0);
+    setShowCustomCalendar(false);
+  };
 
   const handleCancelDateRange = () => {
-    setShowCustomCalendar(false)
-    setTimeRange(previousTimeRange)
-    setTempStartDate(null)
-    setTempEndDate(null)
-    setConfirmedStartDate(null)
-    setConfirmedEndDate(null)
-  }
+    setShowCustomCalendar(false);
+    setTimeRange(previousTimeRange);
+    setTempStartDate(null);
+    setTempEndDate(null);
+    setConfirmedStartDate(null);
+    setConfirmedEndDate(null);
+  };
 
   const handleInputChange = (e) => {
-    const { name, value, files } = e.target
+    const { name, value, files } = e.target;
     if (name === 'nota') {
-      const file = files[0]
+      const file = files[0];
       if (file && file.size > 5 * 1024 * 1024) {
-        showSnackbar('Ukuran file terlalu besar (maksimal 5MB)', 'error')
-        return
+        showSnackbar('Ukuran file terlalu besar (maksimal 5MB)', 'error');
+        return;
       }
       if (previewUrl) {
-        URL.revokeObjectURL(previewUrl)
+        URL.revokeObjectURL(previewUrl);
       }
       setFormData(prev => ({
         ...prev,
         [name]: file
-      }))
+      }));
       if (file) {
-        const url = URL.createObjectURL(file)
-        setPreviewUrl(url)
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
       } else {
-        setPreviewUrl('')
+        setPreviewUrl('');
       }
     } else if (name === 'nominal') {
-      const numericValue = value.replace(/\D/g, '')
+      const numericValue = value.replace(/\D/g, '');
       if (numericValue.length > 11) {
-        showSnackbar('Nominal terlalu besar (maksimal puluhan milyar)', 'error')
-        return
+        showSnackbar('Nominal terlalu besar (maksimal puluhan milyar)', 'error');
+        return;
       }
       setFormData(prev => ({
         ...prev,
         [name]: numericValue
-      }))
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
         [name]: value
-      }))
+      }));
     }
-  }
+  };
 
   const handleAdd = () => {
-    setEditingId(null)
+    setEditingId(null);
     setFormData({
       tanggal: '',
       nominal: '',
       keterangan: '',
       nota: null
-    })
-    setPreviewUrl('')
-    setShowModal(true)
-  }
+    });
+    setPreviewUrl('');
+    setShowModal(true);
+  };
 
   const handleEdit = (row) => {
-    const [datePart, timePart] = row.tanggal.split(' ')
-    const [day, month, year] = datePart.split('-')
-    const localDateTime = `${year}-${month}-${day}T${timePart}`
+    const [datePart, timePart] = row.tanggal.split(' ');
+    const [day, month, year] = datePart.split('-');
+    const localDateTime = `${year}-${month}-${day}T${timePart}`;
 
-    setEditingId(row.id)
+    setEditingId(row.id);
     setFormData({
       tanggal: localDateTime,
       nominal: row.nominal.toString(),
       keterangan: row.keterangan,
       nota: null
-    })
+    });
     if (row.nota) {
-      setPreviewUrl(`${API_ENDPOINTS.BENDAHARA.UPLOAD_URL}${row.nota}`)
+      setPreviewUrl(`${API_ENDPOINTS.BENDAHARA.UPLOAD_URL}${row.nota}`);
     } else {
-      setPreviewUrl('')
+      setPreviewUrl('');
     }
-    setShowModal(true)
-  }
+    setShowModal(true);
+  };
 
   const handleDelete = (id) => {
     if (!id) {
-      showSnackbar('Data tidak valid untuk dihapus', 'error')
-      return
+      showSnackbar('Data tidak valid untuk dihapus', 'error');
+      return;
     }
-    setDeleteDialog({ open: true, id })
-  }
+    setDeleteDialog({ open: true, id });
+  };
 
   const confirmDelete = async () => {
-    const { id } = deleteDialog
+    const { id } = deleteDialog;
     try {
-      setLoading(true)
-      await pengeluaranService.deletePengeluaran(id)
+      setLoading(true);
+      await pengeluaranService.deletePengeluaran(id);
       if (rows.length === 1 && page > 0) {
-        setPage(page - 1)
+        setPage(page - 1);
       } else {
-        await fetchData()
+        await fetchData();
       }
-      const total = await laporanService.getTotalPengeluaran()
-      setTotalPengeluaran(Number.isFinite(total) ? total : 0)
-      showSnackbar(`Pengeluaran berhasil dihapus`, 'success')
+      const total = await laporanService.getTotalPengeluaran();
+      setTotalPengeluaran(Number.isFinite(total) ? total : 0);
+      showSnackbar(`Pengeluaran berhasil dihapus`, 'success');
     } catch (error) {
-      showSnackbar(`Gagal menghapus pengeluaran: ${error.message}`, 'error')
+      showSnackbar(`Gagal menghapus pengeluaran: ${error.message}`, 'error');
     } finally {
-      setLoading(false)
-      setDeleteDialog({ open: false, id: null })
+      setLoading(false);
+      setDeleteDialog({ open: false, id: null });
     }
-  }
+  };
 
   const handleShowNota = (notaPath) => {
     if (notaPath) {
       setNotaDialog({
         open: true,
         imageUrl: `${API_ENDPOINTS.BENDAHARA.UPLOAD_URL}${notaPath}`
-      })
+      });
     } else {
-      showSnackbar('Nota tidak tersedia', 'warning')
+      showSnackbar('Nota tidak tersedia', 'warning');
     }
-  }
+  };
 
   const handleCloseNotaDialog = () => {
     setNotaDialog({
       open: false,
       imageUrl: ''
-    })
-  }
+    });
+  };
 
   const showSnackbar = (message, severity) => {
     setSnackbar({
       open: true,
       message,
       severity
-    })
-  }
+    });
+  };
 
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
-      return
+      return;
     }
-    setSnackbar(prev => ({ ...prev, open: false }))
-  }
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   const handleSave = async () => {
     try {
-      setLoading(true)
-      if (!formData.tanggal) throw new Error('Tanggal harus diisi')
-      if (!formData.nominal) throw new Error('Nominal harus diisi')
-      if (!formData.keterangan) throw new Error('Keterangan harus diisi')
-      if (!editingId && !formData.nota) throw new Error('Nota harus diupload')
+      setLoading(true);
+      if (!formData.tanggal) throw new Error('Tanggal harus diisi');
+      if (!formData.nominal) throw new Error('Nominal harus diisi');
+      if (!formData.keterangan) throw new Error('Keterangan harus diisi');
+      if (!editingId && !formData.nota) throw new Error('Nota harus diupload');
 
-      const dateObj = new Date(formData.tanggal)
-      if (isNaN(dateObj.getTime())) throw new Error('Format tanggal tidak valid')
+      const dateObj = dayjs(formData.tanggal);
+      if (!dateObj.isValid()) throw new Error('Format tanggal tidak valid');
 
-      const day = String(dateObj.getDate()).padStart(2, '0')
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0')
-      const year = dateObj.getFullYear()
-      const hours = String(dateObj.getHours()).padStart(2, '0')
-      const minutes = String(dateObj.getMinutes()).padStart(2, '0')
-      const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`
+      const formattedDate = dateObj.format('YYYY-MM-DD HH:mm');
 
       const dataToSend = {
         tanggal: formattedDate,
         nominal: parseFloat(formData.nominal),
         keterangan: formData.keterangan.trim(),
         nota: formData.nota
-      }
+      };
 
-      let result
+      let result;
       if (editingId) {
-        const { nota, ...updateData } = dataToSend
-        result = await pengeluaranService.updatePengeluaran(editingId, formData.nota ? dataToSend : updateData)
+        const { nota, ...updateData } = dataToSend;
+        result = await pengeluaranService.updatePengeluaran(editingId, formData.nota ? dataToSend : updateData);
       } else {
-        result = await pengeluaranService.addPengeluaran(dataToSend)
+        result = await pengeluaranService.addPengeluaran(dataToSend);
       }
 
-      showSnackbar(result.message, 'success')
-      setShowModal(false)
-      await fetchData()
-      const total = await laporanService.getTotalPengeluaran()
-      setTotalPengeluaran(Number.isFinite(total) ? total : 0)
+      showSnackbar(result.message, 'success');
+      setShowModal(false);
+      await fetchData();
+      const total = await laporanService.getTotalPengeluaran();
+      setTotalPengeluaran(Number.isFinite(total) ? total : 0);
     } catch (error) {
-      showSnackbar(error.message || 'Gagal menyimpan data', 'error')
+      showSnackbar(error.message || 'Gagal menyimpan data', 'error');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const formatCurrency = (amount) => {
-    const validAmount = Number.isFinite(Number(amount)) ? Number(amount) : 0
+    const validAmount = Number.isFinite(Number(amount)) ? Number(amount) : 0;
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(validAmount)
-  }
+    }).format(validAmount);
+  };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage)
-  }
+    setPage(newPage);
+  };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
-  }
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleClose = () => {
-    setShowModal(false)
-    setPreviewUrl('')
-  }
+    setShowModal(false);
+    setPreviewUrl('');
+  };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
       <Box sx={{
         padding: '24px',
         mt: { xs: '64px', sm: '80px' }
@@ -702,7 +667,7 @@ export default function Pengeluaran() {
               </Box>
             </Box>
             <Box sx={{ overflowX: 'auto', width: '100%' }}>
-              <Table sx={{ minWidth: 650 }}>
+              <StyledTableContainer sx={{ minWidth: 650 }}>
                 <TableHead>
                   <TableRow>
                     <TableCell>No</TableCell>
@@ -803,7 +768,7 @@ export default function Pengeluaran() {
                     ))
                   )}
                 </TableBody>
-              </Table>
+              </StyledTableContainer>
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
@@ -888,13 +853,14 @@ export default function Pengeluaran() {
                   value={tempStartDate}
                   onChange={(newValue) => setTempStartDate(newValue)}
                   disableFuture
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      sx={{
+                  slotProps={{
+                    textField: {
+                      variant: 'outlined',
+                      size: 'small',
+                      fullWidth: true,
+                      helperText: tempStartDate && !dayjs(tempStartDate).isValid() ? 'Tanggal tidak valid' : null,
+                      error: tempStartDate && !dayjs(tempStartDate).isValid(),
+                      sx: {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '10px',
                           '&:hover fieldset': {
@@ -905,22 +871,23 @@ export default function Pengeluaran() {
                             borderWidth: '2px',
                           }
                         }
-                      }}
-                    />
-                  )}
+                      }
+                    }
+                  }}
                 />
                 <DatePicker
                   label="Tanggal Akhir"
                   value={tempEndDate}
                   onChange={(newValue) => setTempEndDate(newValue)}
                   disableFuture
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      sx={{
+                  slotProps={{
+                    textField: {
+                      variant: 'outlined',
+                      size: 'small',
+                      fullWidth: true,
+                      helperText: tempEndDate && !dayjs(tempEndDate).isValid() ? 'Tanggal tidak valid' : null,
+                      error: tempEndDate && !dayjs(tempEndDate).isValid(),
+                      sx: {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '10px',
                           '&:hover fieldset': {
@@ -931,12 +898,12 @@ export default function Pengeluaran() {
                             borderWidth: '2px',
                           }
                         }
-                      }}
-                    />
-                  )}
+                      }
+                    }
+                  }}
                 />
               </Box>
-              {tempStartDate && tempEndDate && startOfDay(tempStartDate) > endOfDay(tempEndDate) && (
+              {tempStartDate && tempEndDate && dayjs(tempStartDate).startOf('day').isAfter(dayjs(tempEndDate).endOf('day')) && (
                 <Typography color="error" variant="caption" sx={{ mt: 1 }}>
                   Tanggal mulai harus sebelum tanggal akhir
                 </Typography>
@@ -981,7 +948,7 @@ export default function Pengeluaran() {
             <Button
               onClick={handleApplyDateRange}
               variant="contained"
-              disabled={!tempStartDate || !tempEndDate || !isValid(tempStartDate) || !isValid(tempEndDate) || startOfDay(tempStartDate) > endOfDay(tempEndDate)}
+              disabled={!tempStartDate || !tempEndDate || !dayjs(tempStartDate).isValid() || !dayjs(tempEndDate).isValid() || dayjs(tempStartDate).startOf('day').isAfter(dayjs(tempEndDate).endOf('day'))}
               sx={{
                 borderRadius: '10px',
                 bgcolor: '#1a237e',
@@ -1302,8 +1269,8 @@ export default function Pengeluaran() {
         </Dialog>
 
         <Dialog
-          open={deleteDialog.open}
-          onClose={() => setDeleteDialog({ open: false, id: null })}
+          open={false}
+          onClose={() => setDeleteDialog(null)}
           maxWidth="xs"
           fullWidth
           PaperProps={{
@@ -1313,8 +1280,8 @@ export default function Pengeluaran() {
               background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
               margin: '16px',
               width: 'calc(100% - 32px)'
-            }
-          }}
+            }}
+          }
           aria-labelledby="delete-dialog-title"
           aria-describedby="delete-dialog-description"
         >
@@ -1406,7 +1373,7 @@ export default function Pengeluaran() {
           PaperProps={{
             sx: {
               borderRadius: '16px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
               background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
               margin: '16px',
               width: 'calc(100% - 32px)',
@@ -1462,8 +1429,8 @@ export default function Pengeluaran() {
                   objectFit: 'contain'
                 }}
                 onError={() => {
-                  showSnackbar('Gagal memuat gambar nota', 'error')
-                  handleCloseNotaDialog()
+                  showSnackbar('Gagal memuat gambar nota', 'error');
+                  handleCloseNotaDialog();
                 }}
               />
             ) : (
@@ -1498,5 +1465,5 @@ export default function Pengeluaran() {
         </Dialog>
       </Box>
     </LocalizationProvider>
-  )
+  );
 }
