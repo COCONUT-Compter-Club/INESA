@@ -1,4 +1,4 @@
-import { getHeaders } from './utils';
+import { getHeaders } from '@/config/api';
 import Cookies from 'js-cookie';
 
 // Fungsi untuk memformat tanggal dari objek dayjs atau string ke YYYY-MM-DD HH:mm
