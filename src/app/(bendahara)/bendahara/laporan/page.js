@@ -395,6 +395,23 @@ export default function LaporanKeuangan() {
     }).format(validNumber)
   }
 
+  // Function to convert image URL to base64
+  const getBase64Image = async (url) => {
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      return null;
+    }
+  };
+
   const generatePDF = async () => {
     try {
       const doc = new jsPDF('l', 'mm', 'a4');
