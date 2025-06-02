@@ -550,6 +550,7 @@ export default function SuratKeluar() {
             )}
           </CardContent>
 
+          {/* Dialog Form */}
           <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
             <DialogTitle>{editingId ? 'Edit Surat Keluar' : 'Tambah Surat Keluar'}</DialogTitle>
             <DialogContent>
@@ -560,26 +561,27 @@ export default function SuratKeluar() {
                 name="nomor"
                 value={formData.nomor}
                 onChange={handleInputChange}
-                required
-                inputProps={{ minLength: 3 }}
-                helperText={formData.nomor && formData.nomor.length < 3 ? 'Minimal 3 karakter' : ''}
-                error={formData.nomor && formData.nomor.length < 3}
+                // required
+                // inputProps={{ minLength: 3 }}
+                error={!formData.nomor && error}
+                helperText={!formData.nomor && error ? 'Nomor surat wajib diisi' : ''}
               />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 label="Tanggal"
-                value={formData.tanggal}
-                onChange={handleDateChange}
-                disableFuture
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    margin: 'dense',
-                    required: true,
-                    helperText: formData.tanggal && !dayjs(formData.tanggal).isValid() ? 'Tanggal tidak valid' : '',
-                    error: formData.tanggal && !dayjs(formData.tanggal).isValid(),
-                  },
-                }}
+                  value={formData.tanggal}
+                  onChange={handleDateChange}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      margin="dense"
+                      error={!formData.tanggal && error}
+                      helperText={!formData.tanggal && error ? 'Tanggal wajib diisi' : ''}
+                    />
+                  )}
               />
+              </LocalizationProvider>
               <TextField
                 fullWidth
                 margin="dense"
@@ -587,10 +589,8 @@ export default function SuratKeluar() {
                 name="perihal"
                 value={formData.perihal}
                 onChange={handleInputChange}
-                required
-                inputProps={{ minLength: 5 }}
-                helperText={formData.perihal && formData.perihal.length < 5 ? 'Minimal 5 karakter' : ''}
-                error={formData.perihal && formData.perihal.length < 5}
+                error={!formData.perihal && error}
+                helperText={!formData.perihal && error ? 'Perihal wajib diisi' : ''}
               />
               <TextField
                 fullWidth
@@ -599,10 +599,8 @@ export default function SuratKeluar() {
                 name="ditujukan"
                 value={formData.ditujukan}
                 onChange={handleInputChange}
-                required
-                inputProps={{ minLength: 3 }}
-                helperText={formData.ditujukan && formData.ditujukan.length < 3 ? 'Minimal 3 karakter' : ''}
-                error={formData.ditujukan && formData.ditujukan.length < 3}
+                error={!formData.ditujukan && error}
+                helperText={!formData.ditujukan && error ? 'Field wajib diisi' : ''}
               />
               <TextField
                 fullWidth
@@ -611,10 +609,8 @@ export default function SuratKeluar() {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                required
-                inputProps={{ minLength: 3 }}
-                helperText={formData.title && formData.title.length < 3 ? 'Minimal 3 karakter' : ''}
-                error={formData.title && formData.title.length < 3}
+                error={!formData.title && error}
+                helperText={!formData.title && error ? 'Field wajib diisi' : ''}
               />
               <Button variant="outlined" component="label" sx={{ mt: 2 }}>
                 Pilih File {editingId ? '(Opsional)' : '*'}
