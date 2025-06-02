@@ -227,7 +227,6 @@ export default function Pemasukan() {
     return dayjs(date).format('YYYY-MM-DD')
   }
 
-  // Translate error messages to Indonesian, consistent with Dashboard
   const translateErrorMessage = (message) => {
     const errorTranslations = {
       'Network Error': 'Kesalahan Jaringan',
@@ -429,7 +428,7 @@ export default function Pemasukan() {
   }
 
   const handleEdit = (row) => {
-    const date = dayjs(row.tanggal, 'DD-MM-YYYY HH:mm:ss')
+    const date = dayjs(row.tanggal, 'DD-MM-YYYY HH:mm')
     setEditingId(row.id)
     const isPredefinedCategory = predefinedCategories.includes(row.kategori)
     setFormData({
@@ -562,11 +561,12 @@ export default function Pemasukan() {
   }
 
   const formatDateTime = (backendDateString) => {
-    if (!backendDateString) return '-'
+    if (!backendDateString) return '-';
     try {
-      return dayjs(backendDateString, 'DD-MM-YYYY HH:mm:ss').format('DD/MM/YYYY HH:mm')
+      return dayjs(backendDateString, 'DD-MM-YYYY HH:mm').format('DD/MM/YYYY HH:mm');
     } catch (e) {
-      return backendDateString
+      console.error('Error parsing date:', backendDateString, e);
+      return 'Tanggal Tidak Valid';
     }
   }
 
