@@ -395,46 +395,46 @@ export default function LaporanKeuangan() {
     }).format(validNumber)
   }
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
     try {
-      const doc = new jsPDF('l', 'mm', 'a4')
-      const pageWidth = doc.internal.pageSize.width
-      const pageHeight = doc.internal.pageSize.height
-      const margin = 15
-      let currentY = margin
+      const doc = new jsPDF('l', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+      const margin = 15;
+      let currentY = margin;
 
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(20)
-      doc.setTextColor(25, 118, 210)
-      doc.setFont('helvetica', 'bold')
-      doc.text('Laporan Keuangan Desa', pageWidth / 2, currentY, { align: 'center' })
-      currentY += 10
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(20);
+      doc.setTextColor(25, 118, 210);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Laporan Keuangan Desa', pageWidth / 2, currentY, { align: 'center' });
+      currentY += 10;
 
-      doc.setFontSize(12)
-      doc.setTextColor(0, 0, 0)
-      doc.setFont('helvetica', 'normal')
-      doc.text('Desa Bontomanai, Kec. Rumbia, Kab. Jeneponto', pageWidth / 2, currentY, { align: 'center' })
-      currentY += 8
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Desa Bontomanai, Kec. Rumbia, Kab. Jeneponto', pageWidth / 2, currentY, { align: 'center' });
+      currentY += 8;
 
-      const periodLabel = timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 Hari Terakhir'
-      doc.text(`Periode: ${periodLabel}`, pageWidth / 2, currentY, { align: 'center' })
-      currentY += 10
+      const periodLabel = timeRangeOptions.find(opt => opt.value === timeRange)?.label || '7 Hari Terakhir';
+      doc.text(`Periode: ${periodLabel}`, pageWidth / 2, currentY, { align: 'center' });
+      currentY += 10;
 
-      doc.setLineWidth(0.5)
-      doc.setDrawColor(200, 200, 200)
-      doc.line(margin, currentY, pageWidth - margin, currentY)
-      currentY += 10
+      doc.setLineWidth(0.5);
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, currentY, pageWidth - margin, currentY);
+      currentY += 10;
 
-      doc.setFontSize(14)
-      doc.setFont('helvetica', 'bold')
-      doc.text('Ringkasan Keuangan', margin, currentY)
-      currentY += 8
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Ringkasan Keuangan', margin, currentY);
+      currentY += 8;
 
       const summaryData = [
         ['Total Pemasukan', formatRupiah(totalPemasukan)],
         ['Total Pengeluaran', formatRupiah(totalPengeluaran)],
         ['Saldo Akhir', formatRupiah(saldoAkhir)]
-      ]
+      ];
 
       autoTable(doc, {
         startY: currentY,
@@ -463,31 +463,39 @@ export default function LaporanKeuangan() {
         },
         margin: { left: margin, right: margin },
         theme: 'grid'
-      })
+      });
 
-      currentY = doc.lastAutoTable.finalY + 10
+      currentY = doc.lastAutoTable.finalY + 10;
 
-      doc.setFontSize(14)
-      doc.setFont('helvetica', 'bold')
-      doc.text('Detail Transaksi', margin, currentY)
-      currentY += 8
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Detail Transaksi', margin, currentY);
+      currentY += 8;
 
       if (filteredData.length === 0) {
-        doc.setFontSize(10)
-        doc.setFont('helvetica', 'italic')
-        doc.setTextColor(100, 100, 100)
-        doc.text('Tidak ada transaksi untuk periode ini', margin, currentY)
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(100, 100, 100);
+        doc.text('Tidak ada transaksi untuk periode ini', margin, currentY);
       } else {
-        const tableData = filteredData.map(row => [
-          formatDateTime(row.tanggal),
-          row.keterangan,
-          formatRupiah(row.pemasukan || 0),
-          formatRupiah(row.pengeluaran || 0),
-          formatNota(row.nota),
-          formatRupiah(row.total_saldo || 0)
-        ])
+        // Map notas and assign indices
+        const notaList = filteredData
+          .map((row, index) => ({ nota: row.nota, originalIndex: index }))
+          .filter(item => item.nota && item.nota.trim() !== '');
 
-        const tableColumns = ['Tanggal', 'Keterangan', 'Pemasukan', 'Pengeluaran', 'Nota', 'Saldo']
+        const tableData = filteredData.map((row, index) => {
+          const notaIndex = notaList.findIndex(item => item.originalIndex === index);
+          return [
+            formatDateTime(row.tanggal),
+            row.keterangan,
+            formatRupiah(row.pemasukan || 0),
+            formatRupiah(row.pengeluaran || 0),
+            row.nota && row.nota.trim() !== '' ? `Lampiran Nota ${notaIndex + 1}` : 'Tidak Ada',
+            formatRupiah(row.total_saldo || 0)
+          ];
+        });
+
+        const tableColumns = ['Tanggal', 'Keterangan', 'Pemasukan', 'Pengeluaran', 'Nota', 'Saldo'];
 
         autoTable(doc, {
           startY: currentY,
@@ -521,32 +529,91 @@ export default function LaporanKeuangan() {
             5: { cellWidth: 40, halign: 'right' }
           },
           margin: { left: margin, right: margin },
-          theme: 'grid',
-          didDrawPage: (data) => {
-            const pageCount = doc.internal.getNumberOfPages()
-            for (let i = 1; i <= pageCount; i++) {
-              doc.setPage(i)
-              const str = `Halaman ${i} dari ${pageCount}`
-              doc.setFontSize(8)
-              doc.setFont('helvetica', 'normal')
-              doc.setTextColor(100, 100, 100)
-              doc.text(str, pageWidth - margin, pageHeight - 10, { align: 'right' })
-              doc.text('Dibuat oleh Sistem Keuangan Desa', margin, pageHeight - 10)
+          theme: 'grid'
+        });
+
+        currentY = doc.lastAutoTable.finalY + 10;
+
+        // Lampiran Nota Section
+        if (notaList.length > 0) {
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Lampiran Nota', margin, currentY);
+          currentY += 8;
+
+          for (let i = 0; i < notaList.length; i++) {
+            const nota = notaList[i].nota;
+            const notaUrl = getNotaLink(nota);
+            const isImageFile = isImage(notaUrl);
+
+            // Add page break if near bottom of page
+            if (currentY + 80 > pageHeight - margin) {
+              doc.addPage();
+              currentY = margin;
             }
+
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Nota ${i + 1}`, margin, currentY);
+            currentY += 6;
+
+            if (isImageFile) {
+              const base64Image = await getBase64Image(notaUrl);
+              if (base64Image) {
+                try {
+                  doc.addImage(base64Image, 'JPEG', margin, currentY, 100, 60); // Adjust size as needed
+                  currentY += 65;
+                } catch (imgError) {
+                  console.error('Error adding image to PDF:', imgError);
+                  doc.setFontSize(10);
+                  doc.setFont('helvetica', 'normal');
+                  doc.setTextColor(100, 100, 100);
+                  doc.text('Gambar tidak dapat dimuat', margin, currentY);
+                  currentY += 10;
+                }
+              } else {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(100, 100, 100);
+                doc.text('Gambar tidak tersedia', margin, currentY);
+                currentY += 10;
+              }
+            } else {
+              doc.setFontSize(10);
+              doc.setFont('helvetica', 'normal');
+              doc.setTextColor(0, 0, 0);
+              doc.text(`File: ${nota} (Tidak dapat ditampilkan sebagai gambar)`, margin, currentY);
+              currentY += 10;
+            }
+
+            currentY += 5; // Space between notas
           }
-        })
+        }
       }
 
-      doc.save('laporan-keuangan-desa.pdf')
-      handleClose()
+      // Add page numbers
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        const str = `Halaman ${i} dari ${pageCount}`;
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text(str, pageWidth - margin, pageHeight - 10, { align: 'right' });
+        doc.text('Dibuat oleh Sistem Keuangan Desa', margin, pageHeight - 10);
+      }
+
+      doc.save('laporan-keuangan-desa.pdf');
+      handleClose();
     } catch (error) {
+      console.error('Error generating PDF:', error);
       setAlert({
         open: true,
         message: 'Terjadi kesalahan saat membuat PDF',
         severity: 'error'
-      })
+      });
     }
-  }
+  };
 
   const exportToExcel = () => {
     try {
