@@ -489,6 +489,8 @@ export default function SuratKeluar() {
                       <TableCell><strong>Nomor Surat</strong></TableCell>
                       <TableCell><strong>Tanggal</strong></TableCell>
                       <TableCell><strong>Perihal</strong></TableCell>
+                      <TableCell><strong>Ditujukan</strong></TableCell>
+                      <TableCell><strong>Judul File</strong></TableCell>
                       <TableCell><strong>File</strong></TableCell>
                       <TableCell><strong>Aksi</strong></TableCell>
                     </TableRow>
@@ -499,6 +501,8 @@ export default function SuratKeluar() {
                         <TableCell>{row.nomor}</TableCell>
                         <TableCell>{dayjs(row.tanggal).format('DD-MM-YYYY')}</TableCell>
                         <TableCell>{row.perihal}</TableCell>
+                        <TableCell>{row.ditujukan}</TableCell>
+                        <TableCell>{row.title}</TableCell>
                         <TableCell>
                           {row.file ? (
                             <Tooltip title="Lihat File">
@@ -650,39 +654,6 @@ export default function SuratKeluar() {
                 disabled={loading || (editingId && !isFormChanged())}
               >
                 {loading ? <CircularProgress size={20} /> : editingId ? 'Update' : 'Simpan'}
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={6000}
-            onClose={handleSnackbarClose}
-            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          >
-            <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-              {snackbar.message}
-            </Alert>
-          </Snackbar>
-
-          <Dialog
-            open={deleteDialog.open}
-            onClose={handleDeleteDialogClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">Konfirmasi Hapus</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Apakah Anda yakin ingin menghapus surat ini? Tindakan ini tidak dapat dibatalkan.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleDeleteDialogClose} disabled={loading}>
-                Batal
-              </Button>
-              <Button onClick={handleDeleteConfirm} color="error" disabled={loading} autoFocus>
-                {loading ? 'Menghapus...' : 'Ya, Hapus'}
               </Button>
             </DialogActions>
           </Dialog>
