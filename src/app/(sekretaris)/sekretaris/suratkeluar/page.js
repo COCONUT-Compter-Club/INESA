@@ -38,7 +38,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 import { useCallback, useEffect, useState } from 'react';
-import Cookies from 'js-cookie'; // Impor js-cookie
+import Cookies from 'js-cookie';
 
 // Styled components
 const StyledCard = styled(Card)({
@@ -98,6 +98,7 @@ export default function SuratKeluar() {
   const [previewFile, setPreviewFile] = useState(null);
   const [existingFile, setExistingFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false); // State untuk validasi error
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
@@ -114,7 +115,7 @@ export default function SuratKeluar() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const token = Cookies.get('token'); // Ganti localStorage dengan Cookies
+      const token = Cookies.get('token');
       if (!token) {
         throw new Error('Token autentikasi tidak ditemukan');
       }
@@ -160,15 +161,6 @@ export default function SuratKeluar() {
     console.log('Rows:', rows);
     fetchData();
   }, [fetchData]);
-
-  const validateForm = (data) => {
-    if (!data.nomor || data.nomor.length < 3) return 'Nomor surat harus diisi dan minimal 3 karakter';
-    if (!data.tanggal || !dayjs(data.tanggal).isValid()) return 'Tanggal harus diisi dan valid';
-    if (!data.perihal || data.perihal.length < 5) return 'Perihal harus diisi dan minimal 5 karakter';
-    if (!data.ditujukan || data.ditujukan.length < 3) return 'Ditujukan harus diisi dan minimal 3 karakter';
-    if (!editingId && !data.file && !data.existingFile) return 'File harus diunggah untuk surat baru';
-    return null;
-  };
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
@@ -227,6 +219,25 @@ export default function SuratKeluar() {
   };
 
   const handleSave = async (isFromPrint = false, printData = null) => {
+    setError(false);
+    if (
+      !formData.nomor ||
+      !formData.tanggal ||
+      !dayjs(formData.tanggal).isValid() ||
+      !formData.perihal ||
+      !formData.ditujukan ||
+      !formData.title ||
+      (!formData.file && !formData.existingFile && !editingId)
+    ) {
+      setError(true);
+      setSnackbar({
+        open: true,
+        message: 'Semua field wajib diisi',
+        severity: 'error',
+      });
+      return;
+    }
+
     let dataToSave;
 
     if (isFromPrint && printData) {
@@ -253,16 +264,6 @@ export default function SuratKeluar() {
       dataToSave.append('title', title);
       dataToSave.append('file', file);
     } else {
-      const validationError = validateForm(formData);
-      if (validationError) {
-        setSnackbar({
-          open: true,
-          message: validationError,
-          severity: 'error',
-        });
-        return;
-      }
-
       dataToSave = new FormData();
       dataToSave.append('nomor', formData.nomor);
       dataToSave.append('tanggal', dayjs(formData.tanggal).format('YYYY-MM-DD'));
@@ -280,7 +281,7 @@ export default function SuratKeluar() {
 
     setLoading(true);
     try {
-      const token = Cookies.get('token'); // Ganti localStorage dengan Cookies
+      const token = Cookies.get('token');
       const endpoint = editingId
         ? API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_UPDATE(editingId)
         : API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_ADD;
@@ -310,6 +311,7 @@ export default function SuratKeluar() {
       setExistingFile(null);
       setEditingId(null);
       setInitialFormData(null);
+      setError(false);
       fetchData();
       setSnackbar({
         open: true,
@@ -380,7 +382,7 @@ export default function SuratKeluar() {
   const handleDeleteConfirm = async () => {
     setLoading(true);
     try {
-      const token = Cookies.get('token'); // Ganti localStorage dengan Cookies
+      const token = Cookies.get('token');
       const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_DELETE(deleteDialog.id), {
         method: 'DELETE',
         headers: getHeaders(token),
@@ -463,6 +465,7 @@ export default function SuratKeluar() {
                 setPreviewFile(null);
                 setExistingFile(null);
                 setInitialFormData(null);
+                setError(false);
               }}
             >
               Tambah Surat
@@ -501,8 +504,8 @@ export default function SuratKeluar() {
                         <TableCell>{row.nomor}</TableCell>
                         <TableCell>{dayjs(row.tanggal).format('DD-MM-YYYY')}</TableCell>
                         <TableCell>{row.perihal}</TableCell>
-                        <TableCell>{row.ditujukan}</TableCell>
-                        <TableCell>{row.title}</TableCell>
+                        <TableCell>{row.ditujukan || '-'}</TableCell>
+                        <TableCell>{row.title || '-'}</TableCell>
                         <TableCell>
                           {row.file ? (
                             <Tooltip title="Lihat File">
@@ -561,16 +564,15 @@ export default function SuratKeluar() {
                 name="nomor"
                 value={formData.nomor}
                 onChange={handleInputChange}
-                // required
-                // inputProps={{ minLength: 3 }}
                 error={!formData.nomor && error}
                 helperText={!formData.nomor && error ? 'Nomor surat wajib diisi' : ''}
               />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Tanggal"
+                <DatePicker
+                  label="Tanggal"
                   value={formData.tanggal}
                   onChange={handleDateChange}
+                  disableFuture
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -580,7 +582,7 @@ export default function SuratKeluar() {
                       helperText={!formData.tanggal && error ? 'Tanggal wajib diisi' : ''}
                     />
                   )}
-              />
+                />
               </LocalizationProvider>
               <TextField
                 fullWidth
@@ -600,7 +602,7 @@ export default function SuratKeluar() {
                 value={formData.ditujukan}
                 onChange={handleInputChange}
                 error={!formData.ditujukan && error}
-                helperText={!formData.ditujukan && error ? 'Field wajib diisi' : ''}
+                helperText={!formData.ditujukan && error ? 'Ditujukan wajib diisi' : ''}
               />
               <TextField
                 fullWidth
@@ -610,7 +612,7 @@ export default function SuratKeluar() {
                 value={formData.title}
                 onChange={handleInputChange}
                 error={!formData.title && error}
-                helperText={!formData.title && error ? 'Field wajib diisi' : ''}
+                helperText={!formData.title && error ? 'Judul file wajib diisi' : ''}
               />
               <Button variant="outlined" component="label" sx={{ mt: 2 }}>
                 Pilih File {editingId ? '(Opsional)' : '*'}
@@ -624,13 +626,22 @@ export default function SuratKeluar() {
               </Button>
               {(previewFile || existingFile) && (
                 <FilePreviewBox>
-                  <Avatar><DescriptionIcon /></Avatar>
+                  <Avatar>
+                    <DescriptionIcon />
+                  </Avatar>
                   <Typography variant="body2">
                     {formData.file?.name || formData.title || existingFile?.split('/').pop()}
                   </Typography>
                   {(previewFile || existingFile) && (
                     <a
-                      href={previewFile || `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id'}/api/sekretaris/suratkeluar/file/${encodeURIComponent(existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', ''))}`}
+                      href={
+                        previewFile ||
+                        `${
+                          process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id'
+                        }/api/sekretaris/suratkeluar/file/${encodeURIComponent(
+                          existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', '')
+                        )}`
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -650,6 +661,39 @@ export default function SuratKeluar() {
                 disabled={loading || (editingId && !isFormChanged())}
               >
                 {loading ? <CircularProgress size={20} /> : editingId ? 'Update' : 'Simpan'}
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
+
+          <Dialog
+            open={deleteDialog.open}
+            onClose={handleDeleteDialogClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">Konfirmasi Hapus</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Apakah Anda yakin ingin menghapus surat ini? Tindakan ini tidak dapat dibatalkan.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDeleteDialogClose} disabled={loading}>
+                Batal
+              </Button>
+              <Button onClick={handleDeleteConfirm} color="error" disabled={loading} autoFocus>
+                {loading ? 'Menghapus...' : 'Ya, Hapus'}
               </Button>
             </DialogActions>
           </Dialog>
