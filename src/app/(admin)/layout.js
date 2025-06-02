@@ -86,7 +86,7 @@ export default function AdminLayout({ children }) {
     });
 
     try {
-      const response = await fetch('http://localhost:8080/api/logout', {
+      const response = await fetch('https://bontomanai.inesa.id/api/logout', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' }

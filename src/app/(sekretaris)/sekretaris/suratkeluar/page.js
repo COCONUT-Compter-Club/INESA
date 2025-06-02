@@ -26,8 +26,8 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
+  TablePagination,
   TextField,
   Tooltip,
   Typography,
@@ -38,6 +38,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 import { useCallback, useEffect, useState } from 'react';
+import Cookies from 'js-cookie'; // Impor js-cookie
 
 // Styled components
 const StyledCard = styled(Card)({
@@ -90,9 +91,9 @@ export default function SuratKeluar() {
     tanggal: null,
     perihal: '',
     ditujukan: '',
+    title: '',
     file: null,
     existingFile: '',
-    existingTitle: '',
   });
   const [previewFile, setPreviewFile] = useState(null);
   const [existingFile, setExistingFile] = useState(null);
@@ -113,39 +114,50 @@ export default function SuratKeluar() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      const token = Cookies.get('token'); // Ganti localStorage dengan Cookies
+      if (!token) {
+        throw new Error('Token autentikasi tidak ditemukan');
+      }
       const response = await fetch(
         `${API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_GET_ALL}?page=${page + 1}&limit=${rowsPerPage}`,
         {
           method: 'GET',
-          headers: getHeaders(),
+          headers: getHeaders(token),
         }
       );
-      if (!response.ok) throw new Error('Gagal mengambil data surat keluar');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal mengambil data surat keluar');
+      }
 
       const data = await response.json();
+      console.log('API Response:', data);
       if (Array.isArray(data.items)) {
         setRows(data.items);
         setTotalItems(data.totalItems || 0);
+      } else if (Array.isArray(data)) {
+        setRows(data);
+        setTotalItems(data.length);
       } else {
         setRows([]);
         setTotalItems(0);
       }
     } catch (err) {
+      console.error('Fetch Error:', err);
       setRows([]);
       setTotalItems(0);
-      if (err.message !== 'Gagal mengambil data surat keluar') {
-        setSnackbar({
-          open: true,
-          message: 'Terjadi kesalahan saat mengambil data',
-          severity: 'error',
-        });
-      }
+      setSnackbar({
+        open: true,
+        message: err.message || 'Terjadi kesalahan saat mengambil data',
+        severity: 'error',
+      });
     } finally {
       setLoading(false);
     }
   }, [page, rowsPerPage]);
 
   useEffect(() => {
+    console.log('Rows:', rows);
     fetchData();
   }, [fetchData]);
 
@@ -170,7 +182,7 @@ export default function SuratKeluar() {
         });
         return;
       }
-      setFormData((prev) => ({ ...prev, file }));
+      setFormData((prev) => ({ ...prev, file, title: file.name }));
       setPreviewFile(URL.createObjectURL(file));
       setExistingFile(null);
     } else {
@@ -186,26 +198,32 @@ export default function SuratKeluar() {
     let nomor = formData.no_surat || '';
     let perihal = template;
     let ditujukan = formData.tujuan || '';
+    let title = template;
     let fileContent = content;
 
     switch (template) {
       case 'Surat Keterangan Domisili':
         perihal = 'Keterangan Domisili';
+        title = 'Surat Keterangan Domisili';
         break;
       case 'Surat Keterangan Tidak Mampu':
         perihal = 'Keterangan Tidak Mampu';
+        title = 'Surat Keterangan Tidak Mampu';
         break;
       case 'Surat Keterangan Usaha':
         perihal = 'Keterangan Usaha';
+        title = 'Surat Keterangan Usaha';
         break;
       case 'Surat Pengantar SKCK':
         perihal = 'Pengantar SKCK';
+        title = 'Surat Pengantar SKCK';
         break;
       default:
         perihal = template;
+        title = template;
     }
 
-    return { nomor, perihal, ditujukan, fileContent };
+    return { nomor, perihal, ditujukan, title, fileContent };
   };
 
   const handleSave = async (isFromPrint = false, printData = null) => {
@@ -213,7 +231,7 @@ export default function SuratKeluar() {
 
     if (isFromPrint && printData) {
       const { template, formData: printFormData, content } = printData;
-      const { nomor, perihal, ditujukan, fileContent } = mapFormDataToSurat(template, printFormData, content);
+      const { nomor, perihal, ditujukan, title, fileContent } = mapFormDataToSurat(template, printFormData, content);
 
       if (!nomor || !perihal || !ditujukan || !fileContent) {
         setSnackbar({
@@ -232,6 +250,7 @@ export default function SuratKeluar() {
       dataToSave.append('tanggal', printFormData.tanggal || dayjs().format('YYYY-MM-DD'));
       dataToSave.append('perihal', perihal);
       dataToSave.append('ditujukan', ditujukan);
+      dataToSave.append('title', title);
       dataToSave.append('file', file);
     } else {
       const validationError = validateForm(formData);
@@ -249,24 +268,26 @@ export default function SuratKeluar() {
       dataToSave.append('tanggal', dayjs(formData.tanggal).format('YYYY-MM-DD'));
       dataToSave.append('perihal', formData.perihal);
       dataToSave.append('ditujukan', formData.ditujukan);
+      dataToSave.append('title', formData.title);
 
       if (formData.file && typeof formData.file === 'object') {
         dataToSave.append('file', formData.file);
       } else if (formData.existingFile) {
         dataToSave.append('existing_file', formData.existingFile);
-        dataToSave.append('existing_title', formData.existingTitle);
+        dataToSave.append('existing_title', formData.title);
       }
     }
 
     setLoading(true);
     try {
+      const token = Cookies.get('token'); // Ganti localStorage dengan Cookies
       const endpoint = editingId
         ? API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_UPDATE(editingId)
         : API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_ADD;
 
       const response = await fetch(endpoint, {
         method: editingId ? 'PUT' : 'POST',
-        headers: isFromPrint ? getHeaders() : {},
+        headers: isFromPrint ? getHeaders(token) : {},
         body: dataToSave,
       });
 
@@ -281,12 +302,14 @@ export default function SuratKeluar() {
         tanggal: null,
         perihal: '',
         ditujukan: '',
+        title: '',
         file: null,
         existingFile: '',
-        existingTitle: '',
       });
       setPreviewFile(null);
       setExistingFile(null);
+      setEditingId(null);
+      setInitialFormData(null);
       fetchData();
       setSnackbar({
         open: true,
@@ -310,9 +333,9 @@ export default function SuratKeluar() {
       tanggal: dayjs(row.tanggal),
       perihal: row.perihal,
       ditujukan: row.ditujukan,
+      title: row.title,
       file: null,
       existingFile: row.file,
-      existingTitle: row.title,
     };
 
     setFormData(formattedData);
@@ -341,6 +364,7 @@ export default function SuratKeluar() {
       formData.tanggal?.format('YYYY-MM-DD') !== dayjs(initialFormData.tanggal).format('YYYY-MM-DD') ||
       formData.perihal !== initialFormData.perihal ||
       formData.ditujukan !== initialFormData.ditujukan ||
+      formData.title !== initialFormData.title ||
       formData.file instanceof File
     );
   };
@@ -356,9 +380,10 @@ export default function SuratKeluar() {
   const handleDeleteConfirm = async () => {
     setLoading(true);
     try {
+      const token = Cookies.get('token'); // Ganti localStorage dengan Cookies
       const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_DELETE(deleteDialog.id), {
         method: 'DELETE',
-        headers: getHeaders(),
+        headers: getHeaders(token),
       });
       if (!response.ok) throw new Error('Gagal menghapus data');
 
@@ -431,12 +456,13 @@ export default function SuratKeluar() {
                   tanggal: null,
                   perihal: '',
                   ditujukan: '',
+                  title: '',
                   file: null,
                   existingFile: '',
-                  existingTitle: '',
                 });
                 setPreviewFile(null);
                 setExistingFile(null);
+                setInitialFormData(null);
               }}
             >
               Tambah Surat
@@ -574,6 +600,18 @@ export default function SuratKeluar() {
                 helperText={formData.ditujukan && formData.ditujukan.length < 3 ? 'Minimal 3 karakter' : ''}
                 error={formData.ditujukan && formData.ditujukan.length < 3}
               />
+              <TextField
+                fullWidth
+                margin="dense"
+                label="Judul File"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+                inputProps={{ minLength: 3 }}
+                helperText={formData.title && formData.title.length < 3 ? 'Minimal 3 karakter' : ''}
+                error={formData.title && formData.title.length < 3}
+              />
               <Button variant="outlined" component="label" sx={{ mt: 2 }}>
                 Pilih File {editingId ? '(Opsional)' : '*'}
                 <input
@@ -588,7 +626,7 @@ export default function SuratKeluar() {
                 <FilePreviewBox>
                   <Avatar><DescriptionIcon /></Avatar>
                   <Typography variant="body2">
-                    {formData.file?.name || existingFile?.split('/').pop()}
+                    {formData.file?.name || formData.title || existingFile?.split('/').pop()}
                   </Typography>
                   {(previewFile || existingFile) && (
                     <a

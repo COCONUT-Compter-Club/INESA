@@ -37,6 +37,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useState } from 'react';
+import Cookies from 'js-cookie'; // Impor js-cookie
 
 // Fungsi untuk memformat tanggal ke format Indonesia
 const formatTanggalIndonesia = (tanggal) => {
@@ -64,7 +65,7 @@ const formatTanggalIndonesia = (tanggal) => {
 const StyledCard = styled(Card)({
   backgroundColor: '#ffffff',
   borderRadius: '16px',
-  boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)',
+  boxShadow: '0px 4px 20px 0px rgba(0,0,0,0.05)',
   overflow: 'hidden',
 });
 
@@ -87,7 +88,7 @@ const AddButton = styled(Button)({
   padding: '12px 24px',
   '&:hover': {
     backgroundColor: 'rgba(255,255,255,0.9)',
-    boxShadow: '0 8px 16px 0 rgba(0,0,0,0.1)',
+    boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.1)',
   },
 });
 
@@ -152,10 +153,10 @@ export default function SuratMasuk() {
     id: null,
   });
 
-  // Ambil token dari localStorage (sesuaikan dengan mekanisme autentikasi Anda)
+  // Ambil token dari cookie
   const getToken = () => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('token') || '';
+      return Cookies.get('token') || ''; // Menggunakan js-cookie untuk mengambil token
     }
     return '';
   };
@@ -241,7 +242,7 @@ export default function SuratMasuk() {
         : API_ENDPOINTS.SEKRETARIS.SURAT_MASUK_ADD;
 
       const headers = getHeaders(getToken());
-      delete headers['Content-Type']; 
+      delete headers['Content-Type'];
 
       const response = await fetch(endpoint, {
         method: editingId ? 'PUT' : 'POST',

@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const userData = localStorage.getItem('user');
+      const userData = Cookies.get('user'); // Ganti localStorage dengan Cookies
       if (userData) {
         setUser(JSON.parse(userData));
       }
@@ -76,11 +76,13 @@ export default function DashboardLayout({ children }) {
     console.log('Logout initiated');
     console.log('Before logout - localStorage:', {
       token: localStorage.getItem('token'),
-      user: localStorage.getItem('user')
+      user: localStorage.getItem('user'),
+      darkMode: localStorage.getItem('darkMode')
     });
     console.log('Before logout - Cookies:', {
       token: Cookies.get('token'),
-      isAuthenticated: Cookies.get('isAuthenticated')
+      isAuthenticated: Cookies.get('isAuthenticated'),
+      user: Cookies.get('user')
     });
 
     try {
@@ -90,22 +92,27 @@ export default function DashboardLayout({ children }) {
         headers: { 'Content-Type': 'application/json' }
       });
       if (!response.ok) {
+        console.error('Logout API failed:', response.statusText);
       }
     } catch (error) {
+      console.error('Logout error:', error);
     }
 
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('darkMode'); // Opsional: hapus darkMode jika tidak ingin disimpan
+    Cookies.remove('user', { path: '/' }); // Ganti localStorage.removeItem('user')
     Cookies.remove('token', { path: '/' });
     Cookies.remove('isAuthenticated', { path: '/' });
 
     console.log('After logout - localStorage:', {
       token: localStorage.getItem('token'),
-      user: localStorage.getItem('user')
+      user: localStorage.getItem('user'),
+      darkMode: localStorage.getItem('darkMode')
     });
     console.log('After logout - Cookies:', {
       token: Cookies.get('token'),
-      isAuthenticated: Cookies.get('isAuthenticated')
+      isAuthenticated: Cookies.get('isAuthenticated'),
+      user: Cookies.get('user')
     });
 
     router.push('/authentication/sign-in');
@@ -224,8 +231,7 @@ export default function DashboardLayout({ children }) {
             '&:hover': {
               backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : `${colors.primary.light}20`
             }
-          }
-          }
+          }}
         >
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <LogoutIcon />
