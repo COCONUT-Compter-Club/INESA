@@ -1130,7 +1130,7 @@ export default function Pengeluaran() {
               Tindakan ini tidak dapat dibatalkan.
             </Typography>
           </DialogContent>
-          <Actions sx={{ px: 4, py: 3, borderTop: '1px solid rgba(0, 0, 0, 0.1)', gap: 2, bgcolor: 'rgba(0, 0, 0, 0.02)' }}>
+          <DialogActions sx={{ px: 4, py: 3, borderTop: '1px solid rgba(0, 0, 0, 0.1)', gap: 2, bgcolor: 'rgba(0, 0, 0, 0.02)' }}>
             <Button
               onClick={() => setDeleteDialog({ open: false, id: null })}
               variant="outlined"
@@ -1170,7 +1170,7 @@ export default function Pengeluaran() {
                 </>
               )}
             </Button>
-          </Actions>
+          </DialogActions>
         </Dialog>
 
         {/* Dialog untuk pratinjau nota */}
