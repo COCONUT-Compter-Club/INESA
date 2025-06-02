@@ -30,6 +30,7 @@ import {
   MenuItem,
   Select,
   Slide,
+  Paper,
   Snackbar,
   Table,
   TableBody,
