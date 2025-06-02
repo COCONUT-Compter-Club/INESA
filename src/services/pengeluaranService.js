@@ -1,291 +1,306 @@
 import { getHeaders } from '@/config/api';
 import Cookies from 'js-cookie';
 
-// Fungsi untuk memformat tanggal dari objek dayjs atau string ke YYYY-MM-DD HH:mm
-const formatDateTime = (dateInput) => {
-  const date = dayjs(dateInput);
-  if (!date.isValid()) {
-    throw new Error('Format tanggal tidak valid');
-  }
-  return date.format('YYYY-MM-DD HH:mm:ss');
+// Fungsi untuk memformat tanggal dari YYYY-MM-DDTHH:mm ke YYYY-MM-DD HH:mm
+const formatDateForBackend = (dateString) => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        throw new Error('Format tanggal tidak valid');
+    }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
 export const pengeluaranService = {
-  /**
-   * Add new expenditure record
-   * @param {Object} data - Expenditure data
-   * @returns {Promise<Object>} Response data
-   */
-  addPengeluaran: async (data) => {
-    try {
-      const token = Cookies.get('token');
-      if (!token) {
-        window.location.href = '/authentication/sign-in';
-        throw new Error('Token tidak ditemukan');
-      }
+    /**
+     * Add new expenditure record
+     * @param {Object} data - Expenditure data
+     * @returns {Promise<Object>} Response data
+     */
+    addPengeluaran: async (data) => {
+        try {
+            const token = Cookies.get('token');
+            if (!token) {
+                window.location.href = '/authentication/sign-in'
+                throw new Error('Token tidak ditemukan');
+            }
 
-      // Validation
-      if (!data.tanggal || !dayjs(data.tanggal).isValid()) {
-        throw new Error('Format tanggal tidak valid');
-      }
+            // Validation
+            if (!data.tanggal || isNaN(Date.parse(data.tanggal))) {
+                throw new Error('Format tanggal tidak valid');
+            }
 
-      const nominal = typeof data.nominal === 'string' ? parseInt(data.nominal.replace(/\D/g, '')) : parseInt(data.nominal);
-      if (isNaN(nominal) || nominal <= 0) {
-        throw new Error('Nominal harus berupa angka positif');
-      }
+            const nominal = typeof data.nominal === 'string'
+                ? parseInt(data.nominal.replace(/\D/g, ''))
+                : parseInt(data.nominal);
 
-      if (!data.keterangan?.trim()) {
-        throw new Error('Keterangan tidak boleh kosong');
-      }
+            if (isNaN(nominal) || nominal <= 0) {
+                throw new Error('Nominal harus berupa angka positif');
+            }
 
-      if (!data.nota) {
-        throw new Error('Nota harus diunggah');
-      }
+            if (!data.keterangan?.trim()) {
+                throw new Error('Keterangan tidak boleh kosong');
+            }
 
-      // Prepare FormData
-      const formData = new FormData();
-      formData.append('tanggal', formatDateTime(data.tanggal));
-      formData.append('nominal', nominal);
-      formData.append('keterangan', data.keterangan.trim());
-      formData.append('nota', data.nota);
+            if (!data.nota) {
+                throw new Error('Nota harus diupload');
+            }
 
-      const response = await fetch('/api/bendahara/pengeluaran/add', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true',
-        },
-        body: formData,
-        credentials: 'include',
-      });
+            // Prepare FormData with properly formatted date
+            const formData = new FormData();
+            formData.append('tanggal', formatDateForBackend(data.tanggal)); // Formatted date
+            formData.append('nominal', nominal);
+            formData.append('keterangan', data.keterangan.trim());
+            formData.append('nota', data.nota); // File object
 
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || 'Gagal menambah pengeluaran');
-      }
+            const response = await fetch('/api/bendahara/pengeluaran/add', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: formData,
+                credentials: 'include'
+            });
 
-      return {
-        success: true,
-        data: result.data,
-        message: 'Pengeluaran berhasil ditambahkan',
-      };
-    } catch (error) {
-      throw error;
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Gagal menambah pengeluaran');
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: 'Pengeluaran berhasil ditambahkan'
+            };
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Update expenditure record
+     * @param {string} id - Record ID
+     * @param {Object} data - Updated data
+     * @returns {Promise<Object>} Response data
+     */
+    updatePengeluaran: async (id, data) => {
+        try {
+            const token = Cookies.get('token');
+            if (!token) {
+                window.location.href = '/authentication/sign-in'
+                throw new Error('Token tidak ditemukan');
+            }
+
+            if (!id) {
+                throw new Error('ID tidak valid');
+            }
+
+            // Validation
+            if (!data.tanggal || isNaN(Date.parse(data.tanggal))) {
+                throw new Error('Format tanggal tidak valid');
+            }
+
+            const nominal = typeof data.nominal === 'string'
+                ? parseInt(data.nominal.replace(/\D/g, ''))
+                : parseInt(data.nominal);
+
+            if (isNaN(nominal) || nominal <= 0) {
+                throw new Error('Nominal harus berupa angka positif');
+            }
+
+            if (!data.keterangan?.trim()) {
+                throw new Error('Keterangan tidak boleh kosong');
+            }
+
+            // Prepare FormData with properly formatted date
+            const formData = new FormData();
+            formData.append('tanggal', formatDateForBackend(data.tanggal)); // Formatted date
+            formData.append('nominal', nominal);
+            formData.append('keterangan', data.keterangan.trim());
+
+            if (data.nota) {
+                formData.append('nota', data.nota);
+            }
+
+            const response = await fetch(`/api/bendahara/pengeluaran/update/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: formData,
+                credentials: 'include'
+            });
+
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(responseData.message || 'Gagal mengupdate pengeluaran');
+            }
+
+            return {
+                success: true,
+                data: responseData.data,
+                message: 'Pengeluaran berhasil diupdate'
+            };
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Delete expenditure record
+     * @param {string} id - Record ID
+     * @returns {Promise<Object>} Response data
+     */
+    deletePengeluaran: async (id) => {
+        try {
+            const token = Cookies.get('token');
+            if (!token) {
+                window.location.href = '/authentication/sign-in'
+                throw new Error('Token tidak ditemukan');
+            }
+
+            if (!id) {
+                throw new Error('ID tidak valid');
+            }
+
+            const response = await fetch(`/api/bendahara/pengeluaran/delete/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    ...getHeaders(token),
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Gagal menghapus pengeluaran');
+            }
+
+            return await response.json();
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Get all expenditure records
+     * @param {number} page - Page number
+     * @param {number} pageSize - Number of records per page
+     * @returns {Promise<Object>} Pagination response with expenditure records
+     */
+    getAllPengeluaran: async (page = 1, pageSize = 10) => {
+        try {
+            const token = Cookies.get('token');
+            if (!token) {
+                window.location.href = '/authentication/sign-in'
+                throw new Error('Token tidak ditemukan');
+            }
+
+            const response = await fetch(`/api/bendahara/pengeluaran/getall?page=${page}&page_size=${pageSize}`, {
+                method: 'GET',
+                headers: {
+                    ...getHeaders(token),
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Gagal mengambil data pengeluaran');
+            }
+
+            return await response.json(); // Kembalikan seluruh response termasuk metadata pagination
+        } catch (error) {
+
+            throw error;
+        }
+    },
+
+    /**
+     * Get expenditure records by date range
+     * @param {string} start - Start date in YYYY-MM-DD format
+     * @param {string} end - End date in YYYY-MM-DD format
+     * @param {number} page - Page number
+     * @param {number} pageSize - Number of records per page
+     * @returns {Promise<Object>} Pagination response with expenditure records
+     */
+    getPengeluaranByDateRange: async (start, end, page = 1, pageSize = 10) => {
+        try {
+            const token = Cookies.get('token');
+            if (!token) {
+                window.location.href = '/authentication/sign-in'
+                throw new Error('Token tidak ditemukan');
+            }
+
+            if (!start || !end) {
+                throw new Error('Tanggal mulai dan akhir harus diisi');
+            }
+
+            const response = await fetch(`/api/bendahara/pengeluaran/getall?page=${page}&page_size=${pageSize}&start_date=${start}&end_date=${end}`, {
+                method: 'GET',
+                headers: {
+                    ...getHeaders(token),
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Gagal mengambil data pengeluaran berdasarkan rentang tanggal');
+            }
+
+            return await response.json(); // Kembalikan seluruh response termasuk metadata pagination
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Get expenditure record by ID
+     * @param {string} id - Record ID
+     * @returns {Promise<Object>} Expenditure record
+     */
+    getPengeluaranById: async (id) => {
+        try {
+            const token = Cookies.get('token');
+            if (!token) {
+                window.location.href = '/authentication/sign-in'
+                throw new Error('Token tidak ditemukan');
+            }
+
+            if (!id) {
+                throw new Error('ID tidak valid');
+            }
+
+            const response = await fetch(`/api/bendahara/pengeluaran/get/${id}`, {
+                method: 'GET',
+                headers: {
+                    ...getHeaders(token),
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Gagal mengambil data pengeluaran');
+            }
+
+            const { data } = await response.json();
+            return data;
+        } catch (error) {
+            throw error;
+        }
     }
-  },
-
-  /**
-   * Update expenditure record
-   * @param {string} id - Record ID
-   * @param {Object} data - Updated data
-   * @returns {Promise<Object>} Response data
-   */
-  updatePengeluaran: async (id, data) => {
-    try {
-      const token = Cookies.get('token');
-      if (!token) {
-        window.location.href = '/authentication/sign-in';
-        throw new Error('Token tidak ditemukan');
-      }
-
-      if (!id) {
-        throw new Error('ID tidak valid');
-      }
-
-      // Validation
-      if (!data.tanggal || !dayjs(data.tanggal).isValid()) {
-        throw new Error('Format tanggal tidak valid');
-      }
-
-      const nominal = typeof data.nominal === 'string' ? parseInt(data.nominal.replace(/\D/g, '')) : parseInt(data.nominal);
-      if (isNaN(nominal) || nominal <= 0) {
-        throw new Error('Nominal harus berupa angka positif');
-      }
-
-      if (!data.keterangan?.trim()) {
-        throw new Error('Keterangan tidak boleh kosong');
-      }
-
-      // Prepare FormData
-      const formData = new FormData();
-      formData.append('tanggal', formatDateTime(data.tanggal));
-      formData.append('nominal', nominal);
-      formData.append('keterangan', data.keterangan.trim());
-      if (data.nota) {
-        formData.append('nota', data.nota);
-      }
-
-      const response = await fetch(`/api/bendahara/pengeluaran/update/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true',
-        },
-        body: formData,
-        credentials: 'include',
-      });
-
-      const responseData = await response.json();
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Gagal mengupdate pengeluaran');
-      }
-
-      return {
-        success: true,
-        data: responseData.data,
-        message: 'Pengeluaran berhasil diupdate',
-      };
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  /**
-   * Delete expenditure record
-   * @param {string} id - Record ID
-   * @returns {Promise<Object>} Response data
-   */
-  deletePengeluaran: async (id) => {
-    try {
-      const token = Cookies.get('token');
-      if (!token) {
-        window.location.href = '/authentication/sign-in';
-        throw new Error('Token tidak ditemukan');
-      }
-
-      if (!id) {
-        throw new Error('ID tidak valid');
-      }
-
-      const response = await fetch(`/api/bendahara/pengeluaran/delete/${id}`, {
-        method: 'DELETE',
-        headers: {
-          ...getHeaders(token),
-          'ngrok-skip-browser-warning': 'true',
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Gagal menghapus pengeluaran');
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  /**
-   * Get all expenditure records
-   * @param {number} page - Page number
-   * @param {number} pageSize - Number of records per page
-   * @returns {Promise<Object>} Pagination response with expenditure records
-   */
-  getAllPengeluaran: async (page = 1, pageSize = 10) => {
-    try {
-      const token = Cookies.get('token');
-      if (!token) {
-        window.location.href = '/authentication/sign-in';
-        throw new Error('Token tidak ditemukan');
-      }
-
-      const response = await fetch(`/api/bendahara/pengeluaran/getall?page=${page}&page_size=${pageSize}`, {
-        method: 'GET',
-        headers: {
-          ...getHeaders(token),
-          'ngrok-skip-browser-warning': 'true',
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Gagal mengambil data pengeluaran');
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  /**
-   * Get expenditure records by date range
-   * @param {string} start - Start date in YYYY-MM-DD format
-   * @param {string} end - End date in YYYY-MM-DD format
-   * @param {number} page - Page number
-   * @param {number} pageSize - Number of records per page
-   * @returns {Promise<Object>} Pagination response with expenditure records
-   */
-  getPengeluaranByDateRange: async (start, end, page = 1, pageSize = 10) => {
-    try {
-      const token = Cookies.get('token');
-      if (!token) {
-        window.location.href = '/authentication/sign-in';
-        throw new Error('Token tidak ditemukan');
-      }
-
-      if (!start || !end) {
-        throw new Error('Tanggal mulai dan akhir harus diisi');
-      }
-
-      const response = await fetch(`/api/bendahara/pengeluaran/getall?page=${page}&page_size=${pageSize}&start_date=${start}&end_date=${end}`, {
-        method: 'GET',
-        headers: {
-          ...getHeaders(token),
-          'ngrok-skip-browser-warning': 'true',
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Gagal mengambil data pengeluaran berdasarkan rentang tanggal');
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  /**
-   * Get expenditure record by ID
-   * @param {string} id - Record ID
-   * @returns {Promise<Object>} Expenditure record
-   */
-  getPengeluaranById: async (id) => {
-    try {
-      const token = Cookies.get('token');
-      if (!token) {
-        window.location.href = '/authentication/sign-in';
-        throw new Error('Token tidak ditemukan');
-      }
-
-      if (!id) {
-        throw new Error('ID tidak valid');
-      }
-
-      const response = await fetch(`/api/bendahara/pengeluaran/get/${id}`, {
-        method: 'GET',
-        headers: {
-          ...getHeaders(token),
-          'ngrok-skip-browser-warning': 'true',
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Gagal mengambil data pengeluaran');
-      }
-
-      const { data } = await response.json();
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  },
 };

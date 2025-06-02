@@ -45,8 +45,8 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import dayjs from 'dayjs'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { endOfDay, format, isValid, startOfDay } from 'date-fns'
 import { useEffect, useState } from 'react'
 
 // Styled components
@@ -173,7 +173,7 @@ export default function Pemasukan() {
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
-    tanggal: null,
+    tanggal: '',
     nominal: '',
     keterangan: '',
     kategori: '',
@@ -217,34 +217,25 @@ export default function Pemasukan() {
     { value: '3months', label: '3 Bulan Terakhir' },
     { value: '6months', label: '6 Bulan Terakhir' },
     { value: '1year', label: '1 Tahun Terakhir' },
-    { value: 'custom', label: 'Kustom' }
+    { value: 'custom', label: 'Custom' }
   ]
 
   const predefinedCategories = ['Pajak', 'Retribusi', 'Dana Desa', 'Bantuan', 'Lainnya']
 
   const formatDate = (date) => {
-    if (!date || !dayjs(date).isValid()) return null
-    return dayjs(date).format('YYYY-MM-DD')
-  }
-
-  const translateErrorMessage = (message) => {
-    const errorTranslations = {
-      'Network Error': 'Kesalahan Jaringan',
-      'Failed to fetch': 'Gagal Mengambil Data',
-      'Internal Server Error': 'Kesalahan Server Internal',
-      'Unauthorized': 'Tidak Berwenang',
-      'Bad Request': 'Permintaan Tidak Valid',
-    }
-    return errorTranslations[message] || message || 'Terjadi Kesalahan'
+    if (!date || !isValid(date)) return null
+    return format(date, 'yyyy-MM-dd')
   }
 
   const getDateRange = (range) => {
-    const today = dayjs()
-    const startDate = dayjs()
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const startDate = new Date()
+    startDate.setHours(0, 0, 0, 0)
     if (range === 'custom' && confirmedStartDate && confirmedEndDate) {
-      const start = dayjs(confirmedStartDate).startOf('day')
-      const end = dayjs(confirmedEndDate).endOf('day')
-      if (start.isAfter(end)) {
+      const start = startOfDay(new Date(confirmedStartDate))
+      const end = endOfDay(new Date(confirmedEndDate))
+      if (start > end) {
         showSnackbar('Tanggal mulai harus sebelum tanggal akhir', 'error')
         return { start: null, end: null }
       }
@@ -252,21 +243,34 @@ export default function Pemasukan() {
     }
     switch (range) {
       case 'today':
-        return { start: formatDate(today.startOf('day')), end: formatDate(today.endOf('day')) }
+        return { start: formatDate(today), end: formatDate(today.setHours(24, 0, 0, 0)) }
       case 'yesterday':
-        return { start: formatDate(today.subtract(1, 'day').startOf('day')), end: formatDate(today.startOf('day')) }
+        startDate.setDate(today.getDate() - 1)
+        return { start: formatDate(startDate), end: formatDate(today) }
       case '7days':
-        return { start: formatDate(today.subtract(7, 'day').startOf('day')), end: formatDate(today.endOf('day')) }
+        today.setHours(24, 0, 0, 0)
+        startDate.setDate(today.getDate() - 7)
+        return { start: formatDate(startDate), end: formatDate(today) }
       case '1month':
-        return { start: formatDate(today.subtract(1, 'month').startOf('day')), end: formatDate(today.endOf('day')) }
+        today.setHours(24, 0, 0, 0)
+        startDate.setMonth(today.getMonth() - 1)
+        return { start: formatDate(startDate), end: formatDate(today) }
       case '3months':
-        return { start: formatDate(today.subtract(3, 'month').startOf('day')), end: formatDate(today.endOf('day')) }
+        today.setHours(24, 0, 0, 0)
+        startDate.setMonth(today.getMonth() - 3)
+        return { start: formatDate(startDate), end: formatDate(today) }
       case '6months':
-        return { start: formatDate(today.subtract(6, 'month').startOf('day')), end: formatDate(today.endOf('day')) }
+        today.setHours(24, 0, 0, 0)
+        startDate.setMonth(today.getMonth() - 6)
+        return { start: formatDate(startDate), end: formatDate(today) }
       case '1year':
-        return { start: formatDate(today.subtract(1, 'year').startOf('day')), end: formatDate(today.endOf('day')) }
+        today.setHours(24, 0, 0, 0)
+        startDate.setFullYear(today.getFullYear() - 1)
+        return { start: formatDate(startDate), end: formatDate(today) }
       default:
-        return { start: formatDate(today.subtract(7, 'day').startOf('day')), end: formatDate(today.endOf('day')) }
+        today.setHours(24, 0, 0, 0)
+        startDate.setDate(today.getDate() - 7)
+        return { start: formatDate(startDate), end: formatDate(today) }
     }
   }
 
@@ -282,7 +286,7 @@ export default function Pemasukan() {
         setTotalPemasukan(Number.isFinite(total) ? total : 0)
       } catch (error) {
         setTotalPemasukan(0)
-        showSnackbar(translateErrorMessage(error.message), 'error')
+        showSnackbar('Gagal memuat total pemasukan', 'error')
       } finally {
         setIsLoadingTotal(false)
       }
@@ -320,7 +324,7 @@ export default function Pemasukan() {
       setTotalItems(response?.data?.total_items || 0)
       setTotalPages(response?.data?.total_pages || 0)
     } catch (error) {
-      showSnackbar(translateErrorMessage(error.message), 'error')
+      showSnackbar('Gagal mengambil data: ' + error.message, 'error')
       setRows([])
     } finally {
       setLoading(false)
@@ -348,9 +352,9 @@ export default function Pemasukan() {
       showSnackbar('Silakan pilih tanggal mulai dan akhir', 'error')
       return
     }
-    const start = dayjs(tempStartDate)
-    const end = dayjs(tempEndDate)
-    if (start.isAfter(end)) {
+    const start = new Date(tempStartDate)
+    const end = new Date(tempEndDate)
+    if (start > end) {
       showSnackbar('Tanggal mulai harus sebelum tanggal akhir', 'error')
       return
     }
@@ -393,7 +397,7 @@ export default function Pemasukan() {
     } else if (name === 'nominal') {
       const numericValue = value.replace(/\D/g, '')
       if (numericValue.length > 11) {
-        showSnackbar('Nominal terlalu besar (maksimal puluhan miliar)', 'error')
+        showSnackbar('Nominal terlalu besar (maksimal puluhan milyar)', 'error')
         return
       }
       setFormData(prev => ({
@@ -416,7 +420,7 @@ export default function Pemasukan() {
   const handleAdd = () => {
     setEditingId(null)
     setFormData({
-      tanggal: null,
+      tanggal: '',
       nominal: '',
       keterangan: '',
       kategori: '',
@@ -428,11 +432,13 @@ export default function Pemasukan() {
   }
 
   const handleEdit = (row) => {
-    const date = dayjs(row.tanggal, 'DD-MM-YYYY HH:mm')
+    const [datePart, timePart] = row.tanggal.split(' ')
+    const [day, month, year] = datePart.split('-')
+    const localDateTime = `${year}-${month}-${day}T${timePart}`
     setEditingId(row.id)
     const isPredefinedCategory = predefinedCategories.includes(row.kategori)
     setFormData({
-      tanggal: date.isValid() ? date : null,
+      tanggal: localDateTime,
       nominal: row.nominal.toString(),
       keterangan: row.keterangan,
       kategori: isPredefinedCategory ? row.kategori : 'Lainnya',
@@ -469,7 +475,7 @@ export default function Pemasukan() {
       setTotalPemasukan(Number.isFinite(total) ? total : 0)
       showSnackbar(`Pemasukan berhasil dihapus`, 'success')
     } catch (error) {
-      showSnackbar(`Gagal menghapus pemasukan: ${translateErrorMessage(error.message)}`, 'error')
+      showSnackbar(`Gagal menghapus pemasukan: ${error.message}`, 'error')
     } finally {
       setLoading(false)
       setDeleteDialog({ open: false, id: null })
@@ -519,9 +525,15 @@ export default function Pemasukan() {
         throw new Error('Kategori kustom harus diisi')
       }
 
-      if (!dayjs(formData.tanggal).isValid()) throw new Error('Format tanggal tidak valid')
+      const dateObj = new Date(formData.tanggal)
+      if (isNaN(dateObj.getTime())) throw new Error('Format tanggal tidak valid')
 
-      const formattedDate = dayjs(formData.tanggal).format('YYYY-MM-DD HH:mm')
+      const day = String(dateObj.getDate()).padStart(2, '0')
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+      const year = dateObj.getFullYear()
+      const hours = String(dateObj.getHours()).padStart(2, '0')
+      const minutes = String(dateObj.getMinutes()).padStart(2, '0')
+      const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`
       const finalCategory = formData.kategori === 'Lainnya' ? customCategory.trim() : formData.kategori
       const dataToSend = {
         tanggal: formattedDate,
@@ -544,7 +556,7 @@ export default function Pemasukan() {
       const total = await laporanService.getTotalPemasukan()
       setTotalPemasukan(Number.isFinite(total) ? total : 0)
     } catch (error) {
-      showSnackbar(translateErrorMessage(error.message), 'error')
+      showSnackbar(error.message || 'Gagal menyimpan data', 'error')
     } finally {
       setLoading(false)
     }
@@ -561,12 +573,20 @@ export default function Pemasukan() {
   }
 
   const formatDateTime = (backendDateString) => {
-    if (!backendDateString) return '-';
+    if (!backendDateString) return '-'
     try {
-      return dayjs(backendDateString, 'DD-MM-YYYY HH:mm').format('DD/MM/YYYY HH:mm');
+      const [datePart, timePart] = backendDateString.split(' ')
+      const [day, month, year] = datePart.split('-')
+      const [hours, minutes] = timePart.split(':')
+      return new Date(year, month - 1, day, hours, minutes).toLocaleString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
     } catch (e) {
-      console.error('Error parsing date:', backendDateString, e);
-      return 'Tanggal Tidak Valid';
+      return backendDateString
     }
   }
 
@@ -587,7 +607,7 @@ export default function Pemasukan() {
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box sx={{
         padding: '24px',
         mt: { xs: '64px', sm: '80px' }
@@ -605,13 +625,13 @@ export default function Pemasukan() {
             sx={{
               width: '100%',
               borderRadius: '12px',
-              boxShadow: '0 4px,20px,0 rgba(0,255,0,0.1)',
+              boxShadow: '0 4px 20px 0 rgba(0,0,0,0.1)',
               fontWeight: 500
             }}
             action={
               <IconButton
                 size="small"
-                aria-label="tutup"
+                aria-label="close"
                 color="inherit"
                 onClick={handleCloseSnackbar}
               >
@@ -647,7 +667,7 @@ export default function Pemasukan() {
           startIcon={<AddIcon />}
           onClick={handleAdd}
         >
-          Tambah
+          Tambah Pemasukan
         </AddButton>
 
         <StyledCard>
@@ -657,8 +677,8 @@ export default function Pemasukan() {
               justifyContent: 'space-between',
               alignItems: { xs: 'flex-start', sm: 'center' },
               flexDirection: { xs: 'column', sm: 'row' },
-              gap: '2',
-              mb: '3',
+              gap: { xs: 2, sm: 0 },
+              mb: 3,
               position: 'relative',
               width: '100%',
               boxSizing: 'border-box',
@@ -778,7 +798,7 @@ export default function Pemasukan() {
                               gap: 1
                             }}
                           >
-                            <Tooltip title="Ubah">
+                            <Tooltip title="Edit">
                               <IconButton
                                 size="small"
                                 onClick={() => handleEdit(row)}
@@ -941,7 +961,7 @@ export default function Pemasukan() {
                   )}
                 />
               </Box>
-              {tempStartDate && tempEndDate && dayjs(tempStartDate).isAfter(dayjs(tempEndDate)) && (
+              {tempStartDate && tempEndDate && startOfDay(tempStartDate) > endOfDay(tempEndDate) && (
                 <Typography color="error" variant="caption" sx={{ mt: 1 }}>
                   Tanggal mulai harus sebelum tanggal akhir
                 </Typography>
@@ -982,7 +1002,7 @@ export default function Pemasukan() {
             <Button
               onClick={handleApplyDateRange}
               variant="contained"
-              disabled={!tempStartDate || !tempEndDate || !dayjs(tempStartDate).isValid() || !dayjs(tempEndDate).isValid() || dayjs(tempStartDate).isAfter(dayjs(tempEndDate))}
+              disabled={!tempStartDate || !tempEndDate || !isValid(tempStartDate) || !isValid(tempEndDate) || startOfDay(tempStartDate) > endOfDay(tempEndDate)}
               sx={{
                 borderRadius: '10px',
                 bgcolor: '#2e7d32',
@@ -1038,7 +1058,7 @@ export default function Pemasukan() {
             {editingId ? (
               <>
                 <EditIcon sx={{ fontSize: 28 }} />
-                Ubah Pemasukan
+                Edit Pemasukan
               </>
             ) : (
               <>
@@ -1075,29 +1095,28 @@ export default function Pemasukan() {
               </Typography>
               <Divider />
             </Box>
-            <DatePicker
-              label="Tanggal"
+            <TextField
+              label="Tanggal dan Waktu"
+              name="tanggal"
+              type="datetime-local"
               value={formData.tanggal}
-              onChange={(newValue) => setFormData(prev => ({ ...prev, tanggal: newValue }))}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  required
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      '&:hover fieldset': {
-                        borderColor: '#2e7d32',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#2e7d32',
-                        borderWidth: '2px',
-                      }
-                    }
-                  }}
-                />
-              )}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              InputLabelProps={{ shrink: true }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                  '&:hover fieldset': {
+                    borderColor: '#2e7d32',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#2e7d32',
+                    borderWidth: '2px',
+                  }
+                }
+              }}
+              inputProps={{ 'aria-label': 'Tanggal dan waktu pemasukan' }}
             />
             <TextField
               label="Jumlah"
@@ -1115,7 +1134,7 @@ export default function Pemasukan() {
                 )
               }}
               placeholder="Contoh: 1.000.000"
-              inputProps={{ 'aria-label': 'Nominal pemasukan' }}
+              inputProps={{ 'aria-label': 'Jumlah pemasukan' }}
             />
             <TextField
               label="Kategori"
@@ -1207,7 +1226,7 @@ export default function Pemasukan() {
                 }}
               >
                 <ReceiptIcon sx={{ fontSize: 20 }} />
-                Unggah Nota (Opsional)
+                Upload Nota (Opsional)
               </Typography>
               <Box
                 sx={{
@@ -1231,14 +1250,14 @@ export default function Pemasukan() {
                   onChange={handleInputChange}
                   style={{ display: 'none' }}
                   id="nota-upload"
-                  aria-label="Unggah nota pemasukan"
+                  aria-label="Upload nota pemasukan"
                 />
                 <label htmlFor="nota-upload" style={{ cursor: 'pointer' }}>
                   {previewUrl ? (
                     <Box sx={{ position: 'relative' }}>
                       <img
                         src={previewUrl}
-                        alt="Pratinjau Nota"
+                        alt="Preview Nota"
                         style={{
                           maxWidth: '100%',
                           maxHeight: '200px',
@@ -1253,7 +1272,7 @@ export default function Pemasukan() {
                           color: 'text.secondary'
                         }}
                       >
-                        Klik untuk mengganti nota
+                        Klik untuk mengganti gambar
                       </Typography>
                     </Box>
                   ) : (
