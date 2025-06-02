@@ -1,5 +1,6 @@
 'use client'
 
+import { API_ENDPOINTS } from '@/config/api'
 import { laporanService } from '@/services/laporanService'
 import {
   AccountBalance as AccountBalanceIcon,
@@ -8,7 +9,8 @@ import {
   FileDownload as FileDownloadIcon,
   PictureAsPdf as PdfIcon,
   TrendingDown as TrendingDownIcon,
-  TrendingUp as TrendingUpIcon
+  TrendingUp as TrendingUpIcon,
+  Visibility as VisibilityIcon
 } from '@mui/icons-material'
 import {
   Alert,
@@ -25,6 +27,7 @@ import {
   Fade,
   FormControl,
   Grid,
+  IconButton,
   InputLabel,
   Menu,
   MenuItem,
@@ -69,39 +72,12 @@ const fadeIn = keyframes`
   }
 `
 
-const shimmer = keyframes`
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-`
-
 const AnimatedContainer = styled(Container)`
   animation: ${fadeIn} 0.5s ease-out;
 `
 
 const AnimatedTypography = styled(Typography)`
   animation: ${fadeIn} 0.8s ease-out;
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0) 100%
-    );
-    background-size: 1000px 100%;
-    animation: ${shimmer} 2s infinite linear;
-  }
 `
 
 const StyledCard = styled(Card)(({ theme, variant, delay = 0 }) => ({
@@ -227,7 +203,29 @@ export default function LaporanKeuangan() {
   const [confirmedStartDate, setConfirmedStartDate] = useState(null)
   const [confirmedEndDate, setConfirmedEndDate] = useState(null)
   const [previousTimeRange, setPreviousTimeRange] = useState('7days')
+  const [showNotaPopup, setShowNotaPopup] = useState(false)
+  const [notaUrl, setNotaUrl] = useState(null)
   const open = Boolean(anchorEl)
+
+  // Function to check if the nota is an image
+  const isImage = (url) => /\.(jpg|jpeg|png)$/i.test(url)
+
+  // Function to get the full nota URL
+  const getNotaLink = (nota) => {
+    return nota && nota.trim() !== '' ? `${API_ENDPOINTS.BENDAHARA.UPLOAD_URL}${nota}` : null
+  }
+
+  // Handle opening the nota popup
+  const handleOpenNotaPopup = (url) => {
+    setNotaUrl(url)
+    setShowNotaPopup(true)
+  }
+
+  // Handle closing the nota popup
+  const handleCloseNotaPopup = () => {
+    setShowNotaPopup(false)
+    setNotaUrl(null)
+  }
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -280,7 +278,8 @@ export default function LaporanKeuangan() {
         minute: '2-digit'
       })
     } catch (e) {
-      return backendDateString
+      console.error('Error parsing date:', backendDateString, e)
+      return 'Tanggal Tidak Valid'
     }
   }
 
@@ -665,6 +664,63 @@ export default function LaporanKeuangan() {
             {alert.message}
           </Alert>
         </Fade>
+
+        {/* Nota Popup Dialog */}
+        <Dialog open={showNotaPopup} onClose={handleCloseNotaPopup} maxWidth="sm" fullWidth>
+          <DialogTitle sx={{
+            background: 'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
+          }}>
+            <VisibilityIcon />
+            Lihat Nota
+          </DialogTitle>
+          <DialogContent sx={{
+            py: 4,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            {notaUrl && isImage(notaUrl) ? (
+              <Box
+                component="img"
+                src={notaUrl}
+                alt="Nota"
+                sx={{
+                  maxWidth: '100%',
+                  maxHeight: '400px',
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}
+              />
+            ) : (
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
+                  File bukan gambar (misalnya, PDF). Silakan unduh untuk melihat.
+                </Typography>
+                <Button
+                  variant="contained"
+                  href={notaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    borderRadius: '10px',
+                    bgcolor: '#1976D2',
+                    '&:hover': { bgcolor: '#1565C0' }
+                  }}
+                >
+                  Unduh File
+                </Button>
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseNotaPopup} variant="outlined">Tutup</Button>
+          </DialogActions>
+        </Dialog>
 
         {loading && isLoadingSummary ? (
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -1104,7 +1160,11 @@ export default function LaporanKeuangan() {
                               }
                             </TableCell>
                             <TableCell align='center' sx={{ fontWeight: 500 }}>
-                              {formatNota(row.nota)}
+                              {row.nota ? (
+                                <IconButton onClick={() => handleOpenNotaPopup(getNotaLink(row.nota))}>
+                                  <VisibilityIcon />
+                                </IconButton>
+                              ) : 'Tidak Ada'}
                             </TableCell>
                             <TableCell align='right' sx={{
                               fontWeight: 600,
@@ -1171,7 +1231,11 @@ export default function LaporanKeuangan() {
                         Nota
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {formatNota(row.nota)}
+                        {row.nota ? (
+                          <IconButton onClick={() => handleOpenNotaPopup(getNotaLink(row.nota))}>
+                            <VisibilityIcon />
+                          </IconButton>
+                        ) : 'Tidak Ada'}
                       </Typography>
                     </Box>
                     <Box sx={{ mb: 2 }}>
