@@ -37,6 +37,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
   Tooltip,
@@ -53,7 +54,7 @@ import autoTable from 'jspdf-autotable'
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 
-// Fungsi untuk menerjemahkan pesan error dari backend atau pustaka eksternal
+// Fungsi untuk menerjemahkan pesan kode
 const translateErrorMessage = (message) => {
   const translations = {
     'Failed to fetch data': 'Gagal mengambil data',
@@ -64,7 +65,7 @@ const translateErrorMessage = (message) => {
     'Failed to generate Excel': 'Gagal membuat Excel',
     'Unsupported format': 'Format tidak didukung',
   }
-  return translations[message] || message
+  return translations[message] || message || 'Terjadi Kesalahan'
 }
 
 const slideUp = keyframes`
@@ -87,39 +88,12 @@ const fadeIn = keyframes`
   }
 `
 
-const shimmer = keyframes`
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-`
-
 const AnimatedContainer = styled(Container)`
   animation: ${fadeIn} 0.5s ease-out;
 `
 
 const AnimatedTypography = styled(Typography)`
   animation: ${fadeIn} 0.8s ease-out;
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0) 100%
-    );
-    background-size: 1000px 100%;
-    animation: ${shimmer} 2s infinite linear;
-  }
 `
 
 const StyledCard = styled(Card)(({ theme, variant, delay = 0 }) => ({
@@ -247,14 +221,14 @@ export default function LaporanKeuangan() {
   const [previousTimeRange, setPreviousTimeRange] = useState('7days')
   const [showNotaPopup, setShowNotaPopup] = useState(false)
   const [notaUrl, setNotaUrl] = useState(null)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
   const open = Boolean(anchorEl)
 
   const loadImageAsBase64 = async (url) => {
     try {
-      console.log('Mengambil gambar:', url)
       const response = await fetch(url, { mode: 'cors' })
-      console.log('Status respons:', response.status)
-      if (!response.ok) throw new Error(`Gagal memuat gambar: ${translateErrorMessage(response.statusText)}`)
+      if (!response.ok) throw new Error(`Gagal memuat gambar: ${response.statusText}`)
       const blob = await response.blob()
       return new Promise((resolve) => {
         const reader = new FileReader()
@@ -321,9 +295,10 @@ export default function LaporanKeuangan() {
   const formatDateTime = (backendDateString) => {
     if (!backendDateString) return '-'
     try {
-      return dayjs(backendDateString, 'DD-MM-YYYY HH:mm:ss').format('DD/MM/YYYY HH:mm')
+      return dayjs(backendDateString, 'DD-MM-YYYY HH:mm').format('DD/MM/YYYY HH:mm')
     } catch (e) {
-      return backendDateString
+      console.error('Error parsing date:', backendDateString, e)
+      return 'Tanggal Tidak Valid'
     }
   }
 
@@ -337,7 +312,6 @@ export default function LaporanKeuangan() {
 
   const getDateRange = (range) => {
     const today = dayjs()
-    const startDate = dayjs()
     if (range === 'custom' && confirmedStartDate && confirmedEndDate) {
       const start = dayjs(confirmedStartDate).startOf('day')
       const end = dayjs(confirmedEndDate).endOf('day')
@@ -386,7 +360,6 @@ export default function LaporanKeuangan() {
       } else {
         rangeData = await laporanService.getLaporanByDateRange(start, end)
       }
-      console.log('Data berhasil diambil:', rangeData)
       setData(rangeData)
       setFilteredData(rangeData)
     } catch (error) {
@@ -541,8 +514,8 @@ export default function LaporanKeuangan() {
         currentY += 10
       } else {
         const imagePromises = filteredData
-          .slice(0, 50)
-          .map((row, index) => row.nota ? ({ index, url: getNotaLink(row.nota) }) : null)
+          .slice(0, 30) // Batasi hingga 30 gambar untuk performa
+          .map((row, index) => row.nota && isImage(getNotaLink(row.nota)) ? ({ index, url: getNotaLink(row.nota) }) : null)
           .filter(Boolean)
           .map(async ({ index, url }) => ({
             index,
@@ -556,7 +529,7 @@ export default function LaporanKeuangan() {
           row.keterangan,
           formatRupiah(row.pemasukan || 0),
           formatRupiah(row.pengeluaran || 0),
-          row.nota ? 'Lihat Nota' : 'Tidak Ada',
+          row.nota ? (isImage(getNotaLink(row.nota)) ? 'Lihat Gambar' : 'Lihat File') : 'Tidak Ada',
           formatRupiah(row.total_saldo || 0)
         ])
 
@@ -671,7 +644,7 @@ export default function LaporanKeuangan() {
         Keterangan: row.keterangan,
         Pemasukan: row.pemasukan || 0,
         Pengeluaran: row.pengeluaran || 0,
-        Nota: row.nota ? { t: 's', v: 'Buka Gambar Nota', l: { Target: getNotaLink(row.nota) } } : 'Tidak Ada',
+        Nota: row.nota ? { t: 's', v: 'Buka Nota', l: { Target: getNotaLink(row.nota) } } : 'Tidak Ada',
         Saldo: row.total_saldo || 0
       })))
       const colWidths = [
@@ -704,7 +677,7 @@ export default function LaporanKeuangan() {
     { value: '1month', label: '1 Bulan Terakhir' },
     { value: '3months', label: '3 Bulan Terakhir' },
     { value: '6months', label: '6 Bulan Terakhir' },
-    { value: '1year', label: '1 Tahun Terakhir' },
+    { value: '1year', label: '1 Tahun' },
     { value: 'custom', label: 'Custom' }
   ]
 
@@ -720,6 +693,7 @@ export default function LaporanKeuangan() {
       setTempEndDate(null)
       setConfirmedStartDate(null)
       setConfirmedEndDate(null)
+      setPage(0)
     }
   }
 
@@ -732,8 +706,8 @@ export default function LaporanKeuangan() {
       })
       return
     }
-    const start = dayjs(tempStartDate).startOf('day')
-    const end = dayjs(tempEndDate).endOf('day')
+    const start = dayjs(tempStartDate)
+    const end = dayjs(tempEndDate)
     if (start.isAfter(end)) {
       setAlert({
         open: true,
@@ -744,6 +718,7 @@ export default function LaporanKeuangan() {
     }
     setConfirmedStartDate(tempStartDate)
     setConfirmedEndDate(tempEndDate)
+    setPage(0)
     setShowCustomCalendar(false)
   }
 
@@ -756,24 +731,33 @@ export default function LaporanKeuangan() {
     setConfirmedEndDate(null)
   }
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage)
+  }
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
+  }
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
       <AnimatedContainer maxWidth="lg" sx={{
         mt: 4,
         mb: 4,
-        backgroundColor: theme => theme.palette.mode === 'dark' ? '#121212' : 'transparent',
+        backgroundColor: 'transparent',
         borderRadius: '16px',
-        padding: '24px'
+        padding: { xs: '16px', sm: '24px' }
       }}>
         <Fade in={alert.open}>
           <Alert
             severity={alert.severity}
             sx={{
               position: 'fixed',
-              top: 24,
-              right: 24,
+              top: 20,
+              right: 16,
               zIndex: 9999,
-              boxShadow: '0 4px 20px 0 rgba(0,0,0,0.1)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
               borderRadius: '12px'
             }}
             onClose={() => setAlert({ ...alert, open: false })}
@@ -782,49 +766,29 @@ export default function LaporanKeuangan() {
           </Alert>
         </Fade>
 
-        <Dialog
-          open={showNotaPopup}
-          onClose={handleCloseNotaPopup}
-          maxWidth="md"
-          fullWidth
-          PaperProps={{
-            sx: {
-              borderRadius: '16px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-              background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
-              margin: '16px',
-              width: 'calc(100% - 32px)',
-              maxHeight: 'calc(100vh - 32px)',
-            }
-          }}
-        >
+        <Dialog open={showNotaPopup} onClose={handleCloseNotaPopup} maxWidth="sm" fullWidth>
           <DialogTitle sx={{
-            pb: 2,
-            pt: 3,
-            px: 3,
-            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-            background: 'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            '& .MuiTypography-root': {
-              fontSize: '1.5rem',
-              fontWeight: 600,
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-            }
-          }}>
-            <VisibilityIcon sx={{ fontSize: 28 }} />
-            Lihat Nota
-          </DialogTitle>
-          <DialogContent sx={{
-            py: 4,
-            px: { xs: 3, sm: 4 },
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '200px'
-          }}>
+              pb: '2rem',
+              color: '#fff',
+              background: 'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)',
+              padding: '16px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <VisibilityIcon sx={{ fontSize: 24 }} />
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                Lihat Nota
+              </Typography>
+            </DialogTitle>
+            <DialogContent sx={{
+              padding: { xs: '16px', sm: '24px' },
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '200px'
+            }}
+          >
             {notaUrl && isImage(notaUrl) ? (
               <Box
                 component="img"
@@ -832,7 +796,7 @@ export default function LaporanKeuangan() {
                 alt="Nota"
                 sx={{
                   maxWidth: '100%',
-                  maxHeight: '60vh',
+                  maxHeight: '400px',
                   objectFit: 'contain',
                   borderRadius: '8px',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
@@ -851,9 +815,7 @@ export default function LaporanKeuangan() {
                   sx={{
                     borderRadius: '10px',
                     bgcolor: '#1976D2',
-                    '&:hover': {
-                      bgcolor: '#1565C0'
-                    }
+                    '&:hover': { bgcolor: '#1565C0' }
                   }}
                 >
                   Unduh File
@@ -862,10 +824,9 @@ export default function LaporanKeuangan() {
             )}
           </DialogContent>
           <DialogActions sx={{
-            px: 4,
-            py: 3,
+            padding: '16px 24px',
             borderTop: '1px solid rgba(0, 0, 0, 0.1)',
-            bgcolor: 'rgba(0, 0, 0, 0.02)',
+            background: 'rgba(0, 0, 0, 0.02)'
           }}>
             <Button
               onClick={handleCloseNotaPopup}
@@ -874,11 +835,7 @@ export default function LaporanKeuangan() {
                 borderRadius: '10px',
                 borderColor: '#666',
                 color: '#666',
-                '&:hover': {
-                  borderColor: '#1976D2',
-                  color: '#1976D2',
-                  bgcolor: 'rgba(25, 118, 210, 0.04)'
-                }
+                '&:hover': { borderColor: '#1976D2', color: '#1976D2' }
               }}
             >
               Tutup
@@ -900,51 +857,22 @@ export default function LaporanKeuangan() {
               flexDirection: { xs: 'column', sm: 'row' },
               gap: { xs: 2, sm: 0 }
             }}>
-              <AnimatedTypography
-                variant="h4"
-                sx={{
-                  fontWeight: 600,
-                  color: theme => theme.palette.mode === 'dark' ? '#42A5F5' : '#1976D2',
-                  textShadow: theme => theme.palette.mode === 'dark' ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
-                  fontSize: { xs: '1.5rem', sm: '2rem' }
-                }}
-              >
+              <AnimatedTypography variant="h4" sx={{ fontWeight: 600, color: '#1976D2' }}>
                 Laporan Keuangan
               </AnimatedTypography>
-              <Box sx={{
-                display: 'flex',
-                gap: 2,
-                width: { xs: '100%', sm: 'auto' },
-                flexDirection: { xs: 'column', sm: 'row' }
-              }}>
-                <StyledFormControl
-                  variant="outlined"
-                  size="large"
-                  sx={{
-                    minWidth: { xs: '100%', sm: '250px' }
-                  }}
-                >
+              <Box sx={{ display: 'flex', gap: 2, width: { xs: '100%', sm: 'auto' }, flexDirection: { xs: 'column', sm: 'row' } }}>
+                <StyledFormControl variant="outlined" size="small" sx={{ minWidth: { xs: '100%', sm: 200 } }}>
                   <InputLabel>Filter Periode</InputLabel>
-                  <Select
-                    value={timeRange}
-                    onChange={handleTimeRangeChange}
-                    label="Filter Periode"
-                  >
+                  <Select value={timeRange} onChange={handleTimeRangeChange} label="Filter Periode">
                     {timeRangeOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
+                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                     ))}
                   </Select>
                 </StyledFormControl>
                 <Button
                   variant="outlined"
                   onClick={() => fetchDataByRange(timeRange)}
-                  fullWidth={false}
-                  sx={{
-                    borderRadius: '12px',
-                    minWidth: { xs: '100%', sm: '120px' }
-                  }}
+                  sx={{ borderRadius: '12px', minWidth: { xs: '100%', sm: 120 } }}
                 >
                   Refresh Data
                 </Button>
@@ -952,10 +880,7 @@ export default function LaporanKeuangan() {
                   variant="contained"
                   startIcon={<FileDownloadIcon />}
                   onClick={handleClick}
-                  fullWidth={false}
-                  sx={{
-                    minWidth: { xs: '100%', sm: '160px' }
-                  }}
+                  sx={{ minWidth: { xs: '100%', sm: 160 } }}
                 >
                   Unduh Laporan
                 </StyledButton>
@@ -964,485 +889,158 @@ export default function LaporanKeuangan() {
 
             <Grid container spacing={3} mb={4}>
               <Grid item xs={12} sm={4}>
-                <StyledCard variant="income" delay={0.2} sx={{
-                  p: { xs: 2, sm: 3 },
-                  minHeight: { xs: '120px', sm: '140px' }
-                }}>
-                  <IconWrapper>
-                    <TrendingUpIcon sx={{ fontSize: { xs: 36, sm: 48 } }} />
-                  </IconWrapper>
-                  <Typography variant="subtitle1" sx={{
-                    mb: 1,
-                    opacity: 0.8,
-                    position: 'relative',
-                    zIndex: 1,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }
-                  }}>
-                    Total Pemasukan
-                  </Typography>
-                  <Typography variant="h4" sx={{
-                    fontWeight: 600,
-                    position: 'relative',
-                    zIndex: 1,
-                    fontSize: { xs: '1.5rem', sm: '2rem' }
-                  }}>
+                <StyledCard variant="income" delay={0.2}>
+                  <IconWrapper><TrendingUpIcon /></IconWrapper>
+                  <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.8 }}>Total Pemasukan</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
                     {isLoadingSummary ? 'Memuat...' : formatRupiah(totalPemasukan)}
                   </Typography>
                 </StyledCard>
               </Grid>
               <Grid item xs={12} sm={4}>
-                <StyledCard variant="expense" delay={0.4} sx={{
-                  p: { xs: 2, sm: 3 },
-                  minHeight: { xs: '120px', sm: '140px' }
-                }}>
-                  <IconWrapper>
-                    <TrendingDownIcon sx={{ fontSize: { xs: 36, sm: 48 } }} />
-                  </IconWrapper>
-                  <Typography variant="subtitle1" sx={{
-                    mb: 1,
-                    opacity: 0.8,
-                    position: 'relative',
-                    zIndex: 1,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }
-                  }}>
-                    Total Pengeluaran
-                  </Typography>
-                  <Typography variant="h4" sx={{
-                    fontWeight: 600,
-                    position: 'relative',
-                    zIndex: 1,
-                    fontSize: { xs: '1.5rem', sm: '2rem' }
-                  }}>
+                <StyledCard variant="expense" delay={0.4}>
+                  <IconWrapper><TrendingDownIcon /></IconWrapper>
+                  <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.8 }}>Total Pengeluaran</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
                     {isLoadingSummary ? 'Memuat...' : formatRupiah(totalPengeluaran)}
                   </Typography>
                 </StyledCard>
               </Grid>
               <Grid item xs={12} sm={4}>
-                <StyledCard delay={0.6} sx={{
-                  p: { xs: 2, sm: 3 },
-                  minHeight: { xs: '120px', sm: '140px' }
-                }}>
-                  <IconWrapper>
-                    <AccountBalanceIcon sx={{ fontSize: { xs: 36, sm: 48 } }} />
-                  </IconWrapper>
-                  <Typography variant="subtitle1" sx={{
-                    mb: 1,
-                    opacity: 0.8,
-                    position: 'relative',
-                    zIndex: 1,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }
-                  }}>
-                    Saldo Akhir
-                  </Typography>
-                  <Typography variant="h4" sx={{
-                    fontWeight: 600,
-                    position: 'relative',
-                    zIndex: 1,
-                    fontSize: { xs: '1.5rem', sm: '2rem' }
-                  }}>
+                <StyledCard delay={0.6}>
+                  <IconWrapper><AccountBalanceIcon /></IconWrapper>
+                  <Typography variant="subtitle1" sx={{ mb: 1, opacity: 0.8 }}>Saldo Akhir</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
                     {isLoadingSummary ? 'Memuat...' : formatRupiah(saldoAkhir)}
                   </Typography>
                 </StyledCard>
               </Grid>
             </Grid>
 
-            <Menu
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              sx={{
-                '& .MuiPaper-root': {
-                  borderRadius: '12px',
-                  boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-                  minWidth: { xs: '200px', sm: '250px' }
-                },
-              }}
-            >
-              <MenuItem onClick={generatePDF} sx={{ py: { xs: 1.5, sm: 1 } }}>
-                <PdfIcon sx={{ mr: 1, color: '#f44336' }} /> Unduh PDF
-              </MenuItem>
-              <MenuItem onClick={exportToExcel} sx={{ py: { xs: 1.5, sm: 1 } }}>
-                <ExcelIcon sx={{ mr: 1, color: '#4CAF50' }} /> Unduh Excel
-              </MenuItem>
+            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+              <MenuItem onClick={generatePDF}><PdfIcon sx={{ mr: 2, color: '#f44336' }} /> Unduh PDF</MenuItem>
+              <MenuItem onClick={exportToExcel}><ExcelIcon sx={{ mr: 2, color: '#4CAF50' }} /> Unduh Excel</MenuItem>
             </Menu>
 
-            <Dialog
-              open={showCustomCalendar}
-              onClose={handleCancelDateRange}
-              maxWidth="sm"
-              fullWidth
-              PaperProps={{
-                sx: {
-                  borderRadius: '16px',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                  background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
-                  margin: '16px',
-                  width: 'calc(100% - 32px)',
-                  maxHeight: 'calc(100vh - 32px)',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }
-              }}
-            >
+            <Dialog open={showCustomCalendar} onClose={handleCancelDateRange} maxWidth="xs" fullWidth>
               <DialogTitle sx={{
-                pb: 2,
-                pt: 3,
-                px: 3,
-                borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-                background: 'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)',
-                color: 'white',
+                background: 'linear-gradient(45deg, #1976D2, #2196F3)',
+                color: '#fff',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1,
-                '& .MuiTypography-root': {
-                  fontSize: '1.5rem',
-                  fontWeight: 600,
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                }
+                gap: '10px'
               }}>
-                <CalendarTodayIcon sx={{ fontSize: 28 }} />
+                <CalendarTodayIcon />
                 Pilih Rentang Tanggal
               </DialogTitle>
-              <DialogContent sx={{
-                py: 4,
-                px: { xs: 3, sm: 4 },
-                overflowY: 'auto',
-                flex: 1
-              }}>
-                <Box sx={{
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: 1,
-                  background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
-                  pt: 2,
-                  pb: 3,
-                  mb: 2,
-                  borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
-                }}>
-                  <Box sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    gap: 2
-                  }}>
-                    <DatePicker
-                      label="Tanggal Mulai"
-                      value={tempStartDate}
-                      onChange={(newValue) => setTempStartDate(newValue)}
-                      disableFuture
-                      maxDate={tempEndDate || undefined}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          size="small"
-                          fullWidth
-                          helperText={tempStartDate && !dayjs(tempStartDate).isValid() ? 'Tanggal tidak valid' : null}
-                          error={tempStartDate && !dayjs(tempStartDate).isValid()}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: '10px',
-                              '&:hover fieldset': {
-                                borderColor: '#1976D2',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: '#1976D2',
-                                borderWidth: '2px',
-                              }
-                            }
-                          }}
-                        />
-                      )}
-                    />
-                    <DatePicker
-                      label="Tanggal Akhir"
-                      value={tempEndDate}
-                      onChange={(newValue) => setTempEndDate(newValue)}
-                      disableFuture
-                      minDate={tempStartDate || undefined}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          size="small"
-                          fullWidth
-                          helperText={tempEndDate && !dayjs(tempEndDate).isValid() ? 'Tanggal tidak valid' : null}
-                          error={tempEndDate && !dayjs(tempEndDate).isValid()}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: '10px',
-                              '&:hover fieldset': {
-                                borderColor: '#1976D2',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: '#1976D2',
-                                borderWidth: '2px',
-                              }
-                            }
-                          }}
-                        />
-                      )}
-                    />
-                  </Box>
-                  {tempStartDate && tempEndDate && dayjs(tempStartDate).startOf('day').isAfter(dayjs(tempEndDate).endOf('day')) && (
-                    <Typography color="error" variant="caption" sx={{ mt: 1 }}>
-                      Tanggal mulai harus sebelum tanggal akhir
-                    </Typography>
-                  )}
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="body2" color="textSecondary">
-                      Pilih rentang tanggal untuk memfilter data laporan keuangan. Tanggal yang dipilih akan diterapkan setelah Anda menekan tombol "Terapkan".
-                    </Typography>
-                  </Box>
+              <DialogContent sx={{ padding: '20px' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                  <DatePicker
+                    label="Tanggal Mulai"
+                    value={tempStartDate}
+                    onChange={(newValue) => setTempStartDate(newValue)}
+                    renderInput={(params) => <TextField {...params} fullWidth />}
+                  />
+                  <DatePicker
+                    label="Tanggal Akhir"
+                    value={tempEndDate}
+                    onChange={(newValue) => setTempEndDate(newValue)}
+                    renderInput={(params) => <TextField {...params} fullWidth />}
+                  />
                 </Box>
               </DialogContent>
-              <DialogActions sx={{
-                px: 4,
-                py: 3,
-                borderTop: '1px solid rgba(0, 0, 0, 0.1)',
-                bgcolor: 'rgba(0, 0, 0, 0.02)',
-                flexShrink: 0,
-                position: 'sticky',
-                bottom: 0,
-                background: 'inherit',
-                zIndex: 1
-              }}>
-                <Button
-                  onClick={handleCancelDateRange}
-                  variant="outlined"
-                  sx={{
-                    borderRadius: '10px',
-                    borderColor: '#666',
-                    color: '#666',
-                    '&:hover': {
-                      borderColor: '#1976D2',
-                      color: '#1976D2',
-                      bgcolor: 'rgba(25, 118, 210, 0.04)'
-                    },
-                    px: 3,
-                    py: 1
-                  }}
-                >
-                  Batal
-                </Button>
-                <Button
-                  onClick={handleApplyDateRange}
-                  variant="contained"
-                  disabled={!tempStartDate || !tempEndDate || !dayjs(tempStartDate).isValid() || !dayjs(tempEndDate).isValid() || dayjs(tempStartDate).startOf('day').isAfter(dayjs(tempEndDate).endOf('day'))}
-                  sx={{
-                    borderRadius: '10px',
-                    bgcolor: '#1976D2',
-                    '&:hover': {
-                      bgcolor: '#1565C0'
-                    },
-                    '&.Mui-disabled': {
-                      bgcolor: '#B0BEC5',
-                      color: '#FFFFFF'
-                    },
-                    px: 3,
-                    py: 1
-                  }}
-                >
-                  Terapkan
-                </Button>
+              <DialogActions>
+                <Button onClick={handleCancelDateRange}>Batal</Button>
+                <Button onClick={handleApplyDateRange} variant="contained">Terapkan</Button>
               </DialogActions>
             </Dialog>
 
-            <StyledCard sx={{
-              p: 0,
-              background: 'white',
-              color: 'inherit',
-              display: { xs: 'none', md: 'block' }
-            }}>
-              <Box sx={{ p: 3 }}>
-                <Box sx={{
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                  p: 2,
-                  borderRadius: '8px 8px 0 0',
-                  fontWeight: 500
-                }}>
-                  Kelola data keuangan desa dengan mudah
-                </Box>
-                <Box sx={{ overflowX: 'auto', width: '100%' }}>
-                  <Table>
-                    <TableHead>
+            <StyledCard sx={{ display: { xs: 'none', md: 'block' } }}>
+              <StyledTableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Tanggal</TableCell>
+                      <TableCell>Keterangan</TableCell>
+                      <TableCell align="right">Nominal</TableCell>
+                      <TableCell align="center">Nota</TableCell>
+                      <TableCell align="right">Saldo</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {loading ? (
                       <TableRow>
-                        <TableCell>Tanggal</TableCell>
-                        <TableCell>Keterangan</TableCell>
-                        <TableCell align='right'>Nominal</TableCell>
-                        <TableCell align='center'>Nota</TableCell>
-                        <TableCell align='right'>Saldo</TableCell>
+                        <TableCell colSpan={5} align="center"><CircularProgress /></TableCell>
                       </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {loading ? (
-                        <TableRow>
-                          <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
-                            <CircularProgress />
+                    ) : filteredData.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} align="center">
+                          <AccountBalanceIcon sx={{ fontSize: 48, color: '#ccc' }} />
+                          <Typography variant="body1" color="textSecondary">Tidak ada data</Typography>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                        <TableRow key={row.id_pemasukan || row.id_pengeluaran || index}>
+                          <TableCell>{formatDateTime(row.tanggal)}</TableCell>
+                          <TableCell>{row.keterangan}</TableCell>
+                          <TableCell align="right" sx={{ color: row.pemasukan > 0 ? '#2e7d32' : '#d32f2f' }}>
+                            {row.pemasukan > 0 ? `+ ${formatRupiah(row.pemasukan)}` : `- ${formatRupiah(row.pengeluaran)}`}
                           </TableCell>
-                        </TableRow>
-                      ) : filteredData.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
-                            <AccountBalanceIcon sx={{ fontSize: 48, color: '#ccc', mb: 2 }} />
-                            <Typography variant="body1" color="textSecondary">
-                              Tidak ada data untuk periode ini
-                            </Typography>
+                          <TableCell align="center">
+                            {row.nota ? (
+                              <IconButton onClick={() => handleOpenNotaPopup(getNotaLink(row.nota))}>
+                                <VisibilityIcon />
+                              </IconButton>
+                            ) : 'Tidak Ada'}
                           </TableCell>
+                          <TableCell align="right">{formatRupiah(row.total_saldo)}</TableCell>
                         </TableRow>
-                      ) : (
-                        filteredData.map((row, index) => (
-                          <TableRow
-                            key={row.id_pemasukan || row.id_pengeluaran || index}
-                            sx={{
-                              '&:hover': {
-                                bgcolor: '#f8f9fa',
-                                '& .action-buttons': {
-                                  opacity: 1
-                                }
-                              }
-                            }}
-                          >
-                            <TableCell>{formatDateTime(row.tanggal)}</TableCell>
-                            <TableCell sx={{
-                              maxWidth: { md: '300px' },
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}>{row.keterangan}</TableCell>
-                            <TableCell
-                              align='right'
-                              sx={{
-                                color: row.pemasukan > 0 ? '#2e7d32' : '#d32f2f',
-                                fontWeight: 600,
-                                whiteSpace: 'nowrap'
-                              }}
-                            >
-                              {row.pemasukan > 0
-                                ? `+ ${formatRupiah(row.pemasukan)}`
-                                : `- ${formatRupiah(row.pengeluaran)}`
-                              }
-                            </TableCell>
-                            <TableCell align='center' sx={{ fontWeight: 500 }}>
-                              {row.nota ? (
-                                <Tooltip title="Lihat Nota">
-                                  <IconButton
-                                    onClick={() => handleOpenNotaPopup(getNotaLink(row.nota))}
-                                    sx={{ color: '#1976D2' }}
-                                  >
-                                    <VisibilityIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              ) : (
-                                'Tidak Ada'
-                              )}
-                            </TableCell>
-                            <TableCell align='right' sx={{
-                              fontWeight: 600,
-                              whiteSpace: 'nowrap'
-                            }}>
-                              {formatRupiah(row.total_saldo)}
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </Box>
-              </Box>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25]}
+                  component="div"
+                  count={filteredData.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+              </StyledTableContainer>
             </StyledCard>
 
-            <Box sx={{ display: { xs: 'flex', md: 'none' }, flexDirection: 'column', gap: 2 }}>
-              {filteredData.map((row, index) => (
-                <Card
-                  key={row.id_pemasukan || row.id_pengeluaran || index}
-                  sx={{
-                    borderRadius: '16px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    overflow: 'visible',
-                    bgcolor: 'background.paper'
-                  }}
-                >
-                  <CardContent sx={{ p: 2 }}>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="caption" color="textSecondary">
-                        Tanggal
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {formatDateTime(row.tanggal)}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="caption" color="textSecondary">
-                        Keterangan
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {row.keterangan}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="caption" color="textSecondary">
-                        Nominal
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          fontWeight: 600,
-                          color: row.pemasukan > 0 ? '#2e7d32' : '#d32f2f'
-                        }}
-                      >
-                        {row.pemasukan > 0
-                          ? `+ ${formatRupiah(row.pemasukan)}`
-                          : `- ${formatRupiah(row.pengeluaran)}`
-                        }
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="caption" color="textSecondary">
-                        Nota
-                      </Typography>
-                      {row.nota ? (
-                        <Tooltip title="Lihat Nota">
-                          <IconButton
-                            onClick={() => handleOpenNotaPopup(getNotaLink(row.nota))}
-                            sx={{ color: '#1976D2' }}
-                          >
-                            <VisibilityIcon />
-                          </IconButton>
-                        </Tooltip>
-                      ) : (
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          Tidak Ada
-                        </Typography>
-                      )}
-                    </Box>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="caption" color="textSecondary">
-                        Saldo
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                        {formatRupiah(row.total_saldo)}
-                      </Typography>
-                    </Box>
+            <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+              {filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                <Card key={row.id_pemasukan || row.id_pengeluaran || index} sx={{ mb: 2, borderRadius: '12px' }}>
+                  <CardContent>
+                    <Typography variant="body2">Tanggal: {formatDateTime(row.tanggal)}</Typography>
+                    <Typography variant="body2">Keterangan: {row.keterangan}</Typography>
+                    <Typography variant="body2" sx={{ color: row.pemasukan > 0 ? '#2e7d32' : '#d32f2f' }}>
+                      Nominal: {row.pemasukan > 0 ? `+ ${formatRupiah(row.pemasukan)}` : `- ${formatRupiah(row.pengeluaran)}`}
+                    </Typography>
+                    <Typography variant="body2">
+                      Nota: {row.nota ? (
+                        <IconButton onClick={() => handleOpenNotaPopup(getNotaLink(row.nota))}>
+                          <VisibilityIcon />
+                        </IconButton>
+                      ) : 'Tidak Ada'}
+                    </Typography>
+                    <Typography variant="body2">Saldo: {formatRupiah(row.total_saldo)}</Typography>
                   </CardContent>
                 </Card>
               ))}
-              {filteredData.length === 0 && (
-                <Box
-                  sx={{
-                    textAlign: 'center',
-                    py: 8,
-                    bgcolor: 'background.paper',
-                    borderRadius: '16px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  <AccountBalanceIcon sx={{ fontSize: 48, color: '#ccc', mb: 2 }} />
-                  <Typography variant="body1" color="textSecondary">
-                    Tidak ada data untuk periode ini
-                  </Typography>
-                </Box>
-              )}
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredData.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
             </Box>
           </div>
         )}
