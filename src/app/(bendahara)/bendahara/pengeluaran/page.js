@@ -249,57 +249,35 @@ export default function Pengeluaran() {
   };
 
   const getDateRange = (range) => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const startDate = new Date()
-    startDate.setHours(0, 0, 0, 0)
-
+    const today = dayjs();
     if (range === 'custom' && confirmedStartDate && confirmedEndDate) {
-      const start = startOfDay(new Date(confirmedStartDate))
-      const end = endOfDay(new Date(confirmedEndDate))
-      if (start > end) {
-        setAlert({
-          open: true,
-          message: 'Tanggal mulai harus sebelum tanggal akhir',
-          severity: 'error'
-        })
-        return { start: null, end: null }
+      const start = dayjs(confirmedStartDate).startOf('day');
+      const end = dayjs(confirmedEndDate).endOf('day');
+      if (start.isAfter(end)) {
+        showSnackbar('Tanggal mulai harus sebelum tanggal akhir', 'error');
+        return { start: null, end: null };
       }
-      return { start: formatDate(start), end: formatDate(end) }
+      return { start: formatDate(start), end: formatDate(end) };
     }
-
     switch (range) {
       case 'today':
-        return { start: formatDate(today), end: formatDate(today.setHours(24, 0, 0, 0)) }
+        return { start: formatDate(today.startOf('day')), end: formatDate(today.endOf('day')) };
       case 'yesterday':
-        startDate.setDate(today.getDate() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(1, 'day').startOf('day')), end: formatDate(today.startOf('day')) };
       case '7days':
-        today.setHours(24, 0, 0, 0)
-        startDate.setDate(today.getDate() - 7)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(7, 'day').startOf('day')), end: formatDate(today.endOf('day')) };
       case '1month':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(1, 'month').startOf('day')), end: formatDate(today.endOf('day')) };
       case '3months':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 3)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(3, 'month').startOf('day')), end: formatDate(today.endOf('day')) };
       case '6months':
-        today.setHours(24, 0, 0, 0)
-        startDate.setMonth(today.getMonth() - 6)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(6, 'month').startOf('day')), end: formatDate(today.endOf('day')) };
       case '1year':
-        today.setHours(24, 0, 0, 0)
-        startDate.setFullYear(today.getFullYear() - 1)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(1, 'year').startOf('day')), end: formatDate(today.endOf('day')) };
       default:
-        today.setHours(24, 0, 0, 0)
-        startDate.setDate(today.getDate() - 7)
-        return { start: formatDate(startDate), end: formatDate(today) }
+        return { start: formatDate(today.subtract(7, 'day').startOf('day')), end: formatDate(today.endOf('day')) };
     }
-  }
+  };
 
   useEffect(() => {
     fetchData();
