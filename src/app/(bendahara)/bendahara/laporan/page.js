@@ -395,14 +395,34 @@ export default function LaporanKeuangan() {
     }).format(validNumber)
   }
 
-  // Function to convert image URL to base64
-  const getBase64Image = async (url) => {
+  // Helper to get image and its dimensions
+  const getImageData = async (url) => {
     try {
       const response = await fetch(url, { mode: 'cors' });
       const blob = await response.blob();
       return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          resolve({
+            base64: null,
+            width: img.width,
+            height: img.height
+          });
+          URL.revokeObjectURL(img.src);
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = URL.createObjectURL(blob);
+
         const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
+        reader.onloadend = () => {
+          resolve({
+            base64: reader.result,
+            width: img.width,
+            height: img.height
+          });
+          URL.revokeObjectURL(img.src);
+        };
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
@@ -418,6 +438,7 @@ export default function LaporanKeuangan() {
       const pageWidth = doc.internal.pageSize.width;
       const pageHeight = doc.internal.pageSize.height;
       const margin = 15;
+      const gridSpacing = 4; // Spacing between grid cells
       let currentY = margin;
 
       doc.setFont('helvetica', 'normal');
@@ -558,52 +579,85 @@ export default function LaporanKeuangan() {
           doc.text('Lampiran Nota', margin, currentY);
           currentY += 8;
 
-          for (let i = 0; i < notaList.length; i++) {
-            const nota = notaList[i].nota;
-            const notaUrl = getNotaLink(nota);
-            const isImageFile = isImage(notaUrl);
+          const gridColumns = 2;
+          const cellWidth = (pageWidth - 2 * margin - (gridColumns - 1) * gridSpacing) / gridColumns;
+          const maxCellHeight = 80; // Maximum height per grid cell
 
+          for (let i = 0; i < notaList.length; i += gridColumns) {
             // Add page break if near bottom of page
-            if (currentY + 80 > pageHeight - margin) {
+            if (currentY + maxCellHeight + 20 > pageHeight - margin) {
               doc.addPage();
               currentY = margin;
             }
 
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`Nota ${i + 1}`, margin, currentY);
-            currentY += 6;
+            // Process up to 'gridColumns' notas in this row
+            const rowNotas = notaList.slice(i, i + gridColumns);
 
-            if (isImageFile) {
-              const base64Image = await getBase64Image(notaUrl);
-              if (base64Image) {
+            // Calculate max height for this row
+            let rowHeight = 0;
+
+            // Pre-fetch images and calculate dimensions
+            const notaData = await Promise.all(
+              rowNotas.map(async ({ nota }, index) => {
+                const notaUrl = getNotaLink(nota);
+                const isImageFile = isImage(notaUrl);
+                let imageData = null;
+                let scaledWidth = cellWidth;
+                let scaledHeight = maxCellHeight;
+
+                if (isImageFile) {
+                  imageData = await getImageData(notaUrl);
+                  if (imageData && imageData.width && imageData.height) {
+                    const aspectRatio = imageData.width / imageData.height;
+                    scaledWidth = Math.min(cellWidth, imageData.width * (maxCellHeight / imageData.height));
+                    scaledHeight = scaledWidth / aspectRatio;
+                    if (scaledHeight > maxCellHeight) {
+                      scaledHeight = maxCellHeight;
+                      scaledWidth = scaledHeight * aspectRatio;
+                    }
+                  }
+                }
+
+                return { nota, notaUrl, isImageFile, imageData, scaledWidth, scaledHeight };
+              })
+            );
+
+            // Determine row height based on tallest cell
+            rowHeight = Math.max(...notaData.map(data => data.scaledHeight)) + 15; // Add space for label
+
+            // Render each nota in the row
+            notaData.forEach(({ nota, notaUrl, isImageFile, imageData, scaledWidth, scaledHeight }, index) => {
+              const x = margin + index * (cellWidth + gridSpacing);
+
+              // Draw label
+              doc.setFontSize(10);
+              doc.setFont('helvetica', 'bold');
+              doc.setTextColor(0, 0, 0);
+              doc.text(`Nota ${i + index + 1}`, x, currentY);
+
+              if (isImageFile && imageData && imageData.base64) {
                 try {
-                  doc.addImage(base64Image, 'JPEG', margin, currentY, 100, 60); // Adjust size as needed
-                  currentY += 65;
+                  doc.addImage(imageData.base64, 'JPEG', x, currentY + 5, scaledWidth, scaledHeight);
                 } catch (imgError) {
                   console.error('Error adding image to PDF:', imgError);
-                  doc.setFontSize(10);
+                  doc.setFontSize(9);
                   doc.setFont('helvetica', 'normal');
                   doc.setTextColor(100, 100, 100);
-                  doc.text('Gambar tidak dapat dimuat', margin, currentY);
-                  currentY += 10;
+                  doc.text('Gambar tidak dapat dimuat', x, currentY + 10);
+                  doc.rect(x, currentY + 15, cellWidth, maxCellHeight - 10, 'S');
                 }
               } else {
-                doc.setFontSize(10);
+                // Draw placeholder for non-image or failed image
+                doc.setFontSize(9);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(100, 100, 100);
-                doc.text('Gambar tidak tersedia', margin, currentY);
-                currentY += 10;
+                const placeholderText = isImageFile ? 'Gambar tidak tersedia' : `File: ${nota} (Bukan gambar)`;
+                doc.text(placeholderText, x, currentY + 10);
+                doc.rect(x, currentY + 15, cellWidth, maxCellHeight - 10, 'S');
               }
-            } else {
-              doc.setFontSize(10);
-              doc.setFont('helvetica', 'normal');
-              doc.setTextColor(0, 0, 0);
-              doc.text(`File: ${nota} (Tidak dapat ditampilkan sebagai gambar)`, margin, currentY);
-              currentY += 10;
-            }
+            });
 
-            currentY += 5; // Space between notas
+            currentY += rowHeight + gridSpacing;
           }
         }
       }
