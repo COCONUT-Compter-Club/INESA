@@ -71,7 +71,7 @@ const statusColors = {
 
 // Daftar opsi penandatangan
 const penandatanganOptions = {
-  'Kepala Desa': { namaLengkap: 'H. ABD. RASYID' },
+  'Kepala Desa': { namaLengkap: 'Hindu' },
   'Sekretaris Desa': { namaLengkap: 'SYAPARUDDIN' }
 };
 
@@ -112,86 +112,86 @@ const suratTemplates = {
     template: (data) => {
       const tanggalPembuatan = formatTanggalIndonesia(new Date());
       return `
-        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-            <div style="display: inline-flex; align-items: center;">
-              <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
-              <div>
-                <h2 style="margin: 0; font-size: 14pt;">PEMERINTAH KABUPATEN JENEPONTO</h2>
-                <h3 style="margin: 5px 0; font-size: 12pt;">KECAMATAN RUMBIA - DESA BONTOMANAI</h3>
-                <p style="margin: 0; font-size: 10pt;">Alamat: Pattiro, Desa Bontomanai, Kec. Rumbia</p>
+            <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                <div style="display: inline-flex; align-items: center;">
+                  <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
+                  <div>
+                    <h2 style="margin: 0; font-size: 14pt;">PEMERINTAH KABUPATEN JENEPONTO</h2>
+                    <h3 style="margin: 5px 0; font-size: 12pt;">KECAMATAN RUMBIA - DESA BONTOMANAI</h3>
+                    <p style="margin: 0; font-size: 10pt;">Alamat: Pattiro, Desa Bontomanai, Kec. Rumbia</p>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align: center; margin: 20px 0;">
+                <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN DOMISILI</p>
+                <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
+              </div>
+              <div style="margin: 30px 0; text-align: justify;">
+                <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
+                <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
+                  <tr>
+                    <td style="width: 120px;">Nama</td>
+                    <td style="width: 20px;">:</td>
+                    <td>${safeString(data.ttd_nama_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Jabatan</td>
+                    <td>:</td>
+                    <td>${safeString(data.ttd_nama)}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat</td>
+                    <td>:</td>
+                    <td>Pattiro, Desa Bontomanai, Kec. Rumbia</td>
+                  </tr>
+                </table>
+                <p style="margin-bottom: 10px;">Menerangkan bahwa:</p>
+                <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
+                  <tr>
+                    <td style="width: 120px;">Nama</td>
+                    <td style="width: 20px;">:</td>
+                    <td>${safeString(data.nama_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Tempat/Tgl Lahir</td>
+                    <td>:</td>
+                    <td>${safeString(data.tempat_lahir)} / ${data.tanggal_lahir ? formatTanggalIndonesia(data.tanggal_lahir) : '...........................'}</td>
+                  </tr>
+                  <tr>
+                    <td>Pekerjaan</td>
+                    <td>:</td>
+                    <td>${safeString(data.pekerjaan)}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat</td>
+                    <td>:</td>
+                    <td>${safeString(data.alamat_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Nomor HP</td>
+                    <td>:</td>
+                    <td>${safeString(data.nomor_hp)}</td>
+                  </tr>
+                </table>
+                <p style="text-indent: 40px; margin: 10px 0;">
+                  Adalah benar warga kami yang berdomisili di Dusun Bajiminasa, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, Provinsi Sulawesi Selatan.
+                </p>
+                <p style="text-indent: 40px; margin: 10px 0;">
+                  Demikian Surat Keterangan Domisili ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
+                </p>
+              </div>
+              <div style="margin-top: 60px; text-align: right;">
+                <p style="margin: 0;">Bontomanai, ${tanggalPembuatan}</p>
+                <p style="margin: 10px 0;">Mengetahui,</p>
+                <p style="margin: 10px 0;">${safeString(data.ttd_nama)}</p>
+                <div style="margin-top: 80px;">
+                  <p style="margin: 0; font-weight: bold; text-decoration: underline;">${safeString(data.ttd_nama_lengkap)}</p>
+                  <p style="margin: 5px 0;">NIP. ${safeString(data.nip)}</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div style="text-align: center; margin: 20px 0;">
-            <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN DOMISILI</p>
-            <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
-          </div>
-          <div style="margin: 30px 0; text-align: justify;">
-            <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
-            <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
-              <tr>
-                <td style="width: 120px;">Nama</td>
-                <td style="width: 20px;">:</td>
-                <td>${safeString(data.ttd_nama_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Jabatan</td>
-                <td>:</td>
-                <td>${safeString(data.ttd_nama)}</td>
-              </tr>
-              <tr>
-                <td>Alamat</td>
-                <td>:</td>
-                <td>Pattiro, Desa Bontomanai, Kec. Rumbia</td>
-              </tr>
-            </table>
-            <p style="margin-bottom: 10px;">Menerangkan bahwa:</p>
-            <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
-              <tr>
-                <td style="width: 120px;">Nama</td>
-                <td style="width: 20px;">:</td>
-                <td>${safeString(data.nama_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Tempat/Tgl Lahir</td>
-                <td>:</td>
-                <td>${safeString(data.tempat_lahir)} / ${data.tanggal_lahir ? formatTanggalIndonesia(data.tanggal_lahir) : '...........................'}</td>
-              </tr>
-              <tr>
-                <td>Pekerjaan</td>
-                <td>:</td>
-                <td>${safeString(data.pekerjaan)}</td>
-              </tr>
-              <tr>
-                <td>Alamat</td>
-                <td>:</td>
-                <td>${safeString(data.alamat_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Nomor HP</td>
-                <td>:</td>
-                <td>${safeString(data.nomor_hp)}</td>
-              </tr>
-            </table>
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Adalah benar warga kami yang berdomisili di Dusun Bajiminasa, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, Provinsi Sulawesi Selatan.
-            </p>
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Demikian Surat Keterangan Domisili ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-            </p>
-          </div>
-          <div style="margin-top: 60px; text-align: right;">
-            <p style="margin: 0;">Bontomanai, ${tanggalPembuatan}</p>
-            <p style="margin: 10px 0;">Mengetahui,</p>
-            <p style="margin: 10px 0;">${safeString(data.ttd_nama)}</p>
-            <div style="margin-top: 80px;">
-              <p style="margin: 0; font-weight: bold; text-decoration: underline;">${safeString(data.ttd_nama_lengkap)}</p>
-              <p style="margin: 5px 0;">NIP. ${safeString(data.nip)}</p>
-            </div>
-          </div>
-        </div>
-      `;
+          `;
     },
     formFields: [
       { name: 'no_surat', label: 'Nomor Surat', type: 'text', placeholder: 'Masukkan Nomor Surat', required: true },
@@ -201,7 +201,8 @@ const suratTemplates = {
       { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan' },
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true }
+      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
+      { name: 'tujuan', label: 'Ditujukan', type: 'text', placeholder: 'Masukkan Tujuan', required: true }
     ]
   },
   'Surat Keterangan Tidak Mampu': {
@@ -209,97 +210,97 @@ const suratTemplates = {
     template: (data) => {
       const tanggalPembuatan = formatTanggalIndonesia(new Date());
       return `
-        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-            <div style="display: inline-flex; align-items: center;">
-              <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
-              <div>
-                <h2 style="margin: 0; font-size: 14pt;">PEMERINTAH KABUPATEN JENEPONTO</h2>
-                <h3 style="margin: 5px 0; font-size: 12pt;">KECAMATAN RUMBIA - DESA BONTOMANAI</h3>
-                <p style="margin: 0; font-size: 10pt;">Alamat: Jalan Poros Jeneponto Malakaji, Bontomanai, Kec. Rumbia</p>
+            <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                <div style="display: inline-flex; align-items: center;">
+                  <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
+                  <div>
+                    <h2 style="margin: 0; font-size: 14pt;">PEMERINTAH KABUPATEN JENEPONTO</h2>
+                    <h3 style="margin: 5px 0; font-size: 12pt;">KECAMATAN RUMBIA - DESA BONTOMANAI</h3>
+                    <p style="margin: 0; font-size: 10pt;">Alamat: Jalan Poros Jeneponto Malakaji, Bontomanai, Kec. Rumbia</p>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align: center; margin: 20px 0;">
+                <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN TIDAK MAMPU</p>
+                <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
+              </div>
+              <div style="margin: 30px 0; text-align: justify;">
+                <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
+                <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
+                  <tr>
+                    <td style="width: 120px;">Nama</td>
+                    <td style="width: 20px;">:</td>
+                    <td>${safeString(data.ttd_nama_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Jabatan</td>
+                    <td>:</td>
+                    <td>${safeString(data.ttd_nama)}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat</td>
+                    <td>:</td>
+                    <td>Dusun Pattiro, Desa Bontomanai, Kec. Rumbia</td>
+                  </tr>
+                </table>
+                <p style="margin-bottom: 10px;">Dengan ini menerangkan dengan sebenarnya bahwa:</p>
+                <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
+                  <tr>
+                    <td style="width: 120px;">Nama</td>
+                    <td style="width: 20px;">:</td>
+                    <td>${safeString(data.nama_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>NIK</td>
+                    <td>:</td>
+                    <td>${safeString(data.nik)}</td>
+                  </tr>
+                  <tr>
+                    <td>Jenis Kelamin</td>
+                    <td>:</td>
+                    <td>${safeString(data.jenis_kelamin)}</td>
+                  </tr>
+                  <tr>
+                    <td>Agama</td>
+                    <td>:</td>
+                    <td>${safeString(data.agama)}</td>
+                  </tr>
+                  <tr>
+                    <td>Pekerjaan</td>
+                    <td>:</td>
+                    <td>${safeString(data.pekerjaan)}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat</td>
+                    <td>:</td>
+                    <td>${safeString(data.alamat_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Nomor HP</td>
+                    <td>:</td>
+                    <td>${safeString(data.nomor_hp)}</td>
+                  </tr>
+                </table>
+                <p style="text-indent: 40px; margin: 10px 0;">
+                  Benar bahwa yang tersebut namanya di atas adalah penduduk/warga asli Dusun Bulueng, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, dan tergolong tidak mampu/miskin.
+                </p>
+                <p style="text-indent: 40px; margin: 10px 0;">
+                  Demikian surat keterangan ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.
+                </p>
+              </div>
+              <div style="margin-top: 60px; text-align: right;">
+                <p style="margin: 0;">Dikeluarkan di: Bontomanai</p>
+                <p style="margin: 5px 0;">Pada Tanggal: ${tanggalPembuatan}</p>
+                <p style="margin: 10px 0;">Mengetahui,</p>
+                <p style="margin: 10px 0;">${safeString(data.ttd_nama)}</p>
+                <div style="margin-top: 80px;">
+                  <p style="margin: 0; font-weight: bold; text-decoration: underline;">${safeString(data.ttd_nama_lengkap)}</p>
+                  <p style="margin: 5px 0;">NIP. ${safeString(data.nip)}</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div style="text-align: center; margin: 20px 0;">
-            <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN TIDAK MAMPU</p>
-            <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
-          </div>
-          <div style="margin: 30px 0; text-align: justify;">
-            <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
-            <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
-              <tr>
-                <td style="width: 120px;">Nama</td>
-                <td style="width: 20px;">:</td>
-                <td>${safeString(data.ttd_nama_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Jabatan</td>
-                <td>:</td>
-                <td>${safeString(data.ttd_nama)}</td>
-              </tr>
-              <tr>
-                <td>Alamat</td>
-                <td>:</td>
-                <td>Dusun Pattiro, Desa Bontomanai, Kec. Rumbia</td>
-              </tr>
-            </table>
-            <p style="margin-bottom: 10px;">Dengan ini menerangkan dengan sebenarnya bahwa:</p>
-            <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
-              <tr>
-                <td style="width: 120px;">Nama</td>
-                <td style="width: 20px;">:</td>
-                <td>${safeString(data.nama_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>NIK</td>
-                <td>:</td>
-                <td>${safeString(data.nik)}</td>
-              </tr>
-              <tr>
-                <td>Jenis Kelamin</td>
-                <td>:</td>
-                <td>${safeString(data.jenis_kelamin)}</td>
-              </tr>
-              <tr>
-                <td>Agama</td>
-                <td>:</td>
-                <td>${safeString(data.agama)}</td>
-              </tr>
-              <tr>
-                <td>Pekerjaan</td>
-                <td>:</td>
-                <td>${safeString(data.pekerjaan)}</td>
-              </tr>
-              <tr>
-                <td>Alamat</td>
-                <td>:</td>
-                <td>${safeString(data.alamat_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Nomor HP</td>
-                <td>:</td>
-                <td>${safeString(data.nomor_hp)}</td>
-              </tr>
-            </table>
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Benar bahwa yang tersebut namanya di atas adalah penduduk/warga asli Dusun Bulueng, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, dan tergolong tidak mampu/miskin.
-            </p>
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Demikian surat keterangan ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.
-            </p>
-          </div>
-          <div style="margin-top: 60px; text-align: right;">
-            <p style="margin: 0;">Dikeluarkan di: Bontomanai</p>
-            <p style="margin: 5px 0;">Pada Tanggal: ${tanggalPembuatan}</p>
-            <p style="margin: 10px 0;">Mengetahui,</p>
-            <p style="margin: 10px 0;">${safeString(data.ttd_nama)}</p>
-            <div style="margin-top: 80px;">
-              <p style="margin: 0; font-weight: bold; text-decoration: underline;">${safeString(data.ttd_nama_lengkap)}</p>
-              <p style="margin: 5px 0;">NIP. ${safeString(data.nip)}</p>
-            </div>
-          </div>
-        </div>
-      `;
+          `;
     },
     formFields: [
       { name: 'no_surat', label: 'Nomor Surat', type: 'text', placeholder: 'Masukkan Nomor Surat', required: true },
@@ -310,7 +311,8 @@ const suratTemplates = {
       { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan' },
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true }
+      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
+      { name: 'tujuan', label: 'Ditujukan', type: 'text', placeholder: 'Masukkan Tujuan', required: true }
     ]
   },
   'Surat Keterangan Usaha': {
@@ -318,106 +320,106 @@ const suratTemplates = {
     template: (data) => {
       const tanggalPembuatan = formatTanggalIndonesia(new Date());
       return `
-        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-            <div style="display: inline-flex; align-items: center;">
-              <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
-              <div>
-                <h2 style="margin: 0; font-size: 14pt;">PEMERINTAH KABUPATEN JENEPONTO</h2>
-                <h3 style="margin: 5px 0; font-size: 12pt;">KECAMATAN RUMBIA - DESA BONTOMANAI</h3>
-                <p style="margin: 0; font-size: 10pt;">Alamat: Pattiro, Desa Bontomanai, Kec. Rumbia</p>
+            <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                <div style="display: inline-flex; align-items: center;">
+                  <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
+                  <div>
+                    <h2 style="margin: 0; font-size: 14pt;">PEMERINTAH KABUPATEN JENEPONTO</h2>
+                    <h3 style="margin: 5px 0; font-size: 12pt;">KECAMATAN RUMBIA - DESA BONTOMANAI</h3>
+                    <p style="margin: 0; font-size: 10pt;">Alamat: Pattiro, Desa Bontomanai, Kec. Rumbia</p>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align: center; margin: 20px 0;">
+                <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN USAHA</p>
+                <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
+              </div>
+              <div style="margin: 30px 0; text-align: justify;">
+                <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
+                <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
+                  <tr>
+                    <td style="width: 120px;">Nama</td>
+                    <td style="width: 20px;">:</td>
+                    <td>${safeString(data.ttd_nama_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Jabatan</td>
+                    <td>:</td>
+                    <td>${safeString(data.ttd_nama)}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat</td>
+                    <td>:</td>
+                    <td>Pattiro, Desa Bontomanai, Kec. Rumbia</td>
+                  </tr>
+                </table>
+                <p style="margin-bottom: 10px;">Menerangkan bahwa:</p>
+                <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
+                  <tr>
+                    <td style="width: 120px;">Nama</td>
+                    <td style="width: 20px;">:</td>
+                    <td>${safeString(data.nama_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>NIK</td>
+                    <td>:</td>
+                    <td>${safeString(data.nik)}</td>
+                  </tr>
+                  <tr>
+                    <td>Tempat/Tgl Lahir</td>
+                    <td>:</td>
+                    <td>${safeString(data.tempat_lahir)} / ${data.tanggal_lahir ? formatTanggalIndonesia(data.tanggal_lahir) : '...........................'}</td>
+                  </tr>
+                  <tr>
+                    <td>Pekerjaan</td>
+                    <td>:</td>
+                    <td>${safeString(data.pekerjaan)}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat</td>
+                    <td>:</td>
+                    <td>${safeString(data.alamat_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Nama Usaha</td>
+                    <td>:</td>
+                    <td>${safeString(data.nama_usaha)}</td>
+                  </tr>
+                  <tr>
+                    <td>Berdiri Sejak</td>
+                    <td>:</td>
+                    <td>${data.berdiri_sejak ? formatTanggalIndonesia(data.berdiri_sejak) : '...........................'}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat Usaha</td>
+                    <td>:</td>
+                    <td>${safeString(data.alamat_usaha)}</td>
+                  </tr>
+                  <tr>
+                    <td>Nomor HP</td>
+                    <td>:</td>
+                    <td>${safeString(data.nomor_hp)}</td>
+                  </tr>
+                </table>
+                <p style="text-indent: 40px; margin: 10px 0;">
+                  Bahwa nama yang tersebut di atas benar warga Dusun Lembang-Lembang, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, Provinsi Sulawesi Selatan, dan memiliki usaha yang masih aktif hingga saat ini.
+                </p>
+                <p style="text-indent: 40px; margin: 10px 0;">
+                  Demikian Surat Keterangan Usaha ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
+                </p>
+              </div>
+              <div style="margin-top: 60px; text-align: right;">
+                <p style="margin: 0;">Bontomanai, ${tanggalPembuatan}</p>
+                <p style="margin: 10px 0;">Mengetahui,</p>
+                <p style="margin: 10px 0;">${safeString(data.ttd_nama)}</p>
+                <div style="margin-top: 80px;">
+                  <p style="margin: 0; font-weight: bold; text-decoration: underline;">${safeString(data.ttd_nama_lengkap)}</p>
+                  <p style="margin: 5px 0;">NIP. ${safeString(data.nip)}</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div style="text-align: center; margin: 20px 0;">
-            <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN USAHA</p>
-            <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
-          </div>
-          <div style="margin: 30px 0; text-align: justify;">
-            <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
-            <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
-              <tr>
-                <td style="width: 120px;">Nama</td>
-                <td style="width: 20px;">:</td>
-                <td>${safeString(data.ttd_nama_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Jabatan</td>
-                <td>:</td>
-                <td>${safeString(data.ttd_nama)}</td>
-              </tr>
-              <tr>
-                <td>Alamat</td>
-                <td>:</td>
-                <td>Pattiro, Desa Bontomanai, Kec. Rumbia</td>
-              </tr>
-            </table>
-            <p style="margin-bottom: 10px;">Menerangkan bahwa:</p>
-            <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
-              <tr>
-                <td style="width: 120px;">Nama</td>
-                <td style="width: 20px;">:</td>
-                <td>${safeString(data.nama_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>NIK</td>
-                <td>:</td>
-                <td>${safeString(data.nik)}</td>
-              </tr>
-              <tr>
-                <td>Tempat/Tgl Lahir</td>
-                <td>:</td>
-                <td>${safeString(data.tempat_lahir)} / ${data.tanggal_lahir ? formatTanggalIndonesia(data.tanggal_lahir) : '...........................'}</td>
-              </tr>
-              <tr>
-                <td>Pekerjaan</td>
-                <td>:</td>
-                <td>${safeString(data.pekerjaan)}</td>
-              </tr>
-              <tr>
-                <td>Alamat</td>
-                <td>:</td>
-                <td>${safeString(data.alamat_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Nama Usaha</td>
-                <td>:</td>
-                <td>${safeString(data.nama_usaha)}</td>
-              </tr>
-              <tr>
-                <td>Berdiri Sejak</td>
-                <td>:</td>
-                <td>${data.berdiri_sejak ? formatTanggalIndonesia(data.berdiri_sejak) : '...........................'}</td>
-              </tr>
-              <tr>
-                <td>Alamat Usaha</td>
-                <td>:</td>
-                <td>${safeString(data.alamat_usaha)}</td>
-              </tr>
-              <tr>
-                <td>Nomor HP</td>
-                <td>:</td>
-                <td>${safeString(data.nomor_hp)}</td>
-              </tr>
-            </table>
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Bahwa nama yang tersebut di atas benar warga Dusun Lembang-Lembang, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, Provinsi Sulawesi Selatan, dan memiliki usaha yang masih aktif hingga saat ini.
-            </p>
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Demikian Surat Keterangan Usaha ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-            </p>
-          </div>
-          <div style="margin-top: 60px; text-align: right;">
-            <p style="margin: 0;">Bontomanai, ${tanggalPembuatan}</p>
-            <p style="margin: 10px 0;">Mengetahui,</p>
-            <p style="margin: 10px 0;">${safeString(data.ttd_nama)}</p>
-            <div style="margin-top: 80px;">
-              <p style="margin: 0; font-weight: bold; text-decoration: underline;">${safeString(data.ttd_nama_lengkap)}</p>
-              <p style="margin: 5px 0;">NIP. ${safeString(data.nip)}</p>
-            </div>
-          </div>
-        </div>
-      `;
+          `;
     },
     formFields: [
       { name: 'no_surat', label: 'Nomor Surat', type: 'text', placeholder: 'Masukkan Nomor Surat', required: true },
@@ -431,7 +433,8 @@ const suratTemplates = {
       { name: 'berdiri_sejak', label: 'Berdiri Sejak', type: 'date', placeholder: 'Pilih Tanggal Berdiri' },
       { name: 'alamat_usaha', label: 'Alamat Usaha', type: 'text', placeholder: 'Masukkan Alamat Usaha' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true }
+      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
+      { name: 'tujuan', label: 'Ditujukan', type: 'text', placeholder: 'Masukkan Tujuan', required: true }
     ]
   },
   'Surat Pengantar SKCK': {
@@ -439,104 +442,104 @@ const suratTemplates = {
     template: (data) => {
       const tanggalPembuatan = formatTanggalIndonesia(new Date());
       return `
-        <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-            <div style="display: inline-flex; align-items: center;">
-              <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
-              <div>
-                <h2 style="margin: 0; font-size: 14pt;">PEMERINTAH KABUPATEN JENEPONTO</h2>
-                <h3 style="margin: 5px 0; font-size: 12pt;">KECAMATAN RUMBIA - DESA BONTOMANAI</h3>
-                <p style="margin: 0; font-size: 10pt;">Alamat: Jalan Poros Jeneponto Malakaji, Bontomanai, Kec. Rumbia</p>
+            <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                <div style="display: inline-flex; align-items: center;">
+                  <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
+                  <div>
+                    <h2 style="margin: 0; font-size: 14pt;">PEMERINTAH KABUPATEN JENEPONTO</h2>
+                    <h3 style="margin: 5px 0; font-size: 12pt;">KECAMATAN RUMBIA - DESA BONTOMANAI</h3>
+                    <p style="margin: 0; font-size: 10pt;">Alamat: Jalan Poros Jeneponto Malakaji, Bontomanai, Kec. Rumbia</p>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align: center; margin: 20px 0;">
+                <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT PENGANTAR</p>
+                <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
+              </div>
+              <div style="margin: 30px 0; text-align: justify;">
+                <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
+                <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
+                  <tr>
+                    <td style="width: 120px;">Nama</td>
+                    <td style="width: 20px;">:</td>
+                    <td>${safeString(data.ttd_nama_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Jabatan</td>
+                    <td>:</td>
+                    <td>${safeString(data.ttd_nama)}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat</td>
+                    <td>:</td>
+                    <td>Dusun Pattiro, Desa Bontomanai, Kec. Rumbia</td>
+                  </tr>
+                </table>
+                <p style="margin-bottom: 10px;">Dengan ini memberikan Surat Pengantar kepada:</p>
+                <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
+                  <tr>
+                    <td style="width: 120px;">Nama</td>
+                    <td style="width: 20px;">:</td>
+                    <td>${safeString(data.nama_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>NIK</td>
+                    <td>:</td>
+                    <td>${safeString(data.nik)}</td>
+                  </tr>
+                  <tr>
+                    <td>Jenis Kelamin</td>
+                    <td>:</td>
+                    <td>${safeString(data.jenis_kelamin)}</td>
+                  </tr>
+                  <tr>
+                    <td>Tempat/Tgl Lahir</td>
+                    <td>:</td>
+                    <td>${safeString(data.tempat_lahir)} / ${data.tanggal_lahir ? formatTanggalIndonesia(data.tanggal_lahir) : '...........................'}</td>
+                  </tr>
+                  <tr>
+                    <td>Agama</td>
+                    <td>:</td>
+                    <td>${safeString(data.agama)}</td>
+                  </tr>
+                  <tr>
+                    <td>Pekerjaan</td>
+                    <td>:</td>
+                    <td>${safeString(data.pekerjaan)}</td>
+                  </tr>
+                  <tr>
+                    <td>Alamat</td>
+                    <td>:</td>
+                    <td>${safeString(data.alamat_lengkap)}</td>
+                  </tr>
+                  <tr>
+                    <td>Tujuan</td>
+                    <td>:</td>
+                    <td>${safeString(data.tujuan)}</td>
+                  </tr>
+                  <tr>
+                    <td>Nomor HP</td>
+                    <td>:</td>
+                    <td>${safeString(data.nomor_hp)}</td>
+                  </tr>
+                </table>
+                <p style="text-indent: 40px; margin: 10px 0;">
+                  Demikian Surat Pengantar ini dibuat dan diberikan kepada yang bersangkutan untuk dapat dipergunakan sebagaimana mestinya.
+                </p>
+              </div>
+              <div style="margin-top: 60px; text-align: right;">
+                <p style="margin: 0;">Dikeluarkan di: Bontomanai</p>
+                <p style="margin: 5px 0;">Pada Tanggal: ${tanggalPembuatan}</p>
+                <p style="margin: 10px 0;">Mengetahui,</p>
+                <p style="margin: 10px 0;">${safeString(data.ttd_nama)}</p>
+                <div style="margin-top: 80px;">
+                  <p style="margin: 0; font-weight: bold; text-decoration: underline;">${safeString(data.ttd_nama_lengkap)}</p>
+                  <p style="margin: 5px 0;">NIP. ${safeString(data.nip)}</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div style="text-align: center; margin: 20px 0;">
-            <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT PENGANTAR</p>
-            <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
-          </div>
-          <div style="margin: 30px 0; text-align: justify;">
-            <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
-            <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
-              <tr>
-                <td style="width: 120px;">Nama</td>
-                <td style="width: 20px;">:</td>
-                <td>${safeString(data.ttd_nama_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Jabatan</td>
-                <td>:</td>
-                <td>${safeString(data.ttd_nama)}</td>
-              </tr>
-              <tr>
-                <td>Alamat</td>
-                <td>:</td>
-                <td>Dusun Pattiro, Desa Bontomanai, Kec. Rumbia</td>
-              </tr>
-            </table>
-            <p style="margin-bottom: 10px;">Dengan ini memberikan Surat Pengantar kepada:</p>
-            <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
-              <tr>
-                <td style="width: 120px;">Nama</td>
-                <td style="width: 20px;">:</td>
-                <td>${safeString(data.nama_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>NIK</td>
-                <td>:</td>
-                <td>${safeString(data.nik)}</td>
-              </tr>
-              <tr>
-                <td>Jenis Kelamin</td>
-                <td>:</td>
-                <td>${safeString(data.jenis_kelamin)}</td>
-              </tr>
-              <tr>
-                <td>Tempat/Tgl Lahir</td>
-                <td>:</td>
-                <td>${safeString(data.tempat_lahir)} / ${data.tanggal_lahir ? formatTanggalIndonesia(data.tanggal_lahir) : '...........................'}</td>
-              </tr>
-              <tr>
-                <td>Agama</td>
-                <td>:</td>
-                <td>${safeString(data.agama)}</td>
-              </tr>
-              <tr>
-                <td>Pekerjaan</td>
-                <td>:</td>
-                <td>${safeString(data.pekerjaan)}</td>
-              </tr>
-              <tr>
-                <td>Alamat</td>
-                <td>:</td>
-                <td>${safeString(data.alamat_lengkap)}</td>
-              </tr>
-              <tr>
-                <td>Tujuan</td>
-                <td>:</td>
-                <td>${safeString(data.tujuan)}</td>
-              </tr>
-              <tr>
-                <td>Nomor HP</td>
-                <td>:</td>
-                <td>${safeString(data.nomor_hp)}</td>
-              </tr>
-            </table>
-            <p style="text-indent: 40px; margin: 10px 0;">
-              Demikian Surat Pengantar ini dibuat dan diberikan kepada yang bersangkutan untuk dapat dipergunakan sebagaimana mestinya.
-            </p>
-          </div>
-          <div style="margin-top: 60px; text-align: right;">
-            <p style="margin: 0;">Dikeluarkan di: Bontomanai</p>
-            <p style="margin: 5px 0;">Pada Tanggal: ${tanggalPembuatan}</p>
-            <p style="margin: 10px 0;">Mengetahui,</p>
-            <p style="margin: 10px 0;">${safeString(data.ttd_nama)}</p>
-            <div style="margin-top: 80px;">
-              <p style="margin: 0; font-weight: bold; text-decoration: underline;">${safeString(data.ttd_nama_lengkap)}</p>
-              <p style="margin: 5px 0;">NIP. ${safeString(data.nip)}</p>
-            </div>
-          </div>
-        </div>
-      `;
+          `;
     },
     formFields: [
       { name: 'no_surat', label: 'Nomor Surat', type: 'text', placeholder: 'Masukkan Nomor Surat', required: true },
@@ -548,7 +551,7 @@ const suratTemplates = {
       { name: 'agama', label: 'Agama', type: 'text', placeholder: 'Masukkan Agama' },
       { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan' },
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
-      { name: 'tujuan', label: 'Tujuan', type: 'text', placeholder: 'Masukkan Tujuan' },
+      { name: 'tujuan', label: 'Ditujukan', type: 'text', placeholder: 'Masukkan Tujuan', required: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
       { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true }
     ]
@@ -682,6 +685,10 @@ export default function PermohonanSurat() {
       setError('Nama Yang Bertandatangan tidak tersedia.');
       return null;
     }
+    if (!formData.tujuan) {
+      setError('Tujuan wajib diisi.');
+      return null;
+    }
     return suratTemplates[selectedTemplate].template(formData);
   };
 
@@ -711,6 +718,10 @@ export default function PermohonanSurat() {
     }
     if (!pdfRef.current || !previewContent) {
       setError('Konten preview tidak tersedia');
+      return;
+    }
+    if (!formData.tujuan) {
+      setError('Tujuan wajib diisi.');
       return;
     }
     try {
@@ -745,21 +756,26 @@ export default function PermohonanSurat() {
       const filename = `${selectedPermohonan.jenis_surat}_${formData.no_surat || 'surat'}.pdf`;
       const pdfBlob = pdf.output('blob');
       document.body.removeChild(contentClone);
+
       const formDataToSend = new FormData();
-      formDataToSend.append('id', selectedPermohonan.id);
       formDataToSend.append('nomor', formData.no_surat || '');
       formDataToSend.append('tanggal', new Date().toISOString().split('T')[0]);
       formDataToSend.append('perihal', formData.keterangan || selectedPermohonan.jenis_surat);
+      formDataToSend.append('ditujukan', formData.tujuan || 'Umum');
       formDataToSend.append('title', selectedPermohonan.jenis_surat);
       formDataToSend.append('file', pdfBlob, filename);
+
       const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_ADD, {
         method: 'POST',
+        headers: getHeaders(), // Ensure token is included
         body: formDataToSend,
       });
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Gagal menyimpan surat');
       }
+
       await updatePermohonanStatus(selectedPermohonan.id);
       setPreviewContent('');
       handleCloseForm();
@@ -777,7 +793,7 @@ export default function PermohonanSurat() {
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'Selesai' })
+        body: JSON.stringify({ status: 'Selesai' }),
       }
     );
     if (!response.ok) {
