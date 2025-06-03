@@ -493,7 +493,6 @@ export default function SuratKeluar() {
                       <TableCell><strong>Tanggal</strong></TableCell>
                       <TableCell><strong>Perihal</strong></TableCell>
                       <TableCell><strong>Ditujukan</strong></TableCell>
-                      <TableCell><strong>Judul File</strong></TableCell>
                       <TableCell><strong>File</strong></TableCell>
                       <TableCell><strong>Aksi</strong></TableCell>
                     </TableRow>
@@ -505,7 +504,6 @@ export default function SuratKeluar() {
                         <TableCell>{dayjs(row.tanggal).format('DD-MM-YYYY')}</TableCell>
                         <TableCell>{row.perihal}</TableCell>
                         <TableCell>{row.ditujukan || '-'}</TableCell>
-                        <TableCell>{row.title || '-'}</TableCell>
                         <TableCell>
                           {row.file ? (
                             <Tooltip title="Lihat File">
@@ -636,8 +634,7 @@ export default function SuratKeluar() {
                     <a
                       href={
                         previewFile ||
-                        `${
-                          process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id'
+                        `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id'
                         }/api/sekretaris/suratkeluar/file/${encodeURIComponent(
                           existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', '')
                         )}`
