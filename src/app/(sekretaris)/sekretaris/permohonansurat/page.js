@@ -6,7 +6,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import {
   Box,
   Button,
-  Card, CardContent,
+  Card,
+  CardContent,
   Chip,
   CircularProgress,
   Dialog,
@@ -18,7 +19,11 @@ import {
   MenuItem,
   Paper,
   Select,
-  Table, TableBody, TableCell, TableContainer, TableHead,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
   TablePagination,
   TableRow,
   TextField,
@@ -32,17 +37,11 @@ import { useEffect, useRef, useState } from 'react';
 // Dynamic import for jsPDF and html2canvas
 const JSPDF = dynamic(
   () => import('jspdf').then((mod) => mod.default),
-  { 
-    ssr: false,
-    loading: () => <p>Menyiapkan generator PDF...</p>
-  }
+  { ssr: false, loading: () => <p>Menyiapkan generator PDF...</p> }
 );
 const Html2Canvas = dynamic(
   () => import('html2canvas').then((mod) => mod.default),
-  { 
-    ssr: false,
-    loading: () => <p>Menyiapkan generator PDF...</p>
-  }
+  { ssr: false, loading: () => <p>Menyiapkan generator PDF...</p> }
 );
 
 // Styled components
@@ -65,9 +64,9 @@ const HeaderBox = styled(Box)({
 
 // Status colors mapping
 const statusColors = {
-  'Diproses': 'primary',
-  'Selesai': 'success',
-  'Ditolak': 'error'
+  Diproses: 'primary',
+  Selesai: 'success',
+  Ditolak: 'error'
 };
 
 // Daftar opsi penandatangan
@@ -114,7 +113,6 @@ const suratTemplates = {
       const tanggalPembuatan = formatTanggalIndonesia(new Date());
       return `
         <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <!-- Header -->
           <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
             <div style="display: inline-flex; align-items: center;">
               <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
@@ -125,14 +123,10 @@ const suratTemplates = {
               </div>
             </div>
           </div>
-
-          <!-- Judul Surat -->
           <div style="text-align: center; margin: 20px 0;">
             <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN DOMISILI</p>
             <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
           </div>
-
-          <!-- Isi Surat -->
           <div style="margin: 30px 0; text-align: justify;">
             <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
             <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
@@ -152,7 +146,6 @@ const suratTemplates = {
                 <td>Pattiro, Desa Bontomanai, Kec. Rumbia</td>
               </tr>
             </table>
-
             <p style="margin-bottom: 10px;">Menerangkan bahwa:</p>
             <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
               <tr>
@@ -181,7 +174,6 @@ const suratTemplates = {
                 <td>${safeString(data.nomor_hp)}</td>
               </tr>
             </table>
-
             <p style="text-indent: 40px; margin: 10px 0;">
               Adalah benar warga kami yang berdomisili di Dusun Bajiminasa, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, Provinsi Sulawesi Selatan.
             </p>
@@ -189,8 +181,6 @@ const suratTemplates = {
               Demikian Surat Keterangan Domisili ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
             </p>
           </div>
-
-          <!-- Tanda Tangan -->
           <div style="margin-top: 60px; text-align: right;">
             <p style="margin: 0;">Bontomanai, ${tanggalPembuatan}</p>
             <p style="margin: 10px 0;">Mengetahui,</p>
@@ -211,8 +201,7 @@ const suratTemplates = {
       { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan' },
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-
+      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true }
     ]
   },
   'Surat Keterangan Tidak Mampu': {
@@ -221,7 +210,6 @@ const suratTemplates = {
       const tanggalPembuatan = formatTanggalIndonesia(new Date());
       return `
         <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <!-- Header -->
           <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
             <div style="display: inline-flex; align-items: center;">
               <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
@@ -232,14 +220,10 @@ const suratTemplates = {
               </div>
             </div>
           </div>
-
-          <!-- Judul Surat -->
           <div style="text-align: center; margin: 20px 0;">
             <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN TIDAK MAMPU</p>
             <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
           </div>
-
-          <!-- Isi Surat -->
           <div style="margin: 30px 0; text-align: justify;">
             <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
             <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
@@ -259,7 +243,6 @@ const suratTemplates = {
                 <td>Dusun Pattiro, Desa Bontomanai, Kec. Rumbia</td>
               </tr>
             </table>
-
             <p style="margin-bottom: 10px;">Dengan ini menerangkan dengan sebenarnya bahwa:</p>
             <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
               <tr>
@@ -298,17 +281,13 @@ const suratTemplates = {
                 <td>${safeString(data.nomor_hp)}</td>
               </tr>
             </table>
-
             <p style="text-indent: 40px; margin: 10px 0;">
               Benar bahwa yang tersebut namanya di atas adalah penduduk/warga asli Dusun Bulueng, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, dan tergolong tidak mampu/miskin.
             </p>
-
             <p style="text-indent: 40px; margin: 10px 0;">
               Demikian surat keterangan ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagaimana mestinya.
             </p>
           </div>
-
-          <!-- Tanda Tangan -->
           <div style="margin-top: 60px; text-align: right;">
             <p style="margin: 0;">Dikeluarkan di: Bontomanai</p>
             <p style="margin: 5px 0;">Pada Tanggal: ${tanggalPembuatan}</p>
@@ -331,8 +310,7 @@ const suratTemplates = {
       { name: 'pekerjaan', label: 'Pekerjaan', type: 'text', placeholder: 'Masukkan Pekerjaan' },
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      // { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true }
     ]
   },
   'Surat Keterangan Usaha': {
@@ -341,7 +319,6 @@ const suratTemplates = {
       const tanggalPembuatan = formatTanggalIndonesia(new Date());
       return `
         <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <!-- Header -->
           <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
             <div style="display: inline-flex; align-items: center;">
               <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
@@ -352,14 +329,10 @@ const suratTemplates = {
               </div>
             </div>
           </div>
-
-          <!-- Judul Surat -->
-          <div style="text-align: Cheltenham; margin: 20px 0;">
+          <div style="text-align: center; margin: 20px 0;">
             <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT KETERANGAN USAHA</p>
             <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
           </div>
-
-          <!-- Isi Surat -->
           <div style="margin: 30px 0; text-align: justify;">
             <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
             <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
@@ -379,7 +352,6 @@ const suratTemplates = {
                 <td>Pattiro, Desa Bontomanai, Kec. Rumbia</td>
               </tr>
             </table>
-
             <p style="margin-bottom: 10px;">Menerangkan bahwa:</p>
             <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
               <tr>
@@ -428,7 +400,6 @@ const suratTemplates = {
                 <td>${safeString(data.nomor_hp)}</td>
               </tr>
             </table>
-
             <p style="text-indent: 40px; margin: 10px 0;">
               Bahwa nama yang tersebut di atas benar warga Dusun Lembang-Lembang, Desa Bontomanai, Kecamatan Rumbia, Kabupaten Jeneponto, Provinsi Sulawesi Selatan, dan memiliki usaha yang masih aktif hingga saat ini.
             </p>
@@ -436,8 +407,6 @@ const suratTemplates = {
               Demikian Surat Keterangan Usaha ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
             </p>
           </div>
-
-          <!-- Tanda Tangan -->
           <div style="margin-top: 60px; text-align: right;">
             <p style="margin: 0;">Bontomanai, ${tanggalPembuatan}</p>
             <p style="margin: 10px 0;">Mengetahui,</p>
@@ -462,8 +431,7 @@ const suratTemplates = {
       { name: 'berdiri_sejak', label: 'Berdiri Sejak', type: 'date', placeholder: 'Pilih Tanggal Berdiri' },
       { name: 'alamat_usaha', label: 'Alamat Usaha', type: 'text', placeholder: 'Masukkan Alamat Usaha' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      // { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true }
     ]
   },
   'Surat Pengantar SKCK': {
@@ -472,7 +440,6 @@ const suratTemplates = {
       const tanggalPembuatan = formatTanggalIndonesia(new Date());
       return `
         <div style="font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
-          <!-- Header -->
           <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
             <div style="display: inline-flex; align-items: center;">
               <img src="/image.png" alt="Logo Desa" style="height: 80px; margin-right: 20px;" />
@@ -483,14 +450,10 @@ const suratTemplates = {
               </div>
             </div>
           </div>
-
-          <!-- Judul Surat -->
           <div style="text-align: center; margin: 20px 0;">
             <p style="font-weight: bold; font-size: 14pt; text-decoration: underline;">SURAT PENGANTAR</p>
             <p style="margin: 5px 0; font-size: 12pt;">Nomor: ${safeString(data.no_surat)}</p>
           </div>
-
-          <!-- Isi Surat -->
           <div style="margin: 30px 0; text-align: justify;">
             <p style="margin-bottom: 10px;">Yang bertanda tangan di bawah ini:</p>
             <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
@@ -510,7 +473,6 @@ const suratTemplates = {
                 <td>Dusun Pattiro, Desa Bontomanai, Kec. Rumbia</td>
               </tr>
             </table>
-
             <p style="margin-bottom: 10px;">Dengan ini memberikan Surat Pengantar kepada:</p>
             <table style="margin-left: 40px; margin-bottom: 20px; font-size: 12pt;">
               <tr>
@@ -563,8 +525,6 @@ const suratTemplates = {
               Demikian Surat Pengantar ini dibuat dan diberikan kepada yang bersangkutan untuk dapat dipergunakan sebagaimana mestinya.
             </p>
           </div>
-
-          <!-- Tanda Tangan -->
           <div style="margin-top: 60px; text-align: right;">
             <p style="margin: 0;">Dikeluarkan di: Bontomanai</p>
             <p style="margin: 5px 0;">Pada Tanggal: ${tanggalPembuatan}</p>
@@ -590,8 +550,7 @@ const suratTemplates = {
       { name: 'alamat_lengkap', label: 'Alamat Lengkap', type: 'text', placeholder: 'Masukkan Alamat Lengkap', disabled: true },
       { name: 'tujuan', label: 'Tujuan', type: 'text', placeholder: 'Masukkan Tujuan' },
       { name: 'nomor_hp', label: 'Nomor HP', type: 'text', placeholder: 'Masukkan Nomor HP' },
-      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true },
-      // { name: 'nip', label: 'NIP', type: 'text', placeholder: 'NIP akan terisi otomatis', disabled: true }
+      { name: 'ttd_nama', label: 'Yang Bertandatangan', type: 'select', options: ['Kepala Desa', 'Sekretaris Desa'], required: true }
     ]
   }
 };
@@ -610,6 +569,7 @@ export default function PermohonanSurat() {
   const [jspdf, setJspdf] = useState(null);
   const [html2canvas, setHtml2canvas] = useState(null);
 
+  {/* Load Libraries */}
   useEffect(() => {
     const loadLibraries = async () => {
       try {
@@ -624,7 +584,7 @@ export default function PermohonanSurat() {
     loadLibraries();
   }, []);
 
-  // Fetch daftar permohonan
+  {/* Fetch Permohonan */}
   useEffect(() => {
     const fetchPermohonan = async () => {
       setLoading(true);
@@ -661,7 +621,6 @@ export default function PermohonanSurat() {
       return date.toISOString().split('T')[0];
     };
 
-    // Initialize formData with all fields from template and permohonan data
     const formData = {};
     template.formFields.forEach(field => {
       if (field.name === 'tanggal_lahir' || field.name === 'berdiri_sejak') {
@@ -670,16 +629,13 @@ export default function PermohonanSurat() {
         formData[field.name] = safeFormString(permohonan[field.name]);
       }
     });
-    // Add additional fields not in formFields but used in template
     formData.jenis_surat = safeFormString(permohonan.jenis_surat);
     formData.keterangan = safeFormString(permohonan.keterangan);
     formData.status = safeFormString(permohonan.status) || 'Diproses';
     formData.ttd_nama_lengkap = '';
-
     setFormData(formData);
   };
 
-  // Tutup form
   const handleCloseForm = () => {
     setSelectedPermohonan(null);
     setFormData({});
@@ -687,20 +643,16 @@ export default function PermohonanSurat() {
     setError(null);
   };
 
-  // Tangani perubahan input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let updatedFormData = { ...formData, [name]: value };
-
     if (name === 'ttd_nama') {
       updatedFormData.nip = penandatanganOptions[value]?.nip || '';
       updatedFormData.ttd_nama_lengkap = penandatanganOptions[value]?.namaLengkap || '';
     }
-
     setFormData(updatedFormData);
   };
 
-  // Tangani upload file
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files && files[0]) {
@@ -708,7 +660,6 @@ export default function PermohonanSurat() {
     }
   };
 
-  // Generate preview surat
   const handlePreview = () => {
     if (!selectedPermohonan) {
       setError('Pilih permohonan terlebih dahulu.');
@@ -734,7 +685,6 @@ export default function PermohonanSurat() {
     return suratTemplates[selectedTemplate].template(formData);
   };
 
-  // Tombol Generate Surat
   const handleGenerateSurat = () => {
     if (!selectedPermohonan) {
       setError('Pilih permohonan terlebih dahulu.');
@@ -754,7 +704,6 @@ export default function PermohonanSurat() {
     }
   };
 
-  // Simpan surat ke server
   const handleSaveSurat = async () => {
     if (!jspdf || !html2canvas) {
       setError('Generator PDF belum siap');
@@ -764,47 +713,38 @@ export default function PermohonanSurat() {
       setError('Konten preview tidak tersedia');
       return;
     }
-
     try {
       setLoading(true);
       const contentClone = pdfRef.current.cloneNode(true);
       document.body.appendChild(contentClone);
-
       const canvas = await html2canvas(contentClone, {
         scale: 2,
         useCORS: true,
         logging: false,
         allowTaint: true
       });
-
       const imgData = canvas.toDataURL('image/jpeg', 0.98);
       const pdf = new jspdf({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
-
-      const imgWidth = 190; // Lebar gambar dalam mm (A4 width - margin)
-      const pageHeight = 297; // Tinggi halaman A4 dalam mm
+      const imgWidth = 190;
+      const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
-      let position = 10; // Margin atas
-
+      let position = 10;
       pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - 20; // Kurangi tinggi halaman dikurangi margin
-
+      heightLeft -= pageHeight - 20;
       while (heightLeft > 0) {
         position = heightLeft - imgHeight + 10;
         pdf.addPage();
         pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
         heightLeft -= pageHeight - 20;
       }
-
       const filename = `${selectedPermohonan.jenis_surat}_${formData.no_surat || 'surat'}.pdf`;
       const pdfBlob = pdf.output('blob');
-
       document.body.removeChild(contentClone);
-
       const formDataToSend = new FormData();
       formDataToSend.append('id', selectedPermohonan.id);
       formDataToSend.append('nomor', formData.no_surat || '');
@@ -812,17 +752,14 @@ export default function PermohonanSurat() {
       formDataToSend.append('perihal', formData.keterangan || selectedPermohonan.jenis_surat);
       formDataToSend.append('title', selectedPermohonan.jenis_surat);
       formDataToSend.append('file', pdfBlob, filename);
-
       const response = await fetch(API_ENDPOINTS.SEKRETARIS.SURAT_KELUAR_ADD, {
         method: 'POST',
         body: formDataToSend,
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Gagal menyimpan surat');
       }
-
       await updatePermohonanStatus(selectedPermohonan.id);
       setPreviewContent('');
       handleCloseForm();
@@ -840,33 +777,28 @@ export default function PermohonanSurat() {
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'Selesai' }),
+        body: JSON.stringify({ status: 'Selesai' })
       }
     );
-
     if (!response.ok) {
       throw new Error('Gagal memperbarui status permohonan');
     }
-
     setPermohonanList(prevList =>
-      prevList.map(item => 
+      prevList.map(item =>
         item.id === id ? { ...item, status: 'Selesai' } : item
       )
     );
   };
 
-  // Cetak surat
   const handlePrint = () => {
     if (!previewContent) {
       alert('Silakan generate preview surat terlebih dahulu.');
       return;
     }
-
     const printFrame = document.createElement('iframe');
     printFrame.style.position = 'absolute';
     printFrame.style.left = '-9999px';
     document.body.appendChild(printFrame);
-
     printFrame.contentDocument.write(`
       <html>
         <head>
@@ -878,7 +810,6 @@ export default function PermohonanSurat() {
               line-height: 1.5; 
               margin: 20px;
             }
-.....(tampilan tetap sama)
             @page { margin: 0; }
           </style>
         </head>
@@ -888,10 +819,8 @@ export default function PermohonanSurat() {
       </html>
     `);
     printFrame.contentDocument.close();
-
     printFrame.contentWindow.focus();
     printFrame.contentWindow.print();
-
     setTimeout(() => {
       document.body.removeChild(printFrame);
     }, 1000);
@@ -903,46 +832,31 @@ export default function PermohonanSurat() {
     setPage(0);
   };
 
-  // Render error state
-  if (error) {
-    return (
-      <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <StyledCard>
-          <HeaderBox>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              Permohonan Surat
-            </Typography>
-          </HeaderBox>
-          <CardContent>
-            <Typography color="error" p={3}>
-              {error}
-            </Typography>
-          </CardContent>
-        </StyledCard>
-      </Box>
-    );
-  }
-
   return (
     <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {/* Main Card */}
       <StyledCard>
         <HeaderBox>
           <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
             Permohonan Surat
           </Typography>
         </HeaderBox>
-
         <CardContent>
           {loading ? (
             <Box display="flex" justifyContent="center" p={4}>
               <CircularProgress />
             </Box>
+          ) : error ? (
+            <Typography color="error" p={3}>
+              {error}
+            </Typography>
           ) : permohonanList.length === 0 ? (
             <Typography p={4}>
               Tidak ada permohonan surat.
             </Typography>
           ) : (
             <>
+              {/* Table */}
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
@@ -1004,202 +918,204 @@ export default function PermohonanSurat() {
             </>
           )}
         </CardContent>
+      </StyledCard>
 
-        <Dialog open={!!selectedPermohonan} onClose={handleCloseForm} maxWidth="md" fullWidth>
-          <DialogTitle>
-            Proses Permohonan Surat: {selectedPermohonan?.jenis_surat}
-            <IconButton
-              aria-label="close"
-              onClick={handleCloseForm}
-              sx={{ position: 'absolute', right: 8, top: 8 }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent dividers>
-            <Box component="form" sx={{ mt: 2 }}>
-              {selectedPermohonan && suratTemplates[selectedPermohonan.jenis_surat]?.formFields.map((field) => (
-                <Box key={field.name} sx={{ mb: 3 }}>
-                  <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
-                    {field.label} {field.required && <span style={{ color: 'red' }}>*</span>}
-                  </Typography>
-                  {field.type === 'select' ? (
-                    <FormControl fullWidth error={!formData[field.name] && field.required}>
-                      <Select
-                        id={field.name}
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleInputChange}
-                        disabled={field.disabled}
-                        sx={{
-                          '& .MuiOutlinedInput-notchedOutline': { borderColor: '#ccc' },
-                          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#999' },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1976d2' },
-                        }}
-                      >
-                        <MenuItem value="">
-                          <em>Pilih {field.label}</em>
-                        </MenuItem>
-                        {field.options.map((option) => (
-                          <MenuItem key={option} value={option}>{option}</MenuItem>
-                        ))}
-                      </Select>
-                      {!formData[field.name] && field.required && (
-                        <Typography color="error" variant="caption">
-                          {field.label} wajib diisi
-                        </Typography>
-                      )}
-                      {field.name === 'ttd_nama' && formData.ttd_nama && (
-                        <Box sx={{ mt: 2 }}>
-                          <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
-                            Nama Yang Bertandatangan
-                          </Typography>
-                          <TextField
-                            value={formData.ttd_nama_lengkap || ''}
-                            fullWidth
-                            disabled
-                            variant="outlined"
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                '& fieldset': { borderColor: '#ccc' },
-                                '&:hover fieldset': { borderColor: '#999' },
-                                '&.Mui-focused fieldset': { borderColor: '#1976d2' },
-                              },
-                            }}
-                          />
-                        </Box>
-                      )}
-                    </FormControl>
-                  ) : field.type === 'file' ? (
-                    <Box>
-                      <input
-                        id={field.name}
-                        name={field.name}
-                        type="file"
-                        accept={field.accept}
-                        onChange={handleFileChange}
-                        style={{ marginTop: '8px', display: 'block', fontSize: '16px' }}
-                      />
-                      {formData[field.name] && (
-                        <Typography variant="caption" sx={{ mt: 1, color: '#555' }}>
-                          File terpilih: {formData[field.name].name || formData[field.name]}
-                        </Typography>
-                      )}
-                    </Box>
-                  ) : (
-                    <TextField
+      {/* Dialog Form */}
+      <Dialog open={!!selectedPermohonan} onClose={handleCloseForm} maxWidth="md" fullWidth>
+        <DialogTitle>
+          Proses Permohonan Surat: {selectedPermohonan?.jenis_surat}
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseForm}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box component="form" sx={{ mt: 2 }}>
+            {selectedPermohonan && suratTemplates[selectedPermohonan.jenis_surat]?.formFields.map((field) => (
+              <Box key={field.name} sx={{ mb: 3 }}>
+                <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
+                  {field.label} {field.required && <span style={{ color: 'red' }}>*</span>}
+                </Typography>
+                {field.type === 'select' ? (
+                  <FormControl fullWidth error={!formData[field.name] && field.required}>
+                    <Select
                       id={field.name}
                       name={field.name}
                       value={formData[field.name] || ''}
                       onChange={handleInputChange}
-                      placeholder={field.placeholder}
-                      type={field.type === 'date' ? 'date' : 'text'}
-                      multiline={field.type === 'textarea'}
-                      rows={field.type === 'textarea' ? 4 : 1}
-                      fullWidth
-                      variant="outlined"
                       disabled={field.disabled}
-                      InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
-                      error={field.required && !formData[field.name]}
-                      helperText={field.required && !formData[field.name] ? `${field.label} wajib diisi` : ''}
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '& fieldset': { borderColor: '#ccc' },
-                          '&:hover fieldset': { borderColor: '#999' },
-                          '&.Mui-focused fieldset': { borderColor: '#1976d2' },
-                        },
+                        '& .MuiOutlinedInput-notchedOutline': { borderColor: '#ccc' },
+                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#999' },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1976d2' }
                       }}
+                    >
+                      <MenuItem value="">
+                        <em>Pilih {field.label}</em>
+                      </MenuItem>
+                      {field.options.map((option) => (
+                        <MenuItem key={option} value={option}>{option}</MenuItem>
+                      ))}
+                    </Select>
+                    {!formData[field.name] && field.required && (
+                      <Typography color="error" variant="caption">
+                        {field.label} wajib diisi
+                      </Typography>
+                    )}
+                    {field.name === 'ttd_nama' && formData.ttd_nama && (
+                      <Box sx={{ mt: 2 }}>
+                        <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
+                          Nama Yang Bertandatangan
+                        </Typography>
+                        <TextField
+                          value={formData.ttd_nama_lengkap || ''}
+                          fullWidth
+                          disabled
+                          variant="outlined"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              '& fieldset': { borderColor: '#ccc' },
+                              '&:hover fieldset': { borderColor: '#999' },
+                              '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+                            }
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </FormControl>
+                ) : field.type === 'file' ? (
+                  <Box>
+                    <input
+                      id={field.name}
+                      name={field.name}
+                      type="file"
+                      accept={field.accept}
+                      onChange={handleFileChange}
+                      style={{ marginTop: '8px', display: 'block', fontSize: '16px' }}
                     />
-                  )}
-                </Box>
-              ))}
-              <Box sx={{ mb: 3 }}>
-                <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
-                  Keterangan
-                </Typography>
-                <TextField
-                  name="keterangan"
-                  value={formData.keterangan || ''}
-                  onChange={handleInputChange}
-                  placeholder="Masukkan keterangan tambahan (opsional)"
-                  fullWidth
-                  multiline
-                  rows={3}
-                  variant="outlined"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': { borderColor: '#ccc' },
-                      '&:hover fieldset': { borderColor: '#999' },
-                      '&.Mui-focused fieldset': { borderColor: '#1976d2' },
-                    },
-                  }}
-                />
+                    {formData[field.name] && (
+                      <Typography variant="caption" sx={{ mt: 1, color: '#555' }}>
+                        File terpilih: {formData[field.name].name || formData[field.name]}
+                      </Typography>
+                    )}
+                  </Box>
+                ) : (
+                  <TextField
+                    id={field.name}
+                    name={field.name}
+                    value={formData[field.name] || ''}
+                    onChange={handleInputChange}
+                    placeholder={field.placeholder}
+                    type={field.type === 'date' ? 'date' : 'text'}
+                    multiline={field.type === 'textarea'}
+                    rows={field.type === 'textarea' ? 4 : 1}
+                    fullWidth
+                    variant="outlined"
+                    disabled={field.disabled}
+                    InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
+                    error={field.required && !formData[field.name]}
+                    helperText={field.required && !formData[field.name] ? `${field.label} wajib diisi` : ''}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': { borderColor: '#ccc' },
+                        '&:hover fieldset': { borderColor: '#999' },
+                        '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+                      }
+                    }}
+                  />
+                )}
               </Box>
+            ))}
+            <Box sx={{ mb: 3 }}>
+              <Typography sx={{ display: 'block', mb: 1, fontWeight: 500, color: '#333' }}>
+                Keterangan
+              </Typography>
+              <TextField
+                name="keterangan"
+                value={formData.keterangan || ''}
+                onChange={handleInputChange}
+                placeholder="Masukkan keterangan tambahan (opsional)"
+                fullWidth
+                multiline
+                rows={3}
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': { borderColor: '#ccc' },
+                    '&:hover fieldset': { borderColor: '#999' },
+                    '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+                  }
+                }}
+              />
             </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseForm} color="inherit">
-              Batal
-            </Button>
-            <Button
-              onClick={handleGenerateSurat}
-              variant="contained"
-              disabled={loading}
-              sx={{ backgroundColor: '#2e7d32', '&:hover': { backgroundColor: '#1b5e20' } }}
-            >
-              Preview Surat
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog open={!!previewContent} onClose={() => setPreviewContent('')} maxWidth="lg" fullWidth>
-          <DialogTitle>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseForm} color="inherit">
+            Batal
+          </Button>
+          <Button
+            onClick={handleGenerateSurat}
+            variant="contained"
+            disabled={loading}
+            sx={{ backgroundColor: '#2e7d32', '&:hover': { backgroundColor: '#1b5e20' } }}
+          >
             Preview Surat
-            <IconButton
-              aria-label="close"
-              onClick={() => setPreviewContent('')}
-              sx={{ position: 'absolute', right: 8, top: 8 }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent dividers>
-            <div 
-              ref={pdfRef}
-              dangerouslySetInnerHTML={{ __html: previewContent }} 
-              style={{ 
-                padding: '20px',
-                fontFamily: "'Times New Roman', serif",
-                fontSize: '12pt',
-                lineHeight: 1.5 
-              }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setPreviewContent('')} color="inherit">
-              Kembali
-            </Button>
-            <Button
-              onClick={handleSaveSurat}
-              variant="contained"
-              startIcon={<SaveIcon />}
-              disabled={loading}
-              sx={{ backgroundColor: '#2e7d32', '&:hover': { backgroundColor: '#1b5e20' } }}
-            >  
-              Simpan
-            </Button>
-            <Button
-              onClick={handlePrint}
-              variant="contained"
-              startIcon={<PrintIcon />}
-              disabled={loading}
-              sx={{ backgroundColor: '#2e7d32', '&:hover': { backgroundColor: '#1b5e20' } }}
-            >
-              Cetak
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </StyledCard>
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog Preview */}
+      <Dialog open={!!previewContent} onClose={() => setPreviewContent('')} maxWidth="lg" fullWidth>
+        <DialogTitle>
+          Preview Surat
+          <IconButton
+            aria-label="close"
+            onClick={() => setPreviewContent('')}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <div
+            ref={pdfRef}
+            dangerouslySetInnerHTML={{ __html: previewContent }}
+            style={{
+              padding: '20px',
+              fontFamily: "'Times New Roman', serif",
+              fontSize: '12pt',
+              lineHeight: 1.5
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPreviewContent('')} color="inherit">
+            Kembali
+          </Button>
+          <Button
+            onClick={handleSaveSurat}
+            variant="contained"
+            startIcon={<SaveIcon />}
+            disabled={loading}
+            sx={{ backgroundColor: '#2e7d32', '&:hover': { backgroundColor: '#1b5e20' } }}
+          >
+            Simpan
+          </Button>
+          <Button
+            onClick={handlePrint}
+            variant="contained"
+            startIcon={<PrintIcon />}
+            disabled={loading}
+            sx={{ backgroundColor: '#2e7d32', '&:hover': { backgroundColor: '#1b5e20' } }}
+          >
+            Cetak
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

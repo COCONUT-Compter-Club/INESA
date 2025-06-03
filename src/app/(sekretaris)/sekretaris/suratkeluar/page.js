@@ -91,13 +91,14 @@ export default function SuratKeluar() {
     tanggal: null,
     perihal: '',
     ditujukan: '',
+    title: '',
     file: null,
     existingFile: '',
   });
   const [previewFile, setPreviewFile] = useState(null);
   const [existingFile, setExistingFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(false); // State untuk validasi error
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
@@ -173,7 +174,7 @@ export default function SuratKeluar() {
         });
         return;
       }
-      setFormData((prev) => ({ ...prev, file }));
+      setFormData((prev) => ({ ...prev, file, title: file.name }));
       setPreviewFile(URL.createObjectURL(file));
       setExistingFile(null);
     } else {
@@ -189,26 +190,32 @@ export default function SuratKeluar() {
     let nomor = formData.no_surat || '';
     let perihal = template;
     let ditujukan = formData.tujuan || '';
+    let title = template;
     let fileContent = content;
 
     switch (template) {
       case 'Surat Keterangan Domisili':
         perihal = 'Keterangan Domisili';
+        title = 'Surat Keterangan Domisili';
         break;
       case 'Surat Keterangan Tidak Mampu':
         perihal = 'Keterangan Tidak Mampu';
+        title = 'Surat Keterangan Tidak Mampu';
         break;
       case 'Surat Keterangan Usaha':
         perihal = 'Keterangan Usaha';
+        title = 'Surat Keterangan Usaha';
         break;
       case 'Surat Pengantar SKCK':
         perihal = 'Pengantar SKCK';
+        title = 'Surat Pengantar SKCK';
         break;
       default:
         perihal = template;
+        title = template;
     }
 
-    return { nomor, perihal, ditujukan, fileContent };
+    return { nomor, perihal, ditujukan, title, fileContent };
   };
 
   const handleSave = async (isFromPrint = false, printData = null) => {
@@ -219,6 +226,7 @@ export default function SuratKeluar() {
       !dayjs(formData.tanggal).isValid() ||
       !formData.perihal ||
       !formData.ditujukan ||
+      !formData.title ||
       (!formData.file && !formData.existingFile && !editingId)
     ) {
       setError(true);
@@ -234,7 +242,7 @@ export default function SuratKeluar() {
 
     if (isFromPrint && printData) {
       const { template, formData: printFormData, content } = printData;
-      const { nomor, perihal, ditujukan, fileContent } = mapFormDataToSurat(template, printFormData, content);
+      const { nomor, perihal, ditujukan, title, fileContent } = mapFormDataToSurat(template, printFormData, content);
 
       if (!nomor || !perihal || !ditujukan || !fileContent) {
         setSnackbar({
@@ -253,6 +261,7 @@ export default function SuratKeluar() {
       dataToSave.append('tanggal', printFormData.tanggal || dayjs().format('YYYY-MM-DD'));
       dataToSave.append('perihal', perihal);
       dataToSave.append('ditujukan', ditujukan);
+      dataToSave.append('title', title);
       dataToSave.append('file', file);
     } else {
       dataToSave = new FormData();
@@ -260,11 +269,13 @@ export default function SuratKeluar() {
       dataToSave.append('tanggal', dayjs(formData.tanggal).format('YYYY-MM-DD'));
       dataToSave.append('perihal', formData.perihal);
       dataToSave.append('ditujukan', formData.ditujukan);
+      dataToSave.append('title', formData.title);
 
       if (formData.file && typeof formData.file === 'object') {
         dataToSave.append('file', formData.file);
       } else if (formData.existingFile) {
         dataToSave.append('existing_file', formData.existingFile);
+        dataToSave.append('existing_title', formData.title);
       }
     }
 
@@ -292,6 +303,7 @@ export default function SuratKeluar() {
         tanggal: null,
         perihal: '',
         ditujukan: '',
+        title: '',
         file: null,
         existingFile: '',
       });
@@ -323,6 +335,7 @@ export default function SuratKeluar() {
       tanggal: dayjs(row.tanggal),
       perihal: row.perihal,
       ditujukan: row.ditujukan,
+      title: row.title,
       file: null,
       existingFile: row.file,
     };
@@ -353,6 +366,7 @@ export default function SuratKeluar() {
       formData.tanggal?.format('YYYY-MM-DD') !== dayjs(initialFormData.tanggal).format('YYYY-MM-DD') ||
       formData.perihal !== initialFormData.perihal ||
       formData.ditujukan !== initialFormData.ditujukan ||
+      formData.title !== initialFormData.title ||
       formData.file instanceof File
     );
   };
@@ -444,6 +458,7 @@ export default function SuratKeluar() {
                   tanggal: null,
                   perihal: '',
                   ditujukan: '',
+                  title: '',
                   file: null,
                   existingFile: '',
                 });
@@ -536,6 +551,7 @@ export default function SuratKeluar() {
             )}
           </CardContent>
 
+          {/* Dialog Form */}
           <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth="sm" fullWidth>
             <DialogTitle>{editingId ? 'Edit Surat Keluar' : 'Tambah Surat Keluar'}</DialogTitle>
             <DialogContent>
@@ -586,6 +602,16 @@ export default function SuratKeluar() {
                 error={!formData.ditujukan && error}
                 helperText={!formData.ditujukan && error ? 'Ditujukan wajib diisi' : ''}
               />
+              <TextField
+                fullWidth
+                margin="dense"
+                label="Judul File"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                error={!formData.title && error}
+                helperText={!formData.title && error ? 'Judul file wajib diisi' : ''}
+              />
               <Button variant="outlined" component="label" sx={{ mt: 2 }}>
                 Pilih File {editingId ? '(Opsional)' : '*'}
                 <input
@@ -602,14 +628,13 @@ export default function SuratKeluar() {
                     <DescriptionIcon />
                   </Avatar>
                   <Typography variant="body2">
-                    {formData.file?.name || existingFile?.split('/').pop()}
+                    {formData.file?.name || formData.title || existingFile?.split('/').pop()}
                   </Typography>
                   {(previewFile || existingFile) && (
                     <a
                       href={
                         previewFile ||
-                        `${
-                          process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id'
+                        `${process.env.NEXT_PUBLIC_BACKEND_URL || 'https://bontomanai.inesa.id'
                         }/api/sekretaris/suratkeluar/file/${encodeURIComponent(
                           existingFile.replace(/^\.\//, '').replace('static/suratkeluar/', '')
                         )}`
